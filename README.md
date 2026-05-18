@@ -1,7 +1,3 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # CaliGuide
 
 CaliGuide is a React and Express app for California immigration guidance. It includes a Vite frontend, an Express development server, and a Gemini-powered chat API at `/api/chat`.

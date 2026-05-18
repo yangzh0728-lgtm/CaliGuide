@@ -12,10 +12,13 @@ import Guide from './pages/Guide';
 import Forum from './pages/Forum';
 import Chatbot from './pages/Chatbot';
 import Profile from './pages/Profile';
+import AuthPage from './pages/AuthPage';
+import { useAuth } from './context/AuthContext';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
+  const { currentUser } = useAuth();
 
   const pageTitles: Record<Page, string> = {
     home: 'CaliGuide',
@@ -35,6 +38,10 @@ export default function App() {
       default: return <Home onNavigate={setCurrentPage} />;
     }
   };
+
+  if (!currentUser) {
+    return <AuthPage />;
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">
