@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Page } from '../types';
 import { motion } from 'motion/react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavigationProps {
   currentPage: Page;
@@ -13,11 +14,12 @@ interface NavigationProps {
 }
 
 export default function Navigation({ currentPage, onPageChange }: NavigationProps) {
+  const { t } = useLanguage();
   const tabs = [
-    { id: 'home', label: 'Home', icon: HomeIcon },
-    { id: 'forum', label: 'Forum', icon: MessageSquare },
-    { id: 'chatbot', label: 'Chatbot', icon: Bot },
-    { id: 'profile', label: 'Profile', icon: UserCircle },
+    { id: 'home', label: t('nav.home'), icon: HomeIcon },
+    { id: 'forum', label: t('nav.forum'), icon: MessageSquare },
+    { id: 'chatbot', label: t('nav.chatbot'), icon: Bot },
+    { id: 'profile', label: t('nav.profile'), icon: UserCircle },
   ] as const;
 
   return (

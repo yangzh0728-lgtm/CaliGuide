@@ -1,22 +1,34 @@
 import { Compass, Landmark, HomeIcon, Briefcase, HeartPulse, MessageSquare, Eye, ArrowRight, Users, Plus } from 'lucide-react';
 import { FORUM_POSTS } from '../constants';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Forum() {
+  const { t } = useLanguage();
   const categories = [
-    { label: 'All Topics', icon: Compass, active: true },
-    { label: '#Banking', icon: Landmark },
-    { label: '#Housing', icon: HomeIcon },
-    { label: '#Jobs', icon: Briefcase },
-    { label: '#Health', icon: HeartPulse },
+    { label: t('forum.allTopics'), icon: Compass, active: true },
+    { label: t('forum.category.banking'), icon: Landmark },
+    { label: t('forum.category.housing'), icon: HomeIcon },
+    { label: t('forum.category.jobs'), icon: Briefcase },
+    { label: t('forum.category.health'), icon: HeartPulse },
   ];
 
   const tags = ['#VisaProcessing', '#DriverLicense', '#RentalMarket', '#SocialSecurity'];
+  const localizedPosts = FORUM_POSTS.slice(1).map((post) => {
+    const key = post.id === 'post-2' ? 'forum.post2' : 'forum.post3';
+    return {
+      ...post,
+      category: t(`${key}.category`),
+      time: t(`${key}.time`),
+      title: t(`${key}.title`),
+      excerpt: t(`${key}.excerpt`),
+    };
+  });
 
   return (
     <div className="pt-20 pb-24 max-w-lg mx-auto">
       <section className="px-4 mb-8 pt-4">
-        <h2 className="text-3xl font-bold text-primary mb-2">Community Forum</h2>
-        <p className="text-sm text-on-surface-variant">Find answers and connect with others navigating California life.</p>
+        <h2 className="text-3xl font-bold text-primary mb-2">{t('forum.title')}</h2>
+        <p className="text-sm text-on-surface-variant">{t('forum.subtitle')}</p>
       </section>
 
       {/* Category Scroll */}
@@ -46,28 +58,28 @@ export default function Forum() {
               <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold">JD</div>
               <div>
                 <p className="text-sm font-bold">Julian Doe</p>
-                <p className="text-xs text-on-surface-variant">2 hours ago</p>
+                <p className="text-xs text-on-surface-variant">{t('forum.featureTime')}</p>
               </div>
             </div>
-            <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-[10px] font-bold">#Housing</span>
+            <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-[10px] font-bold">{t('forum.category.housing')}</span>
           </div>
           <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors leading-tight">
-            Best areas for new families in the San Francisco Bay Area with school access?
+            {t('forum.featureTitle')}
           </h3>
           <p className="text-sm text-on-surface-variant mb-4 line-clamp-2 leading-relaxed">
-            I'm moving from Toronto and looking for a safe neighborhood that has strong public elementary schools. Budget is around $3k-$4k for a 2-bedroom rental...
+            {t('forum.featureExcerpt')}
           </p>
           <div className="flex items-center justify-between border-t border-outline-variant pt-4">
             <div className="flex gap-4">
               <div className="flex items-center gap-1 text-xs text-on-surface-variant">
-                <MessageSquare size={16} /> 24 Comments
+                <MessageSquare size={16} /> 24 {t('forum.comments')}
               </div>
               <div className="flex items-center gap-1 text-xs text-on-surface-variant">
-                <Eye size={16} /> 1.2k views
+                <Eye size={16} /> 1.2k {t('forum.views')}
               </div>
             </div>
             <button className="text-primary font-bold text-sm flex items-center gap-1 uppercase tracking-wider">
-              Join Discussion <ArrowRight size={16} />
+              {t('forum.join')} <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -75,17 +87,17 @@ export default function Forum() {
         {/* Stats Card */}
         <div className="bg-primary text-white rounded-2xl p-6 flex flex-col items-center text-center">
           <Users size={40} className="mb-3" />
-          <h4 className="text-xl font-bold">Active Community</h4>
-          <p className="text-xs opacity-90 mt-1">12,450 New Residents helping each other this month.</p>
+          <h4 className="text-xl font-bold">{t('forum.active')}</h4>
+          <p className="text-xs opacity-90 mt-1">{t('forum.activeText')}</p>
           <div className="mt-4 w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
             <div className="bg-secondary-container h-full w-3/4"></div>
           </div>
-          <p className="text-[10px] font-bold mt-2 uppercase tracking-tight">Goal: 15,000 members</p>
+          <p className="text-[10px] font-bold mt-2 uppercase tracking-tight">{t('forum.goal')}</p>
         </div>
 
         {/* Tags */}
         <div className="bg-white border border-outline-variant rounded-2xl p-5">
-          <h4 className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-4">Trending Tags</h4>
+          <h4 className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-4">{t('forum.tags')}</h4>
           <div className="flex flex-wrap gap-2">
             {tags.map((tag, i) => (
               <span key={i} className="bg-surface-container-high px-3 py-1.5 rounded-lg text-xs font-semibold text-on-surface">
@@ -103,28 +115,28 @@ export default function Forum() {
             className="w-full h-32 object-cover"
           />
           <div className="p-5 text-center">
-            <h4 className="font-bold text-on-surface">New to California?</h4>
-            <p className="text-xs text-on-surface-variant mt-1">Check out our community-verified 'First 30 Days' guide.</p>
+            <h4 className="font-bold text-on-surface">{t('forum.newToCalifornia')}</h4>
+            <p className="text-xs text-on-surface-variant mt-1">{t('forum.first30')}</p>
             <button className="mt-4 w-full bg-secondary-container text-on-secondary-container py-3 rounded-xl font-bold hover:bg-secondary-container/90 transition-colors">
-              Read Guide
+              {t('forum.readGuide')}
             </button>
           </div>
         </div>
 
         {/* Rest of the posts */}
-        {FORUM_POSTS.slice(1).map((post) => (
+        {localizedPosts.map((post) => (
           <div key={post.id} className="bg-white border border-outline-variant rounded-2xl p-5 flex flex-col md:flex-row gap-4 hover:bg-surface-container-low transition-colors cursor-pointer">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="bg-surface-container-high text-on-surface-variant px-2 py-1 rounded text-[10px] font-bold">{post.category}</span>
-                <p className="text-xs text-on-surface-variant">Posted by <span className="font-bold">{post.author}</span> • {post.time}</p>
+                <p className="text-xs text-on-surface-variant">{t('forum.postedBy')} <span className="font-bold">{post.author}</span> • {post.time}</p>
               </div>
               <h4 className="text-lg font-bold text-on-surface leading-tight">{post.title}</h4>
               <p className="text-xs text-on-surface-variant mt-2 line-clamp-1">{post.excerpt}</p>
             </div>
             <div className="flex md:flex-col items-center justify-center gap-1 md:border-l border-outline-variant md:pl-5 min-w-[60px]">
               <span className="text-2xl font-bold text-primary">{post.comments}</span>
-              <span className="text-[10px] font-bold text-on-surface-variant uppercase">Replies</span>
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase">{t('forum.replies')}</span>
             </div>
           </div>
         ))}

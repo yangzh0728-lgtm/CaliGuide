@@ -1,31 +1,51 @@
 import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare } from 'lucide-react';
 import { Page } from '../types';
 import { RECOMMENDED_GUIDES } from '../constants';
+import { useLanguage } from '../context/LanguageContext';
 
 interface HomeProps {
   onNavigate: (page: Page) => void;
 }
 
 export default function Home({ onNavigate }: HomeProps) {
+  const { t } = useLanguage();
   const categories = [
-    { id: 'dmv', icon: Car, label: 'DMV', color: 'bg-blue-100 text-blue-700' },
-    { id: 'banking', icon: Landmark, label: 'Banking', color: 'bg-amber-100 text-amber-700' },
-    { id: 'housing', icon: HomeIcon, label: 'Housing', color: 'bg-green-100 text-green-700' },
-    { id: 'health', icon: HeartPulse, label: 'Health', color: 'bg-red-100 text-red-700' },
+    { id: 'dmv', icon: Car, label: t('home.dmv'), color: 'bg-blue-100 text-blue-700' },
+    { id: 'banking', icon: Landmark, label: t('home.banking'), color: 'bg-amber-100 text-amber-700' },
+    { id: 'housing', icon: HomeIcon, label: t('home.housing'), color: 'bg-green-100 text-green-700' },
+    { id: 'health', icon: HeartPulse, label: t('home.health'), color: 'bg-red-100 text-red-700' },
   ];
+
+  const recommendedGuides = RECOMMENDED_GUIDES.map((guide) => {
+    if (guide.id === 'guide-1') {
+      return {
+        ...guide,
+        title: t('home.guide1.title'),
+        category: t('home.guide1.category'),
+        readTime: t('home.guide1.readTime'),
+      };
+    }
+
+    return {
+      ...guide,
+      title: t('home.guide2.title'),
+      category: t('home.guide2.category'),
+      readTime: t('home.guide2.readTime'),
+    };
+  });
 
   const trendingQuestions = [
     {
       id: 'q1',
-      text: '"How long is the current wait for an SSN appointment in San Jose?"',
+      text: t('home.trending1.text'),
       replies: 24,
-      time: '2h ago'
+      time: t('home.trending1.time')
     },
     {
       id: 'q2',
-      text: '"Which bank accounts are easiest to open with only a passport?"',
+      text: t('home.trending2.text'),
       replies: 11,
-      time: '5h ago'
+      time: t('home.trending2.time')
     }
   ];
 
@@ -36,7 +56,7 @@ export default function Home({ onNavigate }: HomeProps) {
         <div className="relative">
           <input 
             type="text" 
-            placeholder="Search for DMV, Visas, or Healthcare..."
+            placeholder={t('home.search')}
             className="w-full h-14 pl-12 pr-4 bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm"
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
@@ -60,11 +80,11 @@ export default function Home({ onNavigate }: HomeProps) {
       {/* Recommended Section */}
       <section className="mb-8">
         <div className="px-4 flex justify-between items-end mb-4">
-          <h2 className="text-xl font-bold text-on-surface">Recommended for You</h2>
-          <button className="text-sm font-semibold text-primary">See all</button>
+          <h2 className="text-xl font-bold text-on-surface">{t('home.recommended')}</h2>
+          <button className="text-sm font-semibold text-primary">{t('home.seeAll')}</button>
         </div>
         <div className="flex overflow-x-auto gap-4 px-4 pb-2 no-scrollbar">
-          {RECOMMENDED_GUIDES.map((guide) => (
+          {recommendedGuides.map((guide) => (
             <div 
               key={guide.id} 
               onClick={() => guide.id === 'guide-1' && onNavigate('guide')}
@@ -86,7 +106,7 @@ export default function Home({ onNavigate }: HomeProps) {
 
       {/* Trending Questions */}
       <section className="px-4 mb-8">
-        <h2 className="text-xl font-bold text-on-surface mb-4">Trending Questions</h2>
+        <h2 className="text-xl font-bold text-on-surface mb-4">{t('home.trending')}</h2>
         <div className="flex flex-col gap-3">
           {trendingQuestions.map((q) => (
             <div 
@@ -98,7 +118,7 @@ export default function Home({ onNavigate }: HomeProps) {
                 <h4 className="font-semibold text-on-surface leading-tight">{q.text}</h4>
                 <div className="flex gap-4 text-xs text-on-surface-variant">
                   <span className="flex items-center gap-1">
-                    <MessageSquare size={14} /> {q.replies} replies
+                    <MessageSquare size={14} /> {q.replies} {t('home.replies')}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock size={14} /> {q.time}

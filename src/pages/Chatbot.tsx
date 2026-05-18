@@ -2,12 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { Bot, User, Send, PlusCircle } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Chatbot() {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'bot',
-      content: 'Hello! I am CaliBot, your guide through the immigration process. How can I help you navigate your journey today?',
+      content: t('chatbot.intro'),
       timestamp: '10:02 AM'
     }
   ]);
@@ -20,6 +22,16 @@ export default function Chatbot() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    setMessages((currentMessages) => {
+      if (currentMessages.length !== 1 || currentMessages[0].role !== 'bot') {
+        return currentMessages;
+      }
+
+      return [{ ...currentMessages[0], content: t('chatbot.intro') }];
+    });
+  }, [t]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -45,7 +57,7 @@ export default function Chatbot() {
       
       const botMessage: ChatMessage = {
         role: 'bot',
-        content: data.text || "I'm sorry, I encountered an error. Please try again.",
+        content: data.text || t('chatbot.error'),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -58,10 +70,10 @@ export default function Chatbot() {
   };
 
   const suggestions = [
-    "Alternative Visas",
-    "Preparation Checklist",
-    "Current Wait Times",
-    "REAL ID Info"
+    t('chatbot.suggestion.visas'),
+    t('chatbot.suggestion.checklist'),
+    t('chatbot.suggestion.wait'),
+    t('chatbot.suggestion.realId'),
   ];
 
   return (
@@ -73,10 +85,10 @@ export default function Chatbot() {
         </div>
         <h1 className="text-2xl font-bold text-on-surface">CaliBot</h1>
         <p className="text-sm text-on-surface-variant text-center max-w-xs mt-2 px-4 leading-relaxed">
-          Your professional immigration assistant. I can help with visa status, document preparation, and legal guidance.
+          {t('chatbot.intro')}
         </p>
         <div className="mt-4 px-4 py-1.5 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-widest">
-          Online & Ready
+          {t('chatbot.status')}
         </div>
       </div>
 
@@ -150,7 +162,7 @@ export default function Chatbot() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               className="flex-grow bg-transparent border-none focus:ring-0 text-sm py-2 px-1" 
-              placeholder="Ask CaliBot anything..." 
+              placeholder={t('chatbot.placeholder')} 
               type="text"
             />
             <button 

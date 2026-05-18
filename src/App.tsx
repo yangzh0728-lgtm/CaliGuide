@@ -14,18 +14,20 @@ import Chatbot from './pages/Chatbot';
 import Profile from './pages/Profile';
 import AuthPage from './pages/AuthPage';
 import { useAuth } from './context/AuthContext';
+import { useLanguage } from './context/LanguageContext';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
 
   const pageTitles: Record<Page, string> = {
-    home: 'CaliGuide',
-    guide: 'CaliGuide',
-    forum: 'CaliGuide',
-    chatbot: 'CaliGuide',
-    profile: 'CaliGuide',
+    home: t('app.title'),
+    guide: t('app.title'),
+    forum: t('app.title'),
+    chatbot: t('app.title'),
+    profile: t('app.title'),
   };
 
   const renderPage = () => {

@@ -1,9 +1,11 @@
 import { FormEvent, useState } from "react";
 import { LockKeyhole, LogIn, Mail, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,12 +37,12 @@ export default function AuthPage() {
             {isRegistering ? <UserPlus size={28} /> : <LogIn size={28} />}
           </div>
           <h1 className="text-3xl font-bold text-on-surface">
-            {isRegistering ? "Create your CaliGuide account" : "Welcome back"}
+            {isRegistering ? t("auth.createAccount") : t("auth.welcome")}
           </h1>
           <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">
             {isRegistering
-              ? "Save guides, manage documents, and keep your immigration profile close at hand."
-              : "Sign in to continue managing your guides, profile, and saved resources."}
+              ? t("auth.registerCopy")
+              : t("auth.loginCopy")}
           </p>
         </section>
 
@@ -56,7 +58,7 @@ export default function AuthPage() {
                 !isRegistering ? "bg-white text-primary shadow-sm" : "text-on-surface-variant"
               }`}
             >
-              Login
+              {t("auth.login")}
             </button>
             <button
               type="button"
@@ -68,27 +70,27 @@ export default function AuthPage() {
                 isRegistering ? "bg-white text-primary shadow-sm" : "text-on-surface-variant"
               }`}
             >
-              Register
+              {t("auth.register")}
             </button>
           </div>
 
           {isRegistering && (
             <label className="block">
-              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Name</span>
+              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.name")}</span>
               <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
                 <UserPlus size={18} className="text-on-surface-variant" />
                 <input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   className="w-full py-3 bg-transparent outline-none text-sm"
-                  placeholder="Elena Rodriguez"
+                  placeholder={t("auth.namePlaceholder")}
                 />
               </div>
             </label>
           )}
 
           <label className="block">
-            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Email</span>
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.email")}</span>
             <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
               <Mail size={18} className="text-on-surface-variant" />
               <input
@@ -96,13 +98,13 @@ export default function AuthPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="w-full py-3 bg-transparent outline-none text-sm"
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
               />
             </div>
           </label>
 
           <label className="block">
-            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Password</span>
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.password")}</span>
             <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
               <LockKeyhole size={18} className="text-on-surface-variant" />
               <input
@@ -110,7 +112,7 @@ export default function AuthPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="w-full py-3 bg-transparent outline-none text-sm"
-                placeholder="At least 6 characters"
+                placeholder={t("auth.passwordPlaceholder")}
               />
             </div>
           </label>
@@ -122,7 +124,7 @@ export default function AuthPage() {
           )}
 
           <button className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:opacity-90 transition-opacity">
-            {isRegistering ? "Create account" : "Login"}
+            {isRegistering ? t("auth.submitRegister") : t("auth.login")}
           </button>
         </form>
       </main>
