@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   Bookmark,
   Camera,
@@ -12,6 +12,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { readAvatarFile } from "../lib/avatarUpload";
 
 export default function Profile() {
   const { currentUser, logout, updateAccount, updatePassword } = useAuth();
@@ -75,6 +76,25 @@ export default function Profile() {
     }
   };
 
+  const handleAvatarUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setProfileMessage("");
+
+    try {
+      const uploadedAvatarUrl = await readAvatarFile(file);
+      setAvatarUrl(uploadedAvatarUrl);
+      setProfileMessage("Profile picture ready to save");
+    } catch (error) {
+      setProfileMessage(error instanceof Error ? error.message : "Unable to upload profile picture");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
   const handlePasswordSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPasswordMessage("");
@@ -98,9 +118,15 @@ export default function Profile() {
             className="w-28 h-28 rounded-full border-4 border-white shadow-xl object-cover bg-surface-container-high"
             src={avatarUrl}
           />
-          <div className="absolute bottom-1 right-1 bg-primary text-white rounded-full p-2 border-2 border-white flex items-center justify-center shadow-md">
+          <label className="absolute bottom-1 right-1 bg-primary text-white rounded-full p-2 border-2 border-white flex items-center justify-center shadow-md cursor-pointer hover:scale-110 transition-transform">
             <Camera size={16} />
-          </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="sr-only"
+            />
+          </label>
         </div>
         <h2 className="text-2xl font-bold text-on-surface">{currentUser.name}</h2>
         <p className="text-sm font-medium text-on-surface-variant mt-1">{currentUser.email}</p>
@@ -135,6 +161,16 @@ export default function Profile() {
             value={avatarUrl}
             onChange={(event) => setAvatarUrl(event.target.value)}
             className="mt-2 w-full border border-outline-variant rounded-xl px-3 py-3 text-sm outline-none focus:border-primary"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2">
+          <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Upload profile picture</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarUpload}
+            className="block w-full text-sm text-on-surface-variant file:mr-4 file:rounded-xl file:border-0 file:bg-secondary-container file:px-4 file:py-3 file:text-sm file:font-bold file:text-on-secondary-container hover:file:opacity-90"
           />
         </label>
 

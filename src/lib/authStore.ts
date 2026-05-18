@@ -15,8 +15,9 @@ export interface AuthState {
   currentUser: AuthUser | null;
 }
 
-const DEFAULT_AVATAR =
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200&h=200";
+const AVATAR_BACKGROUNDS = ["#ffb618", "#164686", "#8bd3dd", "#f582ae", "#b8e986"];
+const AVATAR_SHIRTS = ["#002f65", "#7d5700", "#434750", "#ba1a1a", "#003160"];
+const AVATAR_SKINS = ["#f7c59f", "#d99b72", "#8d5524", "#ffdbac", "#c68642"];
 
 export const AUTH_STORAGE_KEY = "caliguide-auth-state";
 
@@ -53,7 +54,7 @@ export function registerUser(
     name,
     email,
     password,
-    avatarUrl: DEFAULT_AVATAR,
+    avatarUrl: createRandomAvatar(name),
     memberSince: new Date().toLocaleString("en-US", {
       month: "long",
       year: "numeric",
@@ -171,6 +172,37 @@ export function saveAuthState(storage: Storage, state: AuthState) {
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
+}
+
+function createRandomAvatar(name: string) {
+  const background = randomItem(AVATAR_BACKGROUNDS);
+  const shirt = randomItem(AVATAR_SHIRTS);
+  const skin = randomItem(AVATAR_SKINS);
+  const initial = name.trim().charAt(0).toUpperCase() || "C";
+  const smile = Math.random() > 0.5 ? "M78 90 Q100 108 122 90" : "M80 94 Q100 102 120 94";
+  const hair = Math.random() > 0.5
+    ? '<path d="M62 70 Q100 28 138 70 Q128 44 100 42 Q72 44 62 70Z" fill="#2f241d"/>'
+    : '<path d="M58 76 Q64 38 100 36 Q136 38 142 76 Q121 54 100 56 Q79 54 58 76Z" fill="#2f241d"/>';
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+      <rect width="200" height="200" rx="100" fill="${background}"/>
+      <circle cx="100" cy="82" r="42" fill="${skin}"/>
+      ${hair}
+      <circle cx="84" cy="82" r="5" fill="#141d23"/>
+      <circle cx="116" cy="82" r="5" fill="#141d23"/>
+      <path d="${smile}" fill="none" stroke="#141d23" stroke-width="5" stroke-linecap="round"/>
+      <path d="M45 178 Q100 126 155 178" fill="${shirt}"/>
+      <circle cx="100" cy="144" r="24" fill="#ffffff" opacity="0.95"/>
+      <text x="100" y="154" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" fill="${shirt}">${initial}</text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+function randomItem(items: string[]) {
+  return items[Math.floor(Math.random() * items.length)];
 }
 
 function requireCurrentUser(state: AuthState) {

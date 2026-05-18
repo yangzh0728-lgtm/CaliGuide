@@ -26,6 +26,32 @@ describe("authStore", () => {
     expect(signedIn.currentUser?.email).toBe("maya@example.com");
   });
 
+  test("assigns a generated cartoon avatar instead of a real photo", () => {
+    const registered = registerUser(createAuthState(), {
+      name: "Maya Chen",
+      email: "maya@example.com",
+      password: "secure123",
+    });
+
+    expect(registered.currentUser?.avatarUrl).toStartWith("data:image/svg+xml");
+    expect(registered.currentUser?.avatarUrl).not.toContain("images.unsplash.com");
+  });
+
+  test("incorrect login password reports an error without signing in", () => {
+    const registered = registerUser(createAuthState(), {
+      name: "Maya Chen",
+      email: "maya@example.com",
+      password: "secure123",
+    });
+
+    expect(() =>
+      signInUser(
+        { ...registered, currentUser: null },
+        { email: "maya@example.com", password: "wrong-password" },
+      ),
+    ).toThrow("Email or password is incorrect");
+  });
+
   test("updates the signed-in user's name and avatar", () => {
     const state = registerUser(createAuthState(), {
       name: "Maya Chen",

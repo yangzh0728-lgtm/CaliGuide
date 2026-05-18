@@ -38,13 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       currentUser: authState.currentUser,
-      register: (input) => setAuthState((state) => registerUser(state, input)),
-      login: (input) => setAuthState((state) => signInUser(state, input)),
-      logout: () => setAuthState((state) => signOutUser(state)),
-      updateAccount: (input) => setAuthState((state) => updateProfile(state, input)),
-      updatePassword: (input) => setAuthState((state) => changePassword(state, input)),
+      register: (input) => setAuthState(registerUser(authState, input)),
+      login: (input) => setAuthState(signInUser(authState, input)),
+      logout: () => setAuthState(signOutUser(authState)),
+      updateAccount: (input) => setAuthState(updateProfile(authState, input)),
+      updatePassword: (input) => setAuthState(changePassword(authState, input)),
     }),
-    [authState.currentUser],
+    [authState],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
