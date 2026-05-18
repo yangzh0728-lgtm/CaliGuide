@@ -1,0 +1,168 @@
+import { useState, useRef, useEffect } from 'react';
+import { Bot, User, Send, PlusCircle } from 'lucide-react';
+import { ChatMessage } from '../types';
+import { motion, AnimatePresence } from 'motion/react';
+
+export default function Chatbot() {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: 'bot',
+      content: 'Hello! I am CaliBot, your guide through the immigration process. How can I help you navigate your journey today?',
+      timestamp: '10:02 AM'
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: input,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input })
+      });
+
+      const data = await response.json();
+      
+      const botMessage: ChatMessage = {
+        role: 'bot',
+        content: data.text || "I'm sorry, I encountered an error. Please try again.",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Chat Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const suggestions = [
+    "Alternative Visas",
+    "Preparation Checklist",
+    "Current Wait Times",
+    "REAL ID Info"
+  ];
+
+  return (
+    <div className="pt-20 pb-40 max-w-lg mx-auto flex flex-col h-[100dvh]">
+      {/* Bot Intro */}
+      <div className="flex flex-col items-center justify-center mb-8 shrink-0">
+        <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-3 shadow-md">
+          <Bot size={32} className="text-white" fill="currentColor" />
+        </div>
+        <h1 className="text-2xl font-bold text-on-surface">CaliBot</h1>
+        <p className="text-sm text-on-surface-variant text-center max-w-xs mt-2 px-4 leading-relaxed">
+          Your professional immigration assistant. I can help with visa status, document preparation, and legal guidance.
+        </p>
+        <div className="mt-4 px-4 py-1.5 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-widest">
+          Online & Ready
+        </div>
+      </div>
+
+      {/* Chat Area */}
+      <div 
+        ref={scrollRef}
+        className="flex-grow overflow-y-auto px-4 space-y-6 flex flex-col no-scrollbar"
+      >
+        {messages.map((msg, i) => (
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            key={i} 
+            className={`flex items-start gap-3 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-surface-container-high text-primary'}`}>
+              {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+            </div>
+            <div className={`p-4 rounded-2xl shadow-sm border ${
+              msg.role === 'user' 
+              ? 'bg-primary text-white rounded-tr-none border-primary' 
+              : 'bg-white text-on-surface rounded-tl-none border-outline-variant'
+            }`}>
+              <p className="text-sm leading-relaxed">{msg.content}</p>
+              <span className={`text-[10px] mt-2 block ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-on-surface-variant'}`}>
+                {msg.timestamp}
+              </span>
+            </div>
+          </motion.div>
+        ))}
+        {isLoading && (
+          <div className="flex items-start gap-3 max-w-[85%]">
+            <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0 animate-pulse">
+              <Bot size={16} className="text-primary" />
+            </div>
+            <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-outline-variant shadow-sm">
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce" />
+                <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.4s]" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Suggestion Chips */}
+        {messages.length < 3 && !isLoading && (
+          <div className="flex flex-wrap gap-2 pt-2">
+            {suggestions.map((s, i) => (
+              <button 
+                key={i}
+                onClick={() => setInput(s)}
+                className="bg-white border border-primary text-primary px-4 py-2 rounded-full text-xs font-bold hover:bg-primary-container hover:text-white transition-all shadow-sm"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Input Area */}
+      <div className="fixed bottom-24 left-0 w-full px-4 z-40 bg-gradient-to-t from-background via-background/80 to-transparent pt-8">
+        <div className="max-w-lg mx-auto">
+          <div className="bg-white border border-outline-variant rounded-2xl p-2.5 flex items-center gap-2 shadow-xl mb-2">
+            <button className="text-on-surface-variant p-2 hover:bg-surface-container-high rounded-full transition-colors">
+              <PlusCircle size={24} />
+            </button>
+            <input 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              className="flex-grow bg-transparent border-none focus:ring-0 text-sm py-2 px-1" 
+              placeholder="Ask CaliBot anything..." 
+              type="text"
+            />
+            <button 
+              onClick={handleSend}
+              disabled={isLoading || !input.trim()}
+              className="bg-primary text-white w-10 h-10 flex items-center justify-center rounded-full hover:opacity-90 transition-all active:scale-95 disabled:opacity-50"
+            >
+              <Send size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

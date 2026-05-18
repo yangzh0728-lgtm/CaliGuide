@@ -1,0 +1,8 @@
+{
+  "name": "CaliGuide",
+  "description": "Your professional immigration assistant and resource guide for navigating life in California.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
