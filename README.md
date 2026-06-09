@@ -1,6 +1,6 @@
 # CaliGuide
 
-CaliGuide is a React and Express app for California immigration guidance. It includes a Vite frontend, an Express development server, and a Gemini-powered chat API at `/api/chat`.
+CaliGuide is a React and Express app for California immigration guidance. It includes a Vite frontend, an Express development server, and an OpenAI SDK-powered chat API at `/api/chat`.
 
 View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c738a08b
 
@@ -12,13 +12,13 @@ View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c
 - TypeScript
 - Tailwind CSS
 - Bun for dependency management and scripts
-- Gemini via `@google/genai`
+- OpenAI SDK via `openai`
 
 ## Prerequisites
 
 - Bun
 - Node.js, used by the `tsx` development runner and the production server
-- A Gemini API key for chat responses
+- Qianfan-compatible `API_KEY` and `APP_ID` values for chat responses
 
 ## Run Locally
 
@@ -34,7 +34,9 @@ View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c
    cp .env.example .env
    ```
 
-3. Set `GEMINI_API_KEY` in `.env`.
+3. Set `API_KEY` and `APP_ID` in `.env`.
+
+   `CHAT_MODEL` is optional. Leave it blank to use the server default, or set it to a model such as `deepseek-v4-flash`.
 
    The app will still start without a key, but `/api/chat` returns an error until the key is configured.
 

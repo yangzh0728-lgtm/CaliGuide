@@ -35,35 +35,100 @@ export default function Chatbot() {
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
+    const messageText = input.trim();
 
     const userMessage: ChatMessage = {
       role: 'user',
-      content: input,
+      content: messageText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const botMessage: ChatMessage = {
+      role: 'bot',
+      content: '',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, userMessage, botMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
+      const requestStartedAt = performance.now();
+      let loggedFirstChunk = false;
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ message: messageText })
       });
 
-      const data = await response.json();
-      
-      const botMessage: ChatMessage = {
-        role: 'bot',
-        content: data.text || t('chatbot.error'),
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || t('chatbot.error'));
+      }
 
-      setMessages(prev => [...prev, botMessage]);
+      if (!response.body) {
+        const text = await response.text();
+        setMessages(prev => prev.map((message, index) => (
+          index === prev.length - 1 && message.role === 'bot'
+            ? { ...message, content: text || t('chatbot.error') }
+            : message
+        )));
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let streamedText = '';
+      let sawFirstChunk = false;
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        if (!chunk) {
+          continue;
+        }
+
+        if (!sawFirstChunk) {
+          sawFirstChunk = true;
+          if (!loggedFirstChunk) {
+            loggedFirstChunk = true;
+            console.log(`first time we received first chunk: ${Math.round(performance.now() - requestStartedAt)}ms`);
+          }
+          setIsLoading(false);
+        }
+
+        streamedText += chunk;
+        setMessages(prev => prev.map((message, index) => (
+          index === prev.length - 1 && message.role === 'bot'
+            ? { ...message, content: streamedText }
+            : message
+        )));
+      }
+
+      const remainingText = decoder.decode();
+      if (remainingText) {
+        streamedText += remainingText;
+      }
+
+      if (!streamedText) {
+        setMessages(prev => prev.map((message, index) => (
+          index === prev.length - 1 && message.role === 'bot'
+            ? { ...message, content: t('chatbot.error') }
+            : message
+        )));
+      }
     } catch (error) {
       console.error("Chat Error:", error);
+      setMessages(prev => prev.map((message, index) => (
+        index === prev.length - 1 && message.role === 'bot'
+          ? { ...message, content: t('chatbot.error') }
+          : message
+      )));
     } finally {
       setIsLoading(false);
     }
@@ -97,29 +162,35 @@ export default function Chatbot() {
         ref={scrollRef}
         className="flex-grow overflow-y-auto px-4 space-y-6 flex flex-col no-scrollbar"
       >
-        {messages.map((msg, i) => (
-          <motion.div 
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            key={i} 
-            className={`flex items-start gap-3 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
-          >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-surface-container-high text-primary'}`}>
-              {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
-            </div>
-            <div className={`p-4 rounded-2xl shadow-sm border ${
-              msg.role === 'user' 
-              ? 'bg-primary text-white rounded-tr-none border-primary' 
-              : 'bg-white text-on-surface rounded-tl-none border-outline-variant'
-            }`}>
-              <p className="text-sm leading-relaxed">{msg.content}</p>
-              <span className={`text-[10px] mt-2 block ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-on-surface-variant'}`}>
-                {msg.timestamp}
-              </span>
-            </div>
-          </motion.div>
-        ))}
-        {isLoading && (
+        {messages.map((msg, i) => {
+          if (!msg.content && msg.role === 'bot') {
+            return null;
+          }
+
+          return (
+            <motion.div 
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              key={i} 
+              className={`flex items-start gap-3 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-surface-container-high text-primary'}`}>
+                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+              </div>
+              <div className={`p-4 rounded-2xl shadow-sm border ${
+                msg.role === 'user' 
+                ? 'bg-primary text-white rounded-tr-none border-primary' 
+                : 'bg-white text-on-surface rounded-tl-none border-outline-variant'
+              }`}>
+                <p className="text-sm leading-relaxed">{msg.content}</p>
+                <span className={`text-[10px] mt-2 block ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-on-surface-variant'}`}>
+                  {msg.timestamp}
+                </span>
+              </div>
+            </motion.div>
+          );
+        })}
+        {isLoading && !messages[messages.length - 1]?.content && (
           <div className="flex items-start gap-3 max-w-[85%]">
             <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0 animate-pulse">
               <Bot size={16} className="text-primary" />
