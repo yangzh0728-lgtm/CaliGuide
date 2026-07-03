@@ -6,6 +6,8 @@ import {
   createAuthState,
   loadAuthState,
   registerUser,
+  removeSavedGuide,
+  saveGuide,
   saveAuthState,
   signInUser,
   signOutUser,
@@ -19,6 +21,9 @@ interface AuthContextValue {
   logout: () => void;
   updateAccount: (input: { name: string; avatarUrl: string }) => void;
   updatePassword: (input: { currentPassword: string; newPassword: string }) => void;
+  saveGuide: (guideId: string) => void;
+  removeSavedGuide: (guideId: string) => void;
+  isGuideSaved: (guideId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -43,6 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout: () => setAuthState(signOutUser(authState)),
       updateAccount: (input) => setAuthState(updateProfile(authState, input)),
       updatePassword: (input) => setAuthState(changePassword(authState, input)),
+      saveGuide: (guideId) => setAuthState(saveGuide(authState, guideId)),
+      removeSavedGuide: (guideId) => setAuthState(removeSavedGuide(authState, guideId)),
+      isGuideSaved: (guideId) => authState.currentUser?.savedGuideIds.includes(guideId) ?? false,
     }),
     [authState],
   );

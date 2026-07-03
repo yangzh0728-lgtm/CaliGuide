@@ -1,19 +1,18 @@
 import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare } from 'lucide-react';
-import { Page } from '../types';
 import { RECOMMENDED_GUIDES } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
 
 interface HomeProps {
-  onNavigate: (page: Page) => void;
+  onOpenBlog: (articleId: string) => void;
 }
 
-export default function Home({ onNavigate }: HomeProps) {
+export default function Home({ onOpenBlog }: HomeProps) {
   const { t } = useLanguage();
   const categories = [
-    { id: 'dmv', icon: Car, label: t('home.dmv'), color: 'bg-blue-100 text-blue-700' },
-    { id: 'banking', icon: Landmark, label: t('home.banking'), color: 'bg-amber-100 text-amber-700' },
-    { id: 'housing', icon: HomeIcon, label: t('home.housing'), color: 'bg-green-100 text-green-700' },
-    { id: 'health', icon: HeartPulse, label: t('home.health'), color: 'bg-red-100 text-red-700' },
+    { id: 'category-dmv', icon: Car, label: t('home.dmv'), color: 'bg-blue-100 text-blue-700' },
+    { id: 'category-banking', icon: Landmark, label: t('home.banking'), color: 'bg-amber-100 text-amber-700' },
+    { id: 'category-housing', icon: HomeIcon, label: t('home.housing'), color: 'bg-green-100 text-green-700' },
+    { id: 'category-health', icon: HeartPulse, label: t('home.health'), color: 'bg-red-100 text-red-700' },
   ];
 
   const recommendedGuides = RECOMMENDED_GUIDES.map((guide) => {
@@ -36,13 +35,13 @@ export default function Home({ onNavigate }: HomeProps) {
 
   const trendingQuestions = [
     {
-      id: 'q1',
+      id: 'trending-ssn',
       text: t('home.trending1.text'),
       replies: 24,
       time: t('home.trending1.time')
     },
     {
-      id: 'q2',
+      id: 'trending-banking',
       text: t('home.trending2.text'),
       replies: 11,
       time: t('home.trending2.time')
@@ -67,7 +66,7 @@ export default function Home({ onNavigate }: HomeProps) {
       <section className="px-4 mb-8">
         <div className="grid grid-cols-4 gap-4">
           {categories.map((cat) => (
-            <button key={cat.id} className="flex flex-col items-center gap-2 group">
+            <button key={cat.id} onClick={() => onOpenBlog(cat.id)} className="flex flex-col items-center gap-2 group">
               <div className="w-14 h-14 bg-surface-container-high rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
                 <cat.icon size={24} />
               </div>
@@ -85,10 +84,10 @@ export default function Home({ onNavigate }: HomeProps) {
         </div>
         <div className="flex overflow-x-auto gap-4 px-4 pb-2 no-scrollbar">
           {recommendedGuides.map((guide) => (
-            <div 
+            <button
               key={guide.id} 
-              onClick={() => guide.id === 'guide-1' && onNavigate('guide')}
-              className="min-w-[280px] bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => onOpenBlog(guide.id)}
+              className="min-w-[280px] bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow text-left"
             >
               <img src={guide.image} alt={guide.title} className="w-full h-40 object-cover" />
               <div className="p-4 flex flex-col gap-1">
@@ -99,7 +98,7 @@ export default function Home({ onNavigate }: HomeProps) {
                   <span className="text-xs">{guide.readTime}</span>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -109,10 +108,10 @@ export default function Home({ onNavigate }: HomeProps) {
         <h2 className="text-xl font-bold text-on-surface mb-4">{t('home.trending')}</h2>
         <div className="flex flex-col gap-3">
           {trendingQuestions.map((q) => (
-            <div 
+            <button 
               key={q.id}
-              onClick={() => onNavigate('forum')}
-              className="bg-surface-container-low p-4 rounded-xl border border-outline-variant hover:border-primary transition-all cursor-pointer flex justify-between items-start"
+              onClick={() => onOpenBlog(q.id)}
+              className="bg-surface-container-low p-4 rounded-xl border border-outline-variant hover:border-primary transition-all cursor-pointer flex justify-between items-start text-left"
             >
               <div className="flex flex-col gap-2">
                 <h4 className="font-semibold text-on-surface leading-tight">{q.text}</h4>
@@ -126,7 +125,7 @@ export default function Home({ onNavigate }: HomeProps) {
                 </div>
               </div>
               <ChevronRight size={20} className="text-on-surface-variant mt-1" />
-            </div>
+            </button>
           ))}
         </div>
       </section>

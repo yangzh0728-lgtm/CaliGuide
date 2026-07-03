@@ -4,6 +4,7 @@ export interface AuthUser {
   email: string;
   avatarUrl: string;
   memberSince: string;
+  savedGuideIds: string[];
 }
 
 interface StoredUser extends AuthUser {
@@ -59,6 +60,7 @@ export function registerUser(
       month: "long",
       year: "numeric",
     }),
+    savedGuideIds: [],
   };
 
   return {
@@ -123,6 +125,55 @@ export function updateProfile(
   };
 }
 
+export function saveGuide(state: AuthState, guideId: string): AuthState {
+  const currentUser = requireCurrentUser(state);
+  const normalizedGuideId = guideId.trim();
+
+  if (!normalizedGuideId) {
+    throw new Error("Guide is required");
+  }
+
+  const users = state.users.map((user) => {
+    if (user.id !== currentUser.id || user.savedGuideIds.includes(normalizedGuideId)) {
+      return user;
+    }
+
+    return {
+      ...user,
+      savedGuideIds: [...user.savedGuideIds, normalizedGuideId],
+    };
+  });
+  const updatedUser = users.find((user) => user.id === currentUser.id);
+
+  if (!updatedUser) {
+    throw new Error("User not found");
+  }
+
+  return {
+    users,
+    currentUser: publicUser(updatedUser),
+  };
+}
+
+export function removeSavedGuide(state: AuthState, guideId: string): AuthState {
+  const currentUser = requireCurrentUser(state);
+  const users = state.users.map((user) =>
+    user.id === currentUser.id
+      ? { ...user, savedGuideIds: user.savedGuideIds.filter((savedGuideId) => savedGuideId !== guideId) }
+      : user,
+  );
+  const updatedUser = users.find((user) => user.id === currentUser.id);
+
+  if (!updatedUser) {
+    throw new Error("User not found");
+  }
+
+  return {
+    users,
+    currentUser: publicUser(updatedUser),
+  };
+}
+
 export function changePassword(
   state: AuthState,
   input: { currentPassword: string; newPassword: string },
@@ -160,7 +211,15 @@ export function loadAuthState(storage: Storage): AuthState {
     if (!Array.isArray(parsed.users)) {
       return createAuthState();
     }
-    return parsed;
+    const users = parsed.users.map(hydrateStoredUser);
+    const currentUser = parsed.currentUser
+      ? publicUser(users.find((user) => user.id === parsed.currentUser?.id) ?? hydrateStoredUser(parsed.currentUser as StoredUser))
+      : null;
+
+    return {
+      users,
+      currentUser,
+    };
   } catch {
     return createAuthState();
   }
@@ -219,5 +278,13 @@ function publicUser(user: StoredUser): AuthUser {
     email: user.email,
     avatarUrl: user.avatarUrl,
     memberSince: user.memberSince,
+    savedGuideIds: user.savedGuideIds ?? [],
+  };
+}
+
+function hydrateStoredUser(user: StoredUser): StoredUser {
+  return {
+    ...user,
+    savedGuideIds: Array.isArray(user.savedGuideIds) ? user.savedGuideIds : [],
   };
 }

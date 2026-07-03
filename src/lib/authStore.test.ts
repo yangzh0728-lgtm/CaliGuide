@@ -3,6 +3,8 @@ import {
   changePassword,
   createAuthState,
   registerUser,
+  removeSavedGuide,
+  saveGuide,
   signInUser,
   updateProfile,
 } from "./authStore";
@@ -93,5 +95,31 @@ describe("authStore", () => {
     );
 
     expect(signedIn.currentUser?.email).toBe("maya@example.com");
+  });
+
+  test("saves and removes guides for the signed-in user", () => {
+    const state = registerUser(createAuthState(), {
+      name: "Maya Chen",
+      email: "maya@example.com",
+      password: "secure123",
+    });
+
+    expect(state.currentUser?.savedGuideIds).toEqual([]);
+
+    const saved = saveGuide(state, "guide-1");
+    const savedAgain = saveGuide(saved, "guide-1");
+
+    expect(savedAgain.currentUser?.savedGuideIds).toEqual(["guide-1"]);
+
+    const signedIn = signInUser(
+      { ...savedAgain, currentUser: null },
+      { email: "maya@example.com", password: "secure123" },
+    );
+
+    expect(signedIn.currentUser?.savedGuideIds).toEqual(["guide-1"]);
+
+    const removed = removeSavedGuide(signedIn, "guide-1");
+
+    expect(removed.currentUser?.savedGuideIds).toEqual([]);
   });
 });
