@@ -34,7 +34,7 @@ export default function App() {
   const [selectedBlogId, setSelectedBlogId] = useState('category-dmv');
   const [selectedForumId, setSelectedForumId] = useState('post-1');
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
-  const { currentUser, isGuideSaved, removeSavedGuide, saveGuide } = useAuth();
+  const { currentUser, isGuideSaved, isLoading, isPasswordRecovery, removeSavedGuide, saveGuide } = useAuth();
   const { t } = useLanguage();
   const selectedBlog = getBlogArticle(selectedBlogId) ?? getBlogArticle('category-dmv');
   const selectedForumDiscussion =
@@ -132,11 +132,13 @@ export default function App() {
   };
 
   const toggleSavedGuide = (articleId: string) => {
-    if (isGuideSaved(articleId)) {
-      removeSavedGuide(articleId);
-    } else {
-      saveGuide(articleId);
-    }
+    void (async () => {
+      if (isGuideSaved(articleId)) {
+        await removeSavedGuide(articleId);
+      } else {
+        await saveGuide(articleId);
+      }
+    })();
   };
 
   const renderPage = () => {
@@ -198,7 +200,15 @@ export default function App() {
     }
   };
 
-  if (!currentUser) {
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 text-sm font-bold text-on-surface-variant">
+        Loading CaliGuide...
+      </div>
+    );
+  }
+
+  if (!currentUser || isPasswordRecovery) {
     return <AuthPage />;
   }
 

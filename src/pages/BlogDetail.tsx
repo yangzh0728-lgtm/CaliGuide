@@ -1,4 +1,4 @@
-import { Bookmark, CalendarDays, Clock, Tag } from 'lucide-react';
+import { Bookmark, CalendarDays, Clock, ExternalLink, Tag } from 'lucide-react';
 import { BlogArticle } from '../lib/blogContent';
 
 interface BlogDetailProps {
@@ -68,6 +68,31 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
           </p>
         ))}
       </section>
+
+      {article.officialLinks?.length ? (
+        <section className="mx-4 mt-4 rounded-2xl border border-outline-variant bg-surface-container-low p-4">
+          <h2 className="mb-3 text-lg font-bold text-on-surface">Official websites / links</h2>
+          <div className="flex flex-col gap-3">
+            {article.officialLinks.map((link) => (
+              <a
+                key={link.url}
+                href={link.url}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl bg-white p-3 text-left transition-colors hover:bg-surface-container-high"
+              >
+                <span className="flex items-start justify-between gap-3 text-sm font-bold text-primary">
+                  {link.title}
+                  <ExternalLink className="mt-0.5 shrink-0" size={16} />
+                </span>
+                <span className="mt-1 block text-sm leading-6 text-on-surface-variant">
+                  用途：{link.purpose}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </article>
   );
 }

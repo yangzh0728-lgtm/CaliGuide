@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
-import { readAvatarFile } from "../lib/avatarUpload";
+import { uploadAvatarToR2 } from "../lib/avatarUpload";
 import { BlogArticle } from "../lib/blogContent";
 import {
   ForumDiscussion,
@@ -26,6 +26,7 @@ import {
   isUnusefulByUser,
   isUsefulByUser,
 } from "../lib/forumContent";
+import { supabase } from "../lib/supabaseClient";
 
 interface ProfileProps {
   articles: BlogArticle[];
@@ -57,6 +58,8 @@ export default function Profile({
   const [newPassword, setNewPassword] = useState("");
   const [profileMessage, setProfileMessage] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
   const savedArticles = useMemo(
     () => articles.filter((article) => currentUser?.savedGuideIds.includes(article.id)),
     [articles, currentUser?.savedGuideIds],
@@ -140,15 +143,18 @@ export default function Profile({
     setView("profile");
   };
 
-  const handleProfileSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setProfileMessage("");
+    setIsSavingProfile(true);
 
     try {
-      updateAccount({ name, avatarUrl });
+      await updateAccount({ name, avatarUrl });
       setProfileMessage(t("settings.profileUpdated"));
     } catch (error) {
       setProfileMessage(error instanceof Error ? error.message : "Unable to update profile");
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -161,7 +167,12 @@ export default function Profile({
     setProfileMessage("");
 
     try {
-      const uploadedAvatarUrl = await readAvatarFile(file);
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session?.access_token) {
+        throw new Error("Sign in required");
+      }
+
+      const uploadedAvatarUrl = await uploadAvatarToR2(file, data.session.access_token);
       setAvatarUrl(uploadedAvatarUrl);
       setProfileMessage(t("settings.avatarReady"));
     } catch (error) {
@@ -171,17 +182,20 @@ export default function Profile({
     }
   };
 
-  const handlePasswordSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handlePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPasswordMessage("");
+    setIsSavingPassword(true);
 
     try {
-      updatePassword({ currentPassword, newPassword });
+      await updatePassword({ currentPassword, newPassword });
       setCurrentPassword("");
       setNewPassword("");
       setPasswordMessage(t("settings.passwordChanged"));
     } catch (error) {
       setPasswordMessage(error instanceof Error ? error.message : "Unable to change password");
+    } finally {
+      setIsSavingPassword(false);
     }
   };
 
@@ -244,9 +258,12 @@ export default function Profile({
             <p className="text-sm font-semibold text-primary">{profileMessage}</p>
           )}
 
-          <button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">
+          <button
+            disabled={isSavingProfile}
+            className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
+          >
             <Save size={18} />
-            {t("settings.saveAccount")}
+            {isSavingProfile ? "Saving..." : t("settings.saveAccount")}
           </button>
         </form>
 
@@ -285,9 +302,12 @@ export default function Profile({
             <p className="text-sm font-semibold text-primary">{passwordMessage}</p>
           )}
 
-          <button className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-3 rounded-xl font-bold hover:bg-surface-container-low transition-colors">
+          <button
+            disabled={isSavingPassword}
+            className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-3 rounded-xl font-bold hover:bg-surface-container-low transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          >
             <LockKeyhole size={18} />
-            {t("settings.changePassword")}
+            {isSavingPassword ? "Saving..." : t("settings.changePassword")}
           </button>
         </form>
       </div>

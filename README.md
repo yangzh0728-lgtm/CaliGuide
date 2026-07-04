@@ -59,6 +59,71 @@ View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c
 - `bun run build` builds the frontend and bundles the server into `dist/`.
 - `bun run start` runs the production server from `dist/server.cjs`.
 - `bun run clean` removes generated build output.
+- `bun run migrate:r2-avatars` copies old R2 avatar objects into `assets/users/{user_id}/profile/` and updates Supabase profile URLs.
+- `bun run seed:r2-structure` uploads JSON mock objects to R2 so the planned folder structure is visible in Cloudflare.
+
+## Supabase Password Reset
+
+The forgot password flow uses Supabase Auth email recovery links. In the Supabase dashboard, add your app URLs under **Authentication > URL Configuration**:
+
+- Site URL: your production app URL
+- Redirect URLs: `http://localhost:3000/*` for local development and your production URL pattern
+
+The app sends reset emails with a redirect back to `/?password-recovery=1`, then lets the user set a new password after Supabase opens a recovery session.
+
+## Cloudflare R2 Folder Structure
+
+Uploaded media uses this R2 object key layout:
+
+```text
+assets/users/{user_id}/profile/{file}
+assets/users/{user_id}/forum/{post_id}/{file}
+assets/users/{user_id}/chat/{file}
+assets/platform/guide/{guide_id}/{file}
+assets/platform/public/{file}
+```
+
+The upload signing API accepts these folder values:
+
+- `profile` for user profile photos.
+- `forum` with `resourceId` set to the forum post id.
+- `chat` for user chatbot media.
+- `platform-guide` with `resourceId` set to the guide id.
+- `platform-public` for shared marketing assets such as logos and favicons.
+
+To create visible placeholder folders in Cloudflare R2 before real files exist, run:
+
+```bash
+bun run seed:r2-structure
+```
+
+The script uploads small JSON objects at:
+
+```text
+assets/users/user-demo-1/profile/mock-profile.json
+assets/users/user-demo-1/forum/post-demo-1/mock-forum-image.json
+assets/users/user-demo-1/chat/mock-chat-attachment.json
+assets/platform/guide/guide-dmv-checklist/mock-guide-image.json
+assets/platform/public/mock-logo.json
+```
+
+You can override the demo IDs in `.env` with `R2_MOCK_USER_ID`, `R2_MOCK_POST_ID`, and `R2_MOCK_GUIDE_ID`.
+
+If older avatar uploads exist outside the profile folder, migrate them with:
+
+```bash
+bun run migrate:r2-avatars
+```
+
+To preview the changes without copying or updating Supabase, run:
+
+```bash
+bun run migrate:r2-avatars -- --dry-run
+```
+
+The migration copies each old avatar object into `assets/users/{user_id}/profile/` and updates the matching `profiles.avatar_url`. It keeps the old object in place as a backup.
+
+If Supabase reports `permission denied for table profiles`, run `supabase/r2-avatar-migration-grants.sql` in Supabase SQL Editor, then rerun the migration.
 
 ## Troubleshooting
 

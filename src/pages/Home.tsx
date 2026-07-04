@@ -15,23 +15,7 @@ export default function Home({ onOpenBlog }: HomeProps) {
     { id: 'category-health', icon: HeartPulse, label: t('home.health'), color: 'bg-red-100 text-red-700' },
   ];
 
-  const recommendedGuides = RECOMMENDED_GUIDES.map((guide) => {
-    if (guide.id === 'guide-1') {
-      return {
-        ...guide,
-        title: t('home.guide1.title'),
-        category: t('home.guide1.category'),
-        readTime: t('home.guide1.readTime'),
-      };
-    }
-
-    return {
-      ...guide,
-      title: t('home.guide2.title'),
-      category: t('home.guide2.category'),
-      readTime: t('home.guide2.readTime'),
-    };
-  });
+  const recommendedGuides = RECOMMENDED_GUIDES;
 
   const trendingQuestions = [
     {

@@ -233,7 +233,7 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
-function createRandomAvatar(name: string) {
+export function createRandomAvatar(name: string) {
   const background = randomItem(AVATAR_BACKGROUNDS);
   const shirt = randomItem(AVATAR_SHIRTS);
   const skin = randomItem(AVATAR_SKINS);
