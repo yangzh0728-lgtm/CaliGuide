@@ -18,7 +18,7 @@ import Profile from './pages/Profile';
 import AuthPage from './pages/AuthPage';
 import { useAuth } from './context/AuthContext';
 import { useLanguage } from './context/LanguageContext';
-import { BLOG_ARTICLES, getBlogArticle } from './lib/blogContent';
+import { getLocalizedBlogArticle, getLocalizedBlogArticles } from './lib/blogLocalization';
 import {
   addForumComment,
   FORUM_DISCUSSIONS,
@@ -48,8 +48,9 @@ export default function App() {
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
   const [forumSyncError, setForumSyncError] = useState('');
   const { currentUser, isGuideSaved, isLoading, isPasswordRecovery, removeSavedGuide, saveGuide } = useAuth();
-  const { t } = useLanguage();
-  const selectedBlog = getBlogArticle(selectedBlogId) ?? getBlogArticle('category-dmv');
+  const { language, t } = useLanguage();
+  const localizedBlogArticles = getLocalizedBlogArticles(language);
+  const selectedBlog = getLocalizedBlogArticle(selectedBlogId, language) ?? getLocalizedBlogArticle('category-dmv', language);
   const selectedForumDiscussion =
     forumDiscussions.find((discussion) => discussion.id === selectedForumId) ?? forumDiscussions[0];
 
@@ -288,7 +289,7 @@ export default function App() {
       case 'chatbot': return <Chatbot />;
       case 'profile': return (
         <Profile
-          articles={BLOG_ARTICLES}
+          articles={localizedBlogArticles}
           forumDiscussions={forumDiscussions}
           onOpenBlog={openBlog}
           onOpenForumDetail={openForumDetail}

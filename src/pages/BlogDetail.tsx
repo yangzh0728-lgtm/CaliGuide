@@ -1,4 +1,5 @@
 import { Bookmark, CalendarDays, Clock, ExternalLink, Tag } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import { formatBlogBodyBlock, type BlogBodyTone } from '../lib/blogBodyFormat';
 import { BlogArticle } from '../lib/blogContent';
 
@@ -9,6 +10,7 @@ interface BlogDetailProps {
 }
 
 export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetailProps) {
+  const { t } = useLanguage();
   const bodyBlocks = article.body.map(formatBlogBodyBlock);
 
   return (
@@ -41,7 +43,7 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
             }`}
           >
             <Bookmark size={18} fill={isSaved ? 'currentColor' : 'none'} />
-            {isSaved ? 'Saved' : 'Save guide'}
+            {isSaved ? t('blog.saved') : t('blog.saveGuide')}
           </button>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{article.excerpt}</p>
@@ -99,7 +101,7 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
 
       {article.officialLinks?.length ? (
         <section className="mx-4 mt-4 rounded-2xl border border-outline-variant bg-surface-container-low p-4">
-          <h2 className="mb-3 text-lg font-bold text-on-surface">Official websites / links</h2>
+          <h2 className="mb-3 text-lg font-bold text-on-surface">{t('blog.officialLinks')}</h2>
           <div className="flex flex-col gap-3">
             {article.officialLinks.map((link) => (
               <a
@@ -114,7 +116,7 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
                   <ExternalLink className="mt-0.5 shrink-0" size={16} />
                 </span>
                 <span className="mt-1 block text-sm leading-6 text-on-surface-variant">
-                  用途：{link.purpose}
+                  {t('blog.linkPurpose')}: {link.purpose}
                 </span>
               </a>
             ))}

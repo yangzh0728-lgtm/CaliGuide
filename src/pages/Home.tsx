@@ -1,7 +1,7 @@
 import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare } from 'lucide-react';
-import { RECOMMENDED_GUIDES } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
 import { getVisibleRecommendedGuides } from '../lib/homeRecommendations';
+import { getLocalizedBlogArticle, getRecommendedBlogArticles } from '../lib/blogLocalization';
 
 interface HomeProps {
   onOpenBlog: (articleId: string) => void;
@@ -9,7 +9,7 @@ interface HomeProps {
 }
 
 export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const categories = [
     { id: 'category-dmv', icon: Car, label: t('home.dmv'), color: 'bg-blue-100 text-blue-700' },
     { id: 'category-banking', icon: Landmark, label: t('home.banking'), color: 'bg-amber-100 text-amber-700' },
@@ -17,18 +17,18 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
     { id: 'category-health', icon: HeartPulse, label: t('home.health'), color: 'bg-red-100 text-red-700' },
   ];
 
-  const recommendedGuides = getVisibleRecommendedGuides(RECOMMENDED_GUIDES, false);
+  const recommendedGuides = getVisibleRecommendedGuides(getRecommendedBlogArticles(language), false);
 
   const trendingQuestions = [
     {
       id: 'trending-ssn',
-      text: t('home.trending1.text'),
+      text: getLocalizedBlogArticle('trending-ssn', language)?.title ?? t('home.trending1.text'),
       replies: 24,
       time: t('home.trending1.time')
     },
     {
       id: 'trending-banking',
-      text: t('home.trending2.text'),
+      text: getLocalizedBlogArticle('trending-banking', language)?.title ?? t('home.trending2.text'),
       replies: 11,
       time: t('home.trending2.time')
     }

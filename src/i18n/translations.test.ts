@@ -10,7 +10,11 @@ describe("translations", () => {
   });
 
   it("recognizes supported language codes", () => {
-    expect(isLanguageCode("yue")).toBe(true);
+    expect(isLanguageCode("en")).toBe(true);
+    expect(isLanguageCode("zh-CN")).toBe(true);
+    expect(isLanguageCode("zh-TW")).toBe(true);
+    expect(isLanguageCode("es")).toBe(true);
+    expect(isLanguageCode("yue")).toBe(false);
     expect(isLanguageCode("fr")).toBe(false);
   });
 });

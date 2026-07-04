@@ -1,13 +1,14 @@
 import { Clock } from 'lucide-react';
-import { RECOMMENDED_GUIDES } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
+import { getRecommendedBlogArticles } from '../lib/blogLocalization';
 
 interface RecommendedGuidesProps {
   onOpenBlog: (articleId: string) => void;
 }
 
 export default function RecommendedGuides({ onOpenBlog }: RecommendedGuidesProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const recommendedGuides = getRecommendedBlogArticles(language);
 
   return (
     <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
@@ -19,7 +20,7 @@ export default function RecommendedGuides({ onOpenBlog }: RecommendedGuidesProps
       </header>
 
       <div className="grid gap-4">
-        {RECOMMENDED_GUIDES.map((guide) => (
+        {recommendedGuides.map((guide) => (
           <button
             key={guide.id}
             type="button"
