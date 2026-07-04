@@ -1,4 +1,4 @@
-export type Page = 'home' | 'guide' | 'blog' | 'forum' | 'forumDetail' | 'chatbot' | 'profile';
+export type Page = 'home' | 'guide' | 'blog' | 'recommended' | 'forum' | 'forumDetail' | 'chatbot' | 'profile';
 
 export interface Post {
   id: string;

@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://caliguide.local/schemas/guide-content.schema.json",
+  "title": "CaliGuide Guide and Blog Content Import",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["categories", "tags", "articles"],
+  "properties": {
+    "categories": {
+      "type": "array",
+      "description": "Reusable content categories such as DMV, Banking, Housing, Health, Legal.",
+      "items": { "$ref": "#/$defs/category" },
+      "uniqueItems": true
+    },
+    "tags": {
+      "type": "array",
+      "description": "Reusable search/filter tags.",
+      "items": { "$ref": "#/$defs/tag" },
+      "uniqueItems": true
+    },
+    "articles": {
+      "type": "array",
+      "description": "Guide, blog, and question-style content records.",
+      "items": { "$ref": "#/$defs/article" },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "examples": ["guide-dmv-checklist", "banking", "real-id"]
+    },
+    "locale": {
+      "type": "string",
+      "enum": ["en", "zh-CN", "zh-HK", "zh-TW", "es"]
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "sortOrder": { "type": "integer", "minimum": 0, "default": 0 }
+      }
+    },
+    "tag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "article": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "slug", "articleType", "categoryId", "status", "translations"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id",
+          "description": "Stable database id. Keep this stable after import."
+        },
+        "slug": {
+          "$ref": "#/$defs/id",
+          "description": "URL-friendly slug. Usually same as id unless you need a shorter URL."
+        },
+        "articleType": {
+          "type": "string",
+          "enum": ["guide", "blog", "question"],
+          "default": "guide"
+        },
+        "categoryId": { "$ref": "#/$defs/id" },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "review", "published", "archived"],
+          "default": "draft"
+        },
+        "coverImageKey": {
+          "type": "string",
+          "pattern": "^assets/platform/guide/.+",
+          "description": "Cloudflare R2 key for the cover image."
+        },
+        "readingMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120,
+          "default": 5
+        },
+        "isFeatured": {
+          "type": "boolean",
+          "default": false
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Use ISO 8601, for example 2026-07-04T12:00:00Z."
+        },
+        "tagIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/id" },
+          "uniqueItems": true,
+          "default": []
+        },
+        "translations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/translation" }
+        },
+        "officialLinks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/officialLink" },
+          "default": []
+        },
+        "mediaAssets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/mediaAsset" },
+          "default": []
+        }
+      }
+    },
+    "translation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locale", "title", "summary", "body"],
+      "properties": {
+        "locale": { "$ref": "#/$defs/locale" },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "body": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Body sections in reading order. Keep each paragraph concise for translation/review.",
+          "items": { "$ref": "#/$defs/bodySection" }
+        },
+        "seoTitle": { "type": "string" },
+        "seoDescription": { "type": "string" }
+      }
+    },
+    "bodySection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "content"],
+      "properties": {
+        "heading": { "type": "string", "minLength": 1 },
+        "content": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "checklist": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "warning": { "type": "string" }
+      }
+    },
+    "officialLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "anyOf": [
+        { "required": ["title"] },
+        { "required": ["label"] }
+      ],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://"
+        },
+        "purpose": { "type": "string", "minLength": 1 },
+        "sortOrder": { "type": "integer", "minimum": 0, "default": 0 }
+      }
+    },
+    "mediaAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "r2Key"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["cover", "image", "attachment"],
+          "default": "image"
+        },
+        "r2Key": {
+          "type": "string",
+          "pattern": "^assets/platform/guide/.+"
+        },
+        "publicUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "altText": { "type": "string" },
+        "caption": { "type": "string" },
+        "sortOrder": { "type": "integer", "minimum": 0, "default": 0 }
+      }
+    }
+  }
+}

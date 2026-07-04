@@ -47,6 +47,8 @@ describe("avatarUpload", () => {
     expect(JSON.parse(String(requests[0].init?.body))).toEqual({
       folder: "profile",
       mimeType: "image/png",
+      sizeBytes: file.size,
+      attachedToType: "profile",
     });
     expect(requests[1].url).toBe("https://upload.example.com/avatar");
     expect(requests[1].init?.method).toBe("PUT");

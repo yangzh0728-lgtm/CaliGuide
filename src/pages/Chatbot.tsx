@@ -1,21 +1,47 @@
-import { useState, useRef, useEffect } from 'react';
-import { Bot, User, Send, PlusCircle } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { Bot, User, Send, PlusCircle, MessageSquare, X } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import {
+  DEFAULT_CHAT_USER_ID,
+  appendChatMemoryMessages,
+  createChatMemoryState,
+  deleteChatMemorySession,
+  ensureChatMemoryForUser,
+  getChatUserMemory,
+  loadChatMemoryState,
+  replaceLastChatMemoryMessage,
+  saveChatMemoryState,
+  setActiveChatMemorySession,
+  startChatMemorySession,
+  toChatHistory,
+} from '../lib/chatMemory';
+import {
+  appendChatMessagesToSupabase,
+  deleteChatSessionFromSupabase,
+  fetchChatUserMemoryFromSupabase,
+} from '../lib/chatSupabase';
+import { supabase } from '../lib/supabaseClient';
 
 export default function Chatbot() {
   const { t } = useLanguage();
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'bot',
-      content: t('chatbot.intro'),
-      timestamp: '10:02 AM'
+  const { currentUser } = useAuth();
+  const userId = currentUser?.id ?? DEFAULT_CHAT_USER_ID;
+  const introMessage = useMemo<ChatMessage>(() => createIntroMessage(t('chatbot.intro')), [t]);
+  const [chatMemory, setChatMemory] = useState(() => {
+    if (typeof window === 'undefined') {
+      return createChatMemoryState();
     }
-  ]);
+
+    return loadChatMemoryState(window.localStorage);
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const userMemory = getChatUserMemory(chatMemory, userId, introMessage);
+  const messages = userMemory.messages;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -24,14 +50,33 @@ export default function Chatbot() {
   }, [messages]);
 
   useEffect(() => {
-    setMessages((currentMessages) => {
-      if (currentMessages.length !== 1 || currentMessages[0].role !== 'bot') {
-        return currentMessages;
-      }
+    setChatMemory((currentMemory) => ensureChatMemoryForUser(currentMemory, userId, introMessage));
+  }, [introMessage, userId]);
 
-      return [{ ...currentMessages[0], content: t('chatbot.intro') }];
-    });
-  }, [t]);
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    void fetchChatUserMemoryFromSupabase(supabase, userId, introMessage)
+      .then((remoteMemory) => {
+        setChatMemory((currentMemory) => ({
+          sessionsByUserId: {
+            ...currentMemory.sessionsByUserId,
+            [userId]: remoteMemory,
+          },
+        }));
+      })
+      .catch((error) => {
+        console.warn('Chat Supabase sync skipped:', error);
+      });
+  }, [currentUser, introMessage, userId]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      saveChatMemoryState(window.localStorage, chatMemory);
+    }
+  }, [chatMemory]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -48,8 +93,13 @@ export default function Chatbot() {
       content: '',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
+    const history = toChatHistory(messages);
+    const activeSessionId = userMemory.activeSessionId;
+    const sessionTitle = messageText.slice(0, 42);
 
-    setMessages(prev => [...prev, userMessage, botMessage]);
+    setChatMemory((currentMemory) =>
+      appendChatMemoryMessages(currentMemory, userId, [userMessage, botMessage]),
+    );
     setInput('');
     setIsLoading(true);
 
@@ -59,7 +109,7 @@ export default function Chatbot() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageText })
+        body: JSON.stringify({ message: messageText, history, userId })
       });
 
       if (!response.ok) {
@@ -69,11 +119,14 @@ export default function Chatbot() {
 
       if (!response.body) {
         const text = await response.text();
-        setMessages(prev => prev.map((message, index) => (
-          index === prev.length - 1 && message.role === 'bot'
-            ? { ...message, content: text || t('chatbot.error') }
-            : message
-        )));
+        const finalBotMessage = {
+          ...botMessage,
+          content: text || t('chatbot.error'),
+        };
+        setChatMemory((currentMemory) =>
+          replaceLastChatMemoryMessage(currentMemory, userId, finalBotMessage),
+        );
+        void persistChatTurn(activeSessionId, sessionTitle, [userMessage, finalBotMessage]);
         return;
       }
 
@@ -103,11 +156,12 @@ export default function Chatbot() {
         }
 
         streamedText += chunk;
-        setMessages(prev => prev.map((message, index) => (
-          index === prev.length - 1 && message.role === 'bot'
-            ? { ...message, content: streamedText }
-            : message
-        )));
+        setChatMemory((currentMemory) =>
+          replaceLastChatMemoryMessage(currentMemory, userId, {
+            ...botMessage,
+            content: streamedText,
+          }),
+        );
       }
 
       const remainingText = decoder.decode();
@@ -116,22 +170,72 @@ export default function Chatbot() {
       }
 
       if (!streamedText) {
-        setMessages(prev => prev.map((message, index) => (
-          index === prev.length - 1 && message.role === 'bot'
-            ? { ...message, content: t('chatbot.error') }
-            : message
-        )));
+        const finalBotMessage = {
+          ...botMessage,
+          content: t('chatbot.error'),
+        };
+        setChatMemory((currentMemory) =>
+          replaceLastChatMemoryMessage(currentMemory, userId, finalBotMessage),
+        );
+      } else {
+        void persistChatTurn(activeSessionId, sessionTitle, [
+          userMessage,
+          { ...botMessage, content: streamedText },
+        ]);
       }
     } catch (error) {
       console.error("Chat Error:", error);
-      setMessages(prev => prev.map((message, index) => (
-        index === prev.length - 1 && message.role === 'bot'
-          ? { ...message, content: t('chatbot.error') }
-          : message
-      )));
+      const finalBotMessage = {
+        ...botMessage,
+        content: t('chatbot.error'),
+      };
+      setChatMemory((currentMemory) =>
+        replaceLastChatMemoryMessage(currentMemory, userId, finalBotMessage),
+      );
+      void persistChatTurn(activeSessionId, sessionTitle, [userMessage, finalBotMessage]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleNewChat = () => {
+    setChatMemory((currentMemory) => startChatMemorySession(currentMemory, userId, introMessage));
+    setInput('');
+    setIsLoading(false);
+  };
+
+  const handleOpenSession = (sessionId: string) => {
+    setChatMemory((currentMemory) => setActiveChatMemorySession(currentMemory, userId, sessionId));
+    setInput('');
+    setIsLoading(false);
+  };
+
+  const handleDeleteSession = (sessionId: string) => {
+    setChatMemory((currentMemory) =>
+      deleteChatMemorySession(currentMemory, userId, sessionId, introMessage),
+    );
+    if (currentUser) {
+      void deleteChatSessionFromSupabase(supabase, sessionId, userId).catch((error) => {
+        console.warn('Unable to delete chat session from Supabase:', error);
+      });
+    }
+    setInput('');
+    setIsLoading(false);
+  };
+
+  const persistChatTurn = (sessionId: string, title: string, turnMessages: ChatMessage[]) => {
+    if (!currentUser) {
+      return;
+    }
+
+    return appendChatMessagesToSupabase(supabase, {
+      sessionId,
+      userId,
+      title,
+      messages: turnMessages,
+    }).catch((error) => {
+      console.warn('Unable to save chat messages to Supabase:', error);
+    });
   };
 
   const suggestions = [
@@ -154,6 +258,50 @@ export default function Chatbot() {
         </p>
         <div className="mt-4 px-4 py-1.5 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-widest">
           {t('chatbot.status')}
+        </div>
+      </div>
+
+      <div className="mb-4 px-4 shrink-0">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <button
+            type="button"
+            onClick={handleNewChat}
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-primary bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm transition-colors hover:bg-primary-container hover:text-white"
+          >
+            <PlusCircle size={15} />
+            {t('chatbot.newChat')}
+          </button>
+          {userMemory.sessions.map((session) => (
+            <div
+              key={session.id}
+              className={`inline-flex max-w-56 shrink-0 items-center rounded-full shadow-sm transition-colors ${
+                session.id === userMemory.activeSessionId
+                  ? 'bg-primary text-white'
+                  : 'border border-outline-variant bg-white text-on-surface-variant hover:bg-surface-container-high'
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => handleOpenSession(session.id)}
+                className="inline-flex min-w-0 items-center gap-2 rounded-l-full py-2 pl-3 pr-1 text-xs font-semibold"
+              >
+                <MessageSquare size={14} className="shrink-0" />
+                <span className="truncate">{session.title}</span>
+              </button>
+              <button
+                type="button"
+                aria-label={`Delete ${session.title}`}
+                onClick={() => handleDeleteSession(session.id)}
+                className={`mr-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors ${
+                  session.id === userMemory.activeSessionId
+                    ? 'text-white/80 hover:bg-white/20 hover:text-white'
+                    : 'text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface'
+                }`}
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -248,4 +396,12 @@ export default function Chatbot() {
       </div>
     </div>
   );
+}
+
+function createIntroMessage(content: string): ChatMessage {
+  return {
+    role: 'bot',
+    content,
+    timestamp: '10:02 AM',
+  };
 }

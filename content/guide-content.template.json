@@ -1,0 +1,75 @@
+{
+  "categories": [
+    {
+      "id": "dmv",
+      "label": "DMV",
+      "description": "Driver license, REAL ID, vehicle registration, and DMV appointments.",
+      "sortOrder": 10
+    }
+  ],
+  "tags": [
+    {
+      "id": "drivers-license",
+      "label": "Driver's License"
+    },
+    {
+      "id": "newcomer",
+      "label": "Newcomer"
+    }
+  ],
+  "articles": [
+    {
+      "id": "guide-dmv-checklist",
+      "slug": "guide-dmv-checklist",
+      "articleType": "guide",
+      "categoryId": "dmv",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-dmv-checklist/hero.jpg",
+      "readingMinutes": 6,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T12:00:00Z",
+      "tagIds": ["drivers-license", "newcomer"],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "加州驾照申请步骤",
+          "summary": "帮助第一次申请加州驾照的新移民了解材料、预约、笔试和路考流程。",
+          "body": [
+            {
+              "heading": "先确认你要申请的证件类型",
+              "content": [
+                "加州 DMV 通常会让你在普通驾照、REAL ID 驾照或身份证之间选择。新来加州的人可以先确认自己是否需要 REAL ID，以及是否已有其他州或其他国家驾照。"
+              ],
+              "checklist": [
+                "确认证件类型",
+                "准备身份证明",
+                "准备加州住址证明"
+              ],
+              "warning": "DMV 材料要求可能变化，提交前建议再次查看官方页面。"
+            }
+          ],
+          "seoTitle": "加州驾照申请步骤 | CaliGuide",
+          "seoDescription": "新移民申请加州驾照的材料和流程大纲。"
+        }
+      ],
+      "officialLinks": [
+        {
+          "title": "California DMV Driver's Licenses",
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-licenses-dl/",
+          "purpose": "查看加州驾照申请条件、主要材料和办理流程。",
+          "sortOrder": 10
+        }
+      ],
+      "mediaAssets": [
+        {
+          "kind": "cover",
+          "r2Key": "assets/platform/guide/guide-dmv-checklist/hero.jpg",
+          "publicUrl": "https://media.example.com/assets/platform/guide/guide-dmv-checklist/hero.jpg",
+          "altText": "DMV checklist guide cover",
+          "caption": "Guide cover image",
+          "sortOrder": 10
+        }
+      ]
+    }
+  ]
+}

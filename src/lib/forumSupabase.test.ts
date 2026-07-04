@@ -1,0 +1,105 @@
+import { describe, expect, it } from "bun:test";
+import {
+  buildForumCommentInsert,
+  buildForumPostInsert,
+  buildForumVoteUpsert,
+  mapForumPostRows,
+} from "./forumSupabase";
+
+describe("forumSupabase", () => {
+  it("maps forum posts, comments, and votes into ForumDiscussion objects", () => {
+    const discussions = mapForumPostRows([
+      {
+        id: "post-1",
+        user_id: "user-1",
+        author_name: "Maya Chen",
+        author_avatar: "MC",
+        category: "Housing",
+        title: "Where should I rent first?",
+        excerpt: "I am comparing school access and commute.",
+        body: ["I need a practical rental checklist."],
+        tags: ["Housing", "Schools"],
+        view_count: 12,
+        created_at: "2026-07-04T04:00:00.000Z",
+        comments: [
+          {
+            id: "comment-1",
+            post_id: "post-1",
+            user_id: "user-2",
+            author_name: "Leo C.",
+            author_avatar: "LC",
+            body: "Check school boundaries before applying.",
+            created_at: "2026-07-04T04:05:00.000Z",
+          },
+        ],
+        votes: [
+          { user_id: "user-3", vote_type: "useful", target_type: "post", target_id: "post-1" },
+          { user_id: "user-4", vote_type: "unuseful", target_type: "post", target_id: "post-1" },
+        ],
+        comment_votes: [
+          { user_id: "user-1", vote_type: "useful", target_type: "comment", target_id: "comment-1" },
+        ],
+      },
+    ]);
+
+    expect(discussions[0]).toMatchObject({
+      id: "post-1",
+      author: "Maya Chen",
+      avatar: "MC",
+      category: "Housing",
+      title: "Where should I rent first?",
+      comments: 1,
+      views: "12",
+      usefulUserIds: ["user-3"],
+      unusefulUserIds: ["user-4"],
+    });
+    expect(discussions[0].replies[0]).toMatchObject({
+      id: "comment-1",
+      author: "Leo C.",
+      usefulUserIds: ["user-1"],
+    });
+  });
+
+  it("builds inserts for forum posts, comments, and votes", () => {
+    expect(
+      buildForumPostInsert({
+        userId: "user-1",
+        author: "Maya Chen",
+        avatar: "MC",
+        category: "Housing",
+        title: "Rental checklist",
+        body: "What should I prepare?",
+      }),
+    ).toMatchObject({
+      user_id: "user-1",
+      author_name: "Maya Chen",
+      author_avatar: "MC",
+      category: "Housing",
+      title: "Rental checklist",
+      tags: ["Housing", "Community", "New Post"],
+    });
+
+    expect(
+      buildForumCommentInsert({
+        postId: "post-1",
+        userId: "user-1",
+        author: "Maya Chen",
+        avatar: "MC",
+        body: "Bring proof of income.",
+      }),
+    ).toEqual({
+      post_id: "post-1",
+      user_id: "user-1",
+      author_name: "Maya Chen",
+      author_avatar: "MC",
+      body: "Bring proof of income.",
+    });
+
+    expect(buildForumVoteUpsert("post", "post-1", "user-1", "useful")).toEqual({
+      target_type: "post",
+      target_id: "post-1",
+      user_id: "user-1",
+      vote_type: "useful",
+    });
+  });
+});

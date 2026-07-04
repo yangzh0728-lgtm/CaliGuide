@@ -8,9 +8,13 @@ export type ChatHistoryMessage = {
   content: string;
 };
 
-export function toChatMessages(message: string, history: ChatHistoryMessage[] = []) {
+export function toChatMessages(
+  message: string,
+  history: ChatHistoryMessage[] = [],
+  memoryContext?: string,
+) {
   return [
-    { role: "system" as const, content: SYSTEM_PROMPT },
+    { role: "system" as const, content: buildSystemPrompt(memoryContext) },
     ...history
       .filter((item) => item.content?.trim())
       .map((item) => ({
@@ -25,16 +29,27 @@ export function buildChatCompletionRequest({
   model,
   message,
   history,
+  memoryContext,
 }: {
   model: string;
   message: string;
   history?: ChatHistoryMessage[];
+  memoryContext?: string;
 }) {
   return {
     model,
-    messages: toChatMessages(message, history),
+    messages: toChatMessages(message, history, memoryContext),
     stream: true as const,
     max_tokens: CHAT_MAX_TOKENS,
     temperature: 0.2,
   };
+}
+
+function buildSystemPrompt(memoryContext?: string) {
+  const cleanMemoryContext = memoryContext?.trim();
+  if (!cleanMemoryContext) {
+    return SYSTEM_PROMPT;
+  }
+
+  return `${SYSTEM_PROMPT}\n\n${cleanMemoryContext}\nUse this memory when it directly helps answer the user's question, but do not reveal stored memory unless relevant.`;
 }

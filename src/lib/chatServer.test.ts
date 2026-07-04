@@ -39,4 +39,16 @@ describe("chatServer", () => {
       { role: "user", content: "next step?" },
     ]);
   });
+
+  it("adds mem0 user-level memory to the system prompt when available", () => {
+    const request = buildChatCompletionRequest({
+      model: "deepseek-v4-flash",
+      message: "What nation am I from?",
+      memoryContext: "Relevant long-term user memory from mem0:\n- User is Chinese.\n- User prefers Mandarin.",
+    });
+
+    expect(request.messages[0].content).toContain("Relevant long-term user memory from mem0");
+    expect(request.messages[0].content).toContain("User is Chinese.");
+    expect(request.messages[0].content).toContain("User prefers Mandarin.");
+  });
 });

@@ -1,12 +1,14 @@
 import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare } from 'lucide-react';
 import { RECOMMENDED_GUIDES } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
+import { getVisibleRecommendedGuides } from '../lib/homeRecommendations';
 
 interface HomeProps {
   onOpenBlog: (articleId: string) => void;
+  onOpenRecommended: () => void;
 }
 
-export default function Home({ onOpenBlog }: HomeProps) {
+export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
   const { t } = useLanguage();
   const categories = [
     { id: 'category-dmv', icon: Car, label: t('home.dmv'), color: 'bg-blue-100 text-blue-700' },
@@ -15,7 +17,7 @@ export default function Home({ onOpenBlog }: HomeProps) {
     { id: 'category-health', icon: HeartPulse, label: t('home.health'), color: 'bg-red-100 text-red-700' },
   ];
 
-  const recommendedGuides = RECOMMENDED_GUIDES;
+  const recommendedGuides = getVisibleRecommendedGuides(RECOMMENDED_GUIDES, false);
 
   const trendingQuestions = [
     {
@@ -64,7 +66,13 @@ export default function Home({ onOpenBlog }: HomeProps) {
       <section className="mb-8">
         <div className="px-4 flex justify-between items-end mb-4">
           <h2 className="text-xl font-bold text-on-surface">{t('home.recommended')}</h2>
-          <button className="text-sm font-semibold text-primary">{t('home.seeAll')}</button>
+          <button
+            type="button"
+            onClick={onOpenRecommended}
+            className="text-sm font-semibold text-primary"
+          >
+            {t('home.seeAll')}
+          </button>
         </div>
         <div className="flex overflow-x-auto gap-4 px-4 pb-2 no-scrollbar">
           {recommendedGuides.map((guide) => (
@@ -73,7 +81,11 @@ export default function Home({ onOpenBlog }: HomeProps) {
               onClick={() => onOpenBlog(guide.id)}
               className="min-w-[280px] bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow text-left"
             >
-              <img src={guide.image} alt={guide.title} className="w-full h-40 object-cover" />
+              <img
+                src={guide.image}
+                alt={guide.title}
+                className="w-full h-40 object-cover"
+              />
               <div className="p-4 flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-secondary uppercase tracking-wider">{guide.category}</span>
                 <h3 className="font-bold text-on-surface leading-snug line-clamp-2">{guide.title}</h3>

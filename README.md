@@ -19,6 +19,7 @@ View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c
 - Bun
 - Node.js, used by the `tsx` development runner and the production server
 - Qianfan-compatible `API_KEY` and `APP_ID` values for chat responses
+- Optional `MEM0_API_KEY` for CaliBot user-level long-term memory
 
 ## Run Locally
 
@@ -37,6 +38,8 @@ View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c
 3. Set `API_KEY` and `APP_ID` in `.env`.
 
    `CHAT_MODEL` is optional. Leave it blank to use the server default, or set it to a model such as `deepseek-v4-flash`.
+
+   `MEM0_API_KEY` is optional. Add it to enable user-level long-term memory through mem0. Without it, CaliBot still streams replies, but it will not remember user facts across sessions.
 
    The app will still start without a key, but `/api/chat` returns an error until the key is configured.
 
@@ -124,6 +127,52 @@ bun run migrate:r2-avatars -- --dry-run
 The migration copies each old avatar object into `assets/users/{user_id}/profile/` and updates the matching `profiles.avatar_url`. It keeps the old object in place as a backup.
 
 If Supabase reports `permission denied for table profiles`, run `supabase/r2-avatar-migration-grants.sql` in Supabase SQL Editor, then rerun the migration.
+
+## Guide and Blog Content Tables
+
+Guide/blog content should use Supabase tables as the source of truth, while R2 stores article images and attachments.
+
+Run this SQL in Supabase SQL Editor to create the content tables:
+
+```text
+supabase/guide-content-tables.sql
+```
+
+If the schema run fails partway through during first setup, run this reset SQL first, then run `supabase/guide-content-tables.sql` again:
+
+```text
+supabase/reset-guide-content-tables.sql
+```
+
+Use this JSON Schema when preparing guide/blog content for import:
+
+```text
+schemas/guide-content.schema.json
+```
+
+A fill-in template is available at:
+
+```text
+content/guide-content.template.json
+```
+
+After content is ready, import it into Supabase with:
+
+```bash
+bun run import:guide-content
+```
+
+The default import file is:
+
+```text
+content/california_newcomer_20_blogs_zh-CN.json
+```
+
+You can also import a specific file:
+
+```bash
+bun run import:guide-content content/california_newcomer_20_blogs_zh-CN.json
+```
 
 ## Troubleshooting
 

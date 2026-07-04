@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Page } from './types';
 import Navigation from './components/Navigation';
 import TopAppBar from './components/TopAppBar';
 import Home from './pages/Home';
 import Guide from './pages/Guide';
 import BlogDetail from './pages/BlogDetail';
+import RecommendedGuides from './pages/RecommendedGuides';
 import Forum from './pages/Forum';
 import ForumDetail from './pages/ForumDetail';
 import Chatbot from './pages/Chatbot';
@@ -22,11 +23,20 @@ import {
   addForumComment,
   FORUM_DISCUSSIONS,
   ForumDiscussion,
+  isUnusefulByUser,
+  isUsefulByUser,
   toggleCommentUnuseful,
   toggleCommentUseful,
   toggleDiscussionUnuseful,
   toggleDiscussionUseful,
 } from './lib/forumContent';
+import {
+  createForumCommentInSupabase,
+  createForumPostInSupabase,
+  fetchForumDiscussionsFromSupabase,
+  setForumVoteInSupabase,
+} from './lib/forumSupabase';
+import { supabase } from './lib/supabaseClient';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -40,10 +50,26 @@ export default function App() {
   const selectedForumDiscussion =
     forumDiscussions.find((discussion) => discussion.id === selectedForumId) ?? forumDiscussions[0];
 
+  const reloadForumDiscussions = useCallback(async () => {
+    try {
+      const remoteDiscussions = await fetchForumDiscussionsFromSupabase(supabase);
+      if (remoteDiscussions.length) {
+        setForumDiscussions(remoteDiscussions);
+      }
+    } catch (error) {
+      console.warn('Forum Supabase sync skipped:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    void reloadForumDiscussions();
+  }, [reloadForumDiscussions]);
+
   const pageTitles: Record<Page, string> = {
     home: t('app.title'),
     guide: t('app.title'),
     blog: t('app.title'),
+    recommended: t('home.recommended'),
     forum: t('app.title'),
     forumDetail: t('app.title'),
     chatbot: t('app.title'),
@@ -64,6 +90,25 @@ export default function App() {
     setForumDiscussions((currentDiscussions) => [discussion, ...currentDiscussions]);
     setSelectedForumId(discussion.id);
     setCurrentPage('forumDetail');
+
+    void createForumPostInSupabase(supabase, {
+      userId: currentUser.id,
+      author: currentUser.name,
+      avatar: getForumAvatar(currentUser.name),
+      category: discussion.category,
+      title: discussion.title,
+      body: discussion.body[0] ?? discussion.excerpt,
+    })
+      .then((remoteDiscussion) => {
+        setForumDiscussions((currentDiscussions) => [
+          remoteDiscussion,
+          ...currentDiscussions.filter((currentDiscussion) => currentDiscussion.id !== discussion.id),
+        ]);
+        setSelectedForumId(remoteDiscussion.id);
+      })
+      .catch((error) => {
+        console.warn('Unable to save forum post to Supabase:', error);
+      });
   };
 
   const addForumDiscussionComment = (discussionId: string, body: string) => {
@@ -77,6 +122,17 @@ export default function App() {
           : discussion,
       ),
     );
+    void createForumCommentInSupabase(supabase, {
+      postId: discussionId,
+      userId: currentUser.id,
+      author: currentUser.name,
+      avatar: getForumAvatar(currentUser.name),
+      body,
+    })
+      .then(reloadForumDiscussions)
+      .catch((error) => {
+        console.warn('Unable to save forum comment to Supabase:', error);
+      });
   };
 
   const toggleForumDiscussionUseful = (discussionId: string) => {
@@ -85,11 +141,17 @@ export default function App() {
       return;
     }
 
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    const nextVote = discussion && isUsefulByUser(discussion, userId) ? null : 'useful';
+
     setForumDiscussions((currentDiscussions) =>
       currentDiscussions.map((discussion) =>
         discussion.id === discussionId ? toggleDiscussionUseful(discussion, userId) : discussion,
       ),
     );
+    void setForumVoteInSupabase(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
+      console.warn('Unable to save forum post vote to Supabase:', error);
+    });
   };
 
   const toggleForumCommentUseful = (discussionId: string, commentId: string) => {
@@ -98,11 +160,18 @@ export default function App() {
       return;
     }
 
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    const comment = discussion?.replies.find((reply) => reply.id === commentId);
+    const nextVote = comment && isUsefulByUser(comment, userId) ? null : 'useful';
+
     setForumDiscussions((currentDiscussions) =>
       currentDiscussions.map((discussion) =>
         discussion.id === discussionId ? toggleCommentUseful(discussion, commentId, userId) : discussion,
       ),
     );
+    void setForumVoteInSupabase(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
+      console.warn('Unable to save forum comment vote to Supabase:', error);
+    });
   };
 
   const toggleForumDiscussionUnuseful = (discussionId: string) => {
@@ -111,11 +180,17 @@ export default function App() {
       return;
     }
 
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    const nextVote = discussion && isUnusefulByUser(discussion, userId) ? null : 'unuseful';
+
     setForumDiscussions((currentDiscussions) =>
       currentDiscussions.map((discussion) =>
         discussion.id === discussionId ? toggleDiscussionUnuseful(discussion, userId) : discussion,
       ),
     );
+    void setForumVoteInSupabase(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
+      console.warn('Unable to save forum post vote to Supabase:', error);
+    });
   };
 
   const toggleForumCommentUnuseful = (discussionId: string, commentId: string) => {
@@ -124,11 +199,18 @@ export default function App() {
       return;
     }
 
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    const comment = discussion?.replies.find((reply) => reply.id === commentId);
+    const nextVote = comment && isUnusefulByUser(comment, userId) ? null : 'unuseful';
+
     setForumDiscussions((currentDiscussions) =>
       currentDiscussions.map((discussion) =>
         discussion.id === discussionId ? toggleCommentUnuseful(discussion, commentId, userId) : discussion,
       ),
     );
+    void setForumVoteInSupabase(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
+      console.warn('Unable to save forum comment vote to Supabase:', error);
+    });
   };
 
   const toggleSavedGuide = (articleId: string) => {
@@ -143,7 +225,7 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home onOpenBlog={openBlog} />;
+      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => setCurrentPage('recommended')} />;
       case 'guide': return <Guide />;
       case 'blog': return selectedBlog ? (
         <BlogDetail
@@ -151,7 +233,8 @@ export default function App() {
           isSaved={isGuideSaved(selectedBlog.id)}
           onToggleSave={toggleSavedGuide}
         />
-      ) : <Home onOpenBlog={openBlog} />;
+      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => setCurrentPage('recommended')} />;
+      case 'recommended': return <RecommendedGuides onOpenBlog={openBlog} />;
       case 'forum': return (
         <Forum
           discussions={forumDiscussions}
@@ -196,7 +279,7 @@ export default function App() {
           currentUserId={currentUser.id}
         />
       );
-      default: return <Home onOpenBlog={openBlog} />;
+      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => setCurrentPage('recommended')} />;
     }
   };
 
@@ -216,7 +299,7 @@ export default function App() {
     <div className="min-h-screen bg-background pb-20">
       <TopAppBar 
         title={pageTitles[currentPage]} 
-        showBack={currentPage === 'guide' || currentPage === 'blog' || currentPage === 'forumDetail'}
+        showBack={currentPage === 'guide' || currentPage === 'blog' || currentPage === 'recommended' || currentPage === 'forumDetail'}
         onBack={() => setCurrentPage(currentPage === 'forumDetail' ? 'forum' : 'home')}
       />
       
@@ -239,5 +322,17 @@ export default function App() {
         onPageChange={setCurrentPage} 
       />
     </div>
+  );
+}
+
+function getForumAvatar(name: string) {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "U"
   );
 }

@@ -38,6 +38,8 @@ export async function uploadAvatarToR2(file: File, accessToken: string, fetcher:
     body: JSON.stringify({
       folder: "profile",
       mimeType: file.type,
+      sizeBytes: file.size,
+      attachedToType: "profile",
     }),
   });
 

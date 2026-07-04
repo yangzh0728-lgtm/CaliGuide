@@ -1,0 +1,2206 @@
+{
+  "categories": [
+    {
+      "id": "dmv",
+      "label": "DMV",
+      "description": "驾照、REAL ID、车辆登记、DMV 预约"
+    },
+    {
+      "id": "banking",
+      "label": "Banking",
+      "description": "开户、SSN/ITIN、信用记录、FDIC、银行费用"
+    },
+    {
+      "id": "housing",
+      "label": "Housing",
+      "description": "租房、押金、租约、室友、避坑、搬家"
+    },
+    {
+      "id": "health",
+      "label": "Health",
+      "description": "医保、看医生、药房、急诊、家庭医生"
+    },
+    {
+      "id": "legal-immigration",
+      "label": "Legal / Immigration",
+      "description": "身份文件、入境后材料整理、律师咨询准备"
+    },
+    {
+      "id": "jobs",
+      "label": "Jobs",
+      "description": "找工作、简历、面试、LinkedIn、工卡和税务准备"
+    },
+    {
+      "id": "education",
+      "label": "Education",
+      "description": "孩子入学、ESL、学区、社区大学、成人英语课"
+    },
+    {
+      "id": "transportation",
+      "label": "Transportation",
+      "description": "买车、保险、公共交通、通勤、停车"
+    },
+    {
+      "id": "daily-life",
+      "label": "Daily Life",
+      "description": "手机卡、网络、水电煤、购物、社区资源"
+    },
+    {
+      "id": "taxes",
+      "label": "Taxes",
+      "description": "报税基础、ITIN、W-2/1099、税务文件整理"
+    }
+  ],
+  "tags": [
+    {
+      "id": "newcomer",
+      "label": "Newcomer"
+    },
+    {
+      "id": "first-30-days",
+      "label": "First 30 Days"
+    },
+    {
+      "id": "drivers-license",
+      "label": "Driver's License"
+    },
+    {
+      "id": "real-id",
+      "label": "REAL ID"
+    },
+    {
+      "id": "dmv-appointment",
+      "label": "DMV Appointment"
+    },
+    {
+      "id": "vehicle-registration",
+      "label": "Vehicle Registration"
+    },
+    {
+      "id": "bank-account",
+      "label": "Bank Account"
+    },
+    {
+      "id": "ssn",
+      "label": "SSN"
+    },
+    {
+      "id": "itin",
+      "label": "ITIN"
+    },
+    {
+      "id": "fdic",
+      "label": "FDIC"
+    },
+    {
+      "id": "bank-fees",
+      "label": "Bank Fees"
+    },
+    {
+      "id": "credit-history",
+      "label": "Credit History"
+    },
+    {
+      "id": "rental-application",
+      "label": "Rental Application"
+    },
+    {
+      "id": "tenant-screening",
+      "label": "Tenant Screening"
+    },
+    {
+      "id": "security-deposit",
+      "label": "Security Deposit"
+    },
+    {
+      "id": "lease",
+      "label": "Lease"
+    },
+    {
+      "id": "moving",
+      "label": "Moving"
+    },
+    {
+      "id": "health-insurance",
+      "label": "Health Insurance"
+    },
+    {
+      "id": "covered-california",
+      "label": "Covered California"
+    },
+    {
+      "id": "medi-cal",
+      "label": "Medi-Cal"
+    },
+    {
+      "id": "primary-care",
+      "label": "Primary Care"
+    },
+    {
+      "id": "urgent-care",
+      "label": "Urgent Care"
+    },
+    {
+      "id": "pharmacy",
+      "label": "Pharmacy"
+    },
+    {
+      "id": "immigration-documents",
+      "label": "Immigration Documents"
+    },
+    {
+      "id": "i-94",
+      "label": "I-94"
+    },
+    {
+      "id": "address-change",
+      "label": "Address Change"
+    },
+    {
+      "id": "legal-help",
+      "label": "Legal Help"
+    },
+    {
+      "id": "job-search",
+      "label": "Job Search"
+    },
+    {
+      "id": "resume",
+      "label": "Resume"
+    },
+    {
+      "id": "linkedin",
+      "label": "LinkedIn"
+    },
+    {
+      "id": "work-authorization",
+      "label": "Work Authorization"
+    },
+    {
+      "id": "form-i9",
+      "label": "Form I-9"
+    },
+    {
+      "id": "payroll",
+      "label": "Payroll"
+    },
+    {
+      "id": "school-enrollment",
+      "label": "School Enrollment"
+    },
+    {
+      "id": "english-learners",
+      "label": "English Learners"
+    },
+    {
+      "id": "adult-esl",
+      "label": "Adult ESL"
+    },
+    {
+      "id": "community-college",
+      "label": "Community College"
+    },
+    {
+      "id": "used-car",
+      "label": "Used Car"
+    },
+    {
+      "id": "auto-insurance",
+      "label": "Auto Insurance"
+    },
+    {
+      "id": "public-transit",
+      "label": "Public Transit"
+    },
+    {
+      "id": "parking",
+      "label": "Parking"
+    },
+    {
+      "id": "utilities",
+      "label": "Utilities"
+    },
+    {
+      "id": "phone-internet",
+      "label": "Phone & Internet"
+    },
+    {
+      "id": "community-resources",
+      "label": "Community Resources"
+    },
+    {
+      "id": "taxes-basics",
+      "label": "Tax Basics"
+    },
+    {
+      "id": "w2",
+      "label": "W-2"
+    },
+    {
+      "id": "form-1099",
+      "label": "1099"
+    },
+    {
+      "id": "tax-records",
+      "label": "Tax Records"
+    },
+    {
+      "id": "calfile",
+      "label": "CalFile"
+    }
+  ],
+  "articles": [
+    {
+      "id": "guide-california-driver-license-first-time",
+      "slug": "guide-california-driver-license-first-time",
+      "articleType": "guide",
+      "categoryId": "dmv",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-california-driver-license-first-time/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T12:00:00Z",
+      "tagIds": [
+        "newcomer",
+        "first-30-days",
+        "drivers-license",
+        "dmv-appointment"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "第一次申请加州驾照：从材料准备到路考的完整步骤",
+          "summary": "面向刚到加州的新居民，按顺序说明在线申请、知识考试、学习许可、路考和收卡流程。",
+          "body": [
+            {
+              "heading": "先确认自己申请哪一种驾照",
+              "content": [
+                "普通乘用车通常申请 Class C 驾照。标准驾照和 REAL ID 驾照都可以用于日常驾驶，但 REAL ID 还可在符合联邦要求的场景中作为身份证件使用。申请前先根据自己的身份文件、出行需求和材料完整度决定类型。",
+                "新居民不要只依赖海外驾照长期驾驶。只要已经把加州作为主要居住地并计划在这里驾驶，就应尽快查看 DMV 对新居民的要求并启动申请。"
+              ],
+              "checklist": [
+                "确认申请 Class C",
+                "决定标准驾照或 REAL ID",
+                "检查姓名在所有文件上是否一致"
+              ],
+              "warning": "不同移民身份可使用的身份证明文件不同；不要根据他人的经验推断自己的资格。"
+            },
+            {
+              "heading": "在线填写申请并准备原件",
+              "content": [
+                "先在 California DMV 官网创建 MyDMV 账户，填写驾照或身份证申请。在线上传材料可以减少现场录入时间，但到 DMV 办公室时仍应携带要求的原件或认证副本。",
+                "常见准备项目包括身份证明、出生日期证明、社会安全号码信息（如适用）和加州居住地址证明。文件上的姓名不一致时，可能还要带结婚证、法院更名文件等姓名变更证明。"
+              ],
+              "checklist": [
+                "完成在线申请",
+                "保存确认号码",
+                "把原件和复印件分开放",
+                "预约 DMV 办公室时间"
+              ],
+              "warning": "照片、截图或普通复印件通常不能代替 DMV 要求的原件或认证副本。"
+            },
+            {
+              "heading": "现场办理与知识考试",
+              "content": [
+                "现场通常会核验材料、采集指纹、拍照、进行视力检查并收取费用。之后按 DMV 指引完成交通法规知识考试。通过后，符合条件的申请人会获得学习许可，才能在合规陪同下练习驾驶。",
+                "备考时应以最新版 California Driver’s Handbook 为准，重点掌握路权、限速、校车、行人、自行车、停车标志和酒驾相关规则。"
+              ],
+              "checklist": [
+                "提前阅读驾驶手册",
+                "确认考试语言选项",
+                "带眼镜或隐形眼镜",
+                "保留付款收据和临时文件"
+              ]
+            },
+            {
+              "heading": "练车、预约路考并等待正式驾照",
+              "content": [
+                "路考前检查车辆登记、保险和安全设备是否有效。考试车辆应能正常使用转向灯、刹车灯、安全带、喇叭和车窗。按预约时间提前到达，并携带学习许可及 DMV 要求的陪同驾驶人和车辆文件。",
+                "通过路考后，DMV 通常先发临时驾照，正式卡片随后邮寄。搬家后及时更新 DMV 地址，并在等待期间保管好临时文件。"
+              ],
+              "checklist": [
+                "确认车辆保险有效",
+                "检查灯光与轮胎",
+                "规划去考场路线",
+                "通过后核对邮寄地址"
+              ],
+              "warning": "没有有效学习许可、合规陪同或保险时不要上路练习。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California DMV 驾照申请",
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-licenses-dl/"
+        },
+        {
+          "label": "DMV 在线申请",
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/dl-id-online-app-edl-44/"
+        },
+        {
+          "label": "California Driver Handbook",
+          "url": "https://www.dmv.ca.gov/portal/handbook/california-driver-handbook/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-california-real-id-checklist",
+      "slug": "guide-california-real-id-checklist",
+      "articleType": "guide",
+      "categoryId": "dmv",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-california-real-id-checklist/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T12:15:00Z",
+      "tagIds": [
+        "real-id",
+        "drivers-license",
+        "dmv-appointment",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "加州 REAL ID 申请清单：材料、预约与常见退件原因",
+          "summary": "用一份可执行清单整理 REAL ID 所需的身份证明、住址证明、姓名一致性和现场办理步骤。",
+          "body": [
+            {
+              "heading": "REAL ID 适合哪些人",
+              "content": [
+                "REAL ID 是符合联邦标准的加州驾照或身份证。自 2025 年 5 月 7 日起，搭乘美国国内商业航班或进入部分受管制联邦设施时，需要 REAL ID 或护照等其他合规证件。",
+                "如果平时愿意随身携带有效护照，也不一定必须升级 REAL ID；但把日常驾照升级后，国内出行会更方便。"
+              ],
+              "checklist": [
+                "确认自己是否经常国内飞行",
+                "检查护照有效期",
+                "比较标准驾照与 REAL ID 的使用场景"
+              ]
+            },
+            {
+              "heading": "核心材料组合",
+              "content": [
+                "申请通常需要一份合格的身份证明文件、社会安全号码信息（例外情况以 DMV 规则为准）以及两份显示加州实体居住地址的文件。住址材料可来自不同机构，例如水电账单、银行账单、租约或车辆登记，但必须符合 DMV 清单。",
+                "所有文件上的姓名最好完全一致。如果护照、社安记录、账单或租约使用了不同姓名，应准备完整的法律更名链。"
+              ],
+              "checklist": [
+                "1 份身份证明",
+                "2 份加州住址证明",
+                "社会安全号码信息（如适用）",
+                "姓名变更证明（如适用）"
+              ],
+              "warning": "邮政信箱可以作为邮寄地址，但住址证明通常需要显示实际居住地址。"
+            },
+            {
+              "heading": "在线预审与现场原件",
+              "content": [
+                "使用 DMV 的 REAL ID Checklist 先逐项核对，再在线申请并上传材料。上传成功不等于最终批准，现场仍需出示原件或认证副本，并由工作人员核验。",
+                "预约时选择能够办理驾照或身份证业务的 DMV 办公室。把材料按“身份证明、住址、姓名变更、申请确认”分类，能减少现场翻找。"
+              ],
+              "checklist": [
+                "使用官方 Checklist",
+                "上传清晰完整的文件",
+                "打印或保存确认页面",
+                "携带全部原件"
+              ]
+            },
+            {
+              "heading": "最常见的退件原因",
+              "content": [
+                "常见问题包括：账单地址不是实际住址、文件姓名不一致、使用过期或不被接受的证件、只带手机照片、两份住址证明来自不符合要求的材料，或遗漏姓名变更文件。",
+                "办理前一天再次查看 DMV 官网，因为可接受文件清单和流程可能调整。"
+              ],
+              "checklist": [
+                "核对有效期",
+                "核对地址拼写",
+                "核对全名和中间名",
+                "准备备用住址文件"
+              ],
+              "warning": "AB 60 驾照与 REAL ID 的资格规则不同，请以 DMV 对本人身份类别的说明为准。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California DMV REAL ID",
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/"
+        },
+        {
+          "label": "REAL ID 官方材料清单",
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/real-id-checklist/"
+        },
+        {
+          "label": "非美国公民 REAL ID 信息",
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/what-is-real-id/real-id-info-non-u-s-citizens/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-open-bank-account-newcomer",
+      "slug": "guide-open-bank-account-newcomer",
+      "articleType": "guide",
+      "categoryId": "banking",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-open-bank-account-newcomer/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T12:30:00Z",
+      "tagIds": [
+        "newcomer",
+        "bank-account",
+        "ssn",
+        "itin",
+        "fdic"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "新移民在美国开户：证件、SSN/ITIN 与账户选择",
+          "summary": "说明没有完整美国信用记录时如何准备开户材料、比较账户费用，并识别 FDIC 保险标识。",
+          "body": [
+            {
+              "heading": "先选账户类型",
+              "content": [
+                "日常收工资、转账和付账单通常使用 checking account；短期储蓄和应急金可放在 savings account。开户前比较月费、最低余额、ATM 网络、现金存款方式、国际汇款费用和 overdraft 设置。",
+                "不要只看开户奖励。奖励可能附带直接存款、最低余额或维持账户若干月的条件，未达标可能失去奖励或产生费用。"
+              ],
+              "checklist": [
+                "比较月费",
+                "查看最低余额要求",
+                "确认 ATM 网络",
+                "查看国际转账与现金存款规则"
+              ]
+            },
+            {
+              "heading": "准备身份与地址材料",
+              "content": [
+                "银行需要核验姓名、出生日期、地址和身份证明。常见材料包括护照、州身份证或驾照，以及 SSN 或 ITIN。对非美国人士，部分银行可能接受护照号码、外国身份证件或其他税务识别信息，但每家机构政策不同。",
+                "刚到美国、还没有水电账单时，可以提前询问银行是否接受租约、学校信件、雇主文件或其他地址证明。"
+              ],
+              "checklist": [
+                "有效护照或州证件",
+                "美国居住地址",
+                "SSN 或 ITIN（如有）",
+                "第二身份证明或地址文件",
+                "少量初始存款（如要求）"
+              ],
+              "warning": "ITIN 是税务号码，不是工作许可，也不会改变移民身份。"
+            },
+            {
+              "heading": "确认存款保险与账户所有权",
+              "content": [
+                "选择银行时查看是否为 FDIC-insured institution；信用合作社则通常查看 NCUA 保险。存款保险适用于符合规则的存款账户，并按存款人、机构和账户所有权类别计算，不等于所有投资产品都受保。",
+                "开户后核对姓名、地址、税号和账户所有权设置，尤其是联名账户。错误信息可能影响税表、转账或身份核验。"
+              ],
+              "checklist": [
+                "确认 FDIC 或 NCUA 标识",
+                "保存开户协议",
+                "核对姓名与税号",
+                "开启账户提醒"
+              ]
+            },
+            {
+              "heading": "开户后第一周要做的事",
+              "content": [
+                "设置强密码与双重验证，下载官方 App，并开启低余额、异常登录和大额交易提醒。绑定工资 direct deposit 前，先确认 routing number 和 account number。",
+                "如果银行默认提供 overdraft 服务，先了解收费方式。对一次性借记卡和 ATM 交易，你通常可以选择不加入收费型 overdraft 服务。"
+              ],
+              "checklist": [
+                "开启双重验证",
+                "设置余额提醒",
+                "测试一笔小额转账",
+                "保存银行客服电话",
+                "阅读 overdraft 选项"
+              ],
+              "warning": "不要通过短信或搜索广告中的链接登录银行；优先使用官方 App 或手动输入官网地址。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "FDIC GetBanked 开户指南",
+          "url": "https://www.fdic.gov/getbanked"
+        },
+        {
+          "label": "FDIC 如何开设银行账户",
+          "url": "https://www.fdic.gov/getbanked/pdf/how-to-open-a-bank-account.pdf"
+        },
+        {
+          "label": "FDIC 官方网站",
+          "url": "https://www.fdic.gov/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-build-credit-avoid-bank-fees",
+      "slug": "guide-build-credit-avoid-bank-fees",
+      "articleType": "guide",
+      "categoryId": "banking",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-build-credit-avoid-bank-fees/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T12:45:00Z",
+      "tagIds": [
+        "credit-history",
+        "bank-fees",
+        "bank-account",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "从零建立美国信用记录，并避开常见银行费用",
+          "summary": "介绍 secured credit card、按时还款、信用报告检查，以及 overdraft 和月费的规避方法。",
+          "body": [
+            {
+              "heading": "信用记录和信用分数不是同一件事",
+              "content": [
+                "信用报告记录账户、付款历史、欠款和查询等信息；信用分数是基于报告数据计算出的风险指标。刚到美国没有信用记录并不等于信用差，只是可供评估的信息较少。",
+                "租房、信用卡、车贷甚至部分服务押金都可能参考信用信息，因此越早建立稳定、可验证的付款记录越有帮助。"
+              ]
+            },
+            {
+              "heading": "适合起步的信用工具",
+              "content": [
+                "常见起步工具包括 secured credit card 和 credit-builder loan。secured card 通常要求先交押金形成信用额度；每月仍要按账单还款，押金不会自动替你还账单。",
+                "选择产品时确认是否向三大信用报告机构报送记录、是否有年费、押金退还条件和升级路径。"
+              ],
+              "checklist": [
+                "确认是否报送三大信用局",
+                "设置自动还款至少覆盖最低额",
+                "尽量每月全额还款",
+                "控制余额占额度比例",
+                "不要短期频繁申请多张卡"
+              ],
+              "warning": "预付卡和借记卡通常不会建立借款还款记录。"
+            },
+            {
+              "heading": "免费检查信用报告",
+              "content": [
+                "通过 AnnualCreditReport.com 获取官方免费信用报告，检查姓名、地址、账户和逾期记录。发现不是自己的账户或错误余额时，及时向相应信用报告机构提出争议。",
+                "信用报告通常不等于免费信用分数。不要为了查看报告而误购不需要的订阅服务。"
+              ],
+              "checklist": [
+                "查看 Equifax 报告",
+                "查看 Experian 报告",
+                "查看 TransUnion 报告",
+                "保存争议材料和确认号码"
+              ]
+            },
+            {
+              "heading": "避开月费与 overdraft",
+              "content": [
+                "比较银行的月费豁免条件，例如 direct deposit、学生资格或最低余额。设置低余额提醒，并把账单日期写入日历。",
+                "银行对 overdraft 的收费政策不同。一次性借记卡和 ATM overdraft 通常需要消费者主动选择加入才可收费，但支票和定期电子扣款可能适用不同规则。账户余额不足时，拒绝交易往往比支付高额费用更可控。"
+              ],
+              "checklist": [
+                "关闭不需要的收费型 overdraft",
+                "保留一笔缓冲金",
+                "每周核对 pending 交易",
+                "取消不用的订阅扣款"
+              ],
+              "warning": "自动还款只能减少忘记付款的风险，不能替代每月核对账单和账户余额。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "CFPB 建立信用记录",
+          "url": "https://www.consumerfinance.gov/ask-cfpb/what-are-some-ways-to-start-or-rebuild-a-good-credit-history-en-2155/"
+        },
+        {
+          "label": "官方免费信用报告",
+          "url": "https://www.annualcreditreport.com/"
+        },
+        {
+          "label": "CFPB Overdraft 选项",
+          "url": "https://www.consumerfinance.gov/consumer-tools/bank-accounts/know-your-overdraft-options/"
+        },
+        {
+          "label": "FDIC 账户费用说明",
+          "url": "https://www.fdic.gov/consumer-resource-center/2021-12/overdraft-and-account-fees"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-california-rental-application",
+      "slug": "guide-california-rental-application",
+      "articleType": "guide",
+      "categoryId": "housing",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-california-rental-application/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T13:00:00Z",
+      "tagIds": [
+        "rental-application",
+        "tenant-screening",
+        "lease",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "加州租房申请：材料、信用审查与防诈骗清单",
+          "summary": "从看房到递交申请，整理收入证明、租房背景审查、费用和付款安全注意事项。",
+          "body": [
+            {
+              "heading": "递交申请前先核验房源",
+              "content": [
+                "尽量实地看房或进行可信的视频看房，并核对出租人或物业公司的身份。正规房源通常会提供书面申请流程、费用说明和租约草案。",
+                "明显低于市场价、拒绝看房、要求立即用礼品卡或加密货币付款、声称人在海外只能邮寄钥匙，都是高风险信号。"
+              ],
+              "checklist": [
+                "核对地址和房源照片",
+                "确认出租方联系方式",
+                "搜索物业公司或经纪执照",
+                "不要在看房前支付大额款项"
+              ],
+              "warning": "不要把护照、SSN、银行流水等完整敏感材料发给尚未核验身份的人。"
+            },
+            {
+              "heading": "建立租房申请资料包",
+              "content": [
+                "常见材料包括带照片的身份证件、收入或资金证明、雇主信息、前房东或个人推荐人、信用信息和入住人员名单。新移民没有美国信用记录时，可主动准备雇佣信、存款证明、国际信用记录或愿意使用担保人的说明。",
+                "每个房东的标准可能不同。先询问必需材料和可接受替代方案，再提交最少必要信息。"
+              ],
+              "checklist": [
+                "身份证件",
+                "最近工资单或雇佣信",
+                "银行资金证明（遮盖不必要账户信息）",
+                "推荐人联系方式",
+                "计划入住日期"
+              ]
+            },
+            {
+              "heading": "了解 tenant screening report",
+              "content": [
+                "房东可能使用租户筛选报告，其中可能包含信用、租赁历史、驱逐记录、收入或身份核验信息。如果因报告内容被拒租、提高押金或附加不利条件，房东通常需要提供 adverse action notice，并告知报告公司信息。",
+                "你可以向报告公司申请副本并争议错误。收到拒绝后，不要只口头询问，保留书面通知和申请记录。"
+              ],
+              "checklist": [
+                "索要不利行动通知",
+                "获取筛选公司名称和联系方式",
+                "申请报告副本",
+                "书面争议错误信息"
+              ]
+            },
+            {
+              "heading": "签约和付款前最后核对",
+              "content": [
+                "逐页阅读租约，重点看租期、月租、押金、迟交费、水电责任、停车、宠物、室友、维修报修和提前解约条款。所有口头承诺都应写入租约或附加条款。",
+                "付款时使用可追踪方式并索要收据。确认收款人名称与租约中的出租方一致。"
+              ],
+              "checklist": [
+                "核对总入住成本",
+                "确认水电网由谁开通",
+                "记录现有损坏",
+                "保存签字完整副本",
+                "索取每笔付款收据"
+              ],
+              "warning": "本指南是一般信息，不替代针对具体租约的法律意见。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California 2026 房东租客指南",
+          "url": "https://www.dre.ca.gov/publications/ResourceGuidebook/2026_Landlord_Tenant_Guide.pdf"
+        },
+        {
+          "label": "CFPB 租户筛选报告",
+          "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-tenant-screening-report-en-2102/"
+        },
+        {
+          "label": "CFPB 审查租房背景报告",
+          "url": "https://www.consumerfinance.gov/rules-policy/tenant-background-checks/review-your-rental-background-check/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-california-security-deposit-moveout",
+      "slug": "guide-california-security-deposit-moveout",
+      "articleType": "guide",
+      "categoryId": "housing",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-california-security-deposit-moveout/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T13:15:00Z",
+      "tagIds": [
+        "security-deposit",
+        "moving",
+        "lease",
+        "rental-application"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "加州押金与退租：入住拍照、预检和 21 天结算",
+          "summary": "帮助租客建立入住证据、理解押金用途、安排搬出前检查并核对押金扣款。",
+          "body": [
+            {
+              "heading": "入住当天建立证据",
+              "content": [
+                "拿到钥匙后，在搬入家具前拍摄每个房间、墙面、地板、家电、窗户和卫生间。照片和视频应能显示日期，并把发现的问题写入 move-in checklist 发给房东。",
+                "保留租约、押金收据、钥匙数量、停车位信息和所有维修沟通。入住证据越完整，退租时越容易区分原有损坏与租期内损坏。"
+              ],
+              "checklist": [
+                "拍摄全屋视频",
+                "近距离拍已有损坏",
+                "测试烟雾报警器和家电",
+                "书面提交入住检查表"
+              ]
+            },
+            {
+              "heading": "押金可以和不可以用于什么",
+              "content": [
+                "加州押金通常可用于未付租金、超出正常磨损的损坏、把房屋清洁到入住时的清洁程度，以及租约允许时修复或更换房东个人财产。正常磨损和入住前已存在的问题不应由租客承担。",
+                "一般规则下，许多房东收取的押金上限为一个月租金；符合条件的小型房东可能适用例外。具体金额和例外应查看最新州法与租约。"
+              ],
+              "checklist": [
+                "确认押金总额",
+                "保存支付凭证",
+                "区分正常磨损与损坏",
+                "不要把押金当作最后一个月租金"
+              ],
+              "warning": "不要擅自用押金抵最后一个月租金，除非房东书面同意。"
+            },
+            {
+              "heading": "搬出前请求初步检查",
+              "content": [
+                "提前书面通知搬出日期，并询问是否可安排搬出前初步检查。检查后，房东可指出可能导致扣款的问题，让租客在搬出前有机会处理。",
+                "清洁时以入住时状态为基准，保留清洁和维修收据。交钥匙当天再次拍摄空房视频，并记录钥匙交接。"
+              ],
+              "checklist": [
+                "书面通知搬出",
+                "请求初步检查",
+                "修复自己造成的损坏",
+                "完成退租清洁",
+                "拍摄空房和钥匙交接"
+              ]
+            },
+            {
+              "heading": "核对 21 天结算",
+              "content": [
+                "一般情况下，房东应在租客搬出后的 21 天内退还押金，或提供逐项扣款说明并退还余额。加州近年的规则还加强了与扣款相关的照片和凭证要求。",
+                "收到结算后，逐项比较入住照片、退租照片、租约和发票。对不合理扣款，先书面要求解释和返还；争议无法解决时，可查看法院自助资源或咨询合格法律服务。"
+              ],
+              "checklist": [
+                "确认转寄地址",
+                "保存 21 天日期",
+                "核对逐项清单",
+                "书面提出异议",
+                "保留全部证据"
+              ],
+              "warning": "押金争议的处理取决于事实和租约；金额较大或情况复杂时应寻求法律帮助。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California Courts 押金指南",
+          "url": "https://selfhelp.courts.ca.gov/guide-security-deposits-california"
+        },
+        {
+          "label": "California DRE 搬出与押金",
+          "url": "https://www.dre.ca.gov/publications/ResourceGuidebook/gb10_movingout.html"
+        },
+        {
+          "label": "California DOJ 租客权利",
+          "url": "https://oag.ca.gov/tenants"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-california-health-insurance-basics",
+      "slug": "guide-california-health-insurance-basics",
+      "articleType": "guide",
+      "categoryId": "health",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-california-health-insurance-basics/hero.jpg",
+      "readingMinutes": 9,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T13:30:00Z",
+      "tagIds": [
+        "health-insurance",
+        "covered-california",
+        "medi-cal",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "加州医保入门：Covered California、Medi-Cal 与选计划方法",
+          "summary": "解释保费、免赔额、copay、网络和特别投保期，帮助新居民比较医保选择。",
+          "body": [
+            {
+              "heading": "先分清主要投保渠道",
+              "content": [
+                "雇主医保通常由公司提供；Covered California 是加州个人和家庭购买合规医保的官方市场；Medi-Cal 是面向符合资格人群的加州 Medicaid 项目。资格取决于收入、家庭情况和其他规则。",
+                "不要仅按月保费判断。保费低的计划可能有更高免赔额、较窄网络或更高看病自付费用。"
+              ],
+              "checklist": [
+                "查看雇主医保",
+                "检查 Covered California 资格",
+                "检查 Medi-Cal 资格",
+                "列出家庭常用医生和药物"
+              ]
+            },
+            {
+              "heading": "理解四个核心费用词",
+              "content": [
+                "Premium 是每月保费；deductible 是计划开始分担部分服务前，你可能需要先承担的金额；copay 是某项服务的固定自付额；coinsurance 是按比例分担费用。out-of-pocket maximum 是符合规则的年度自付上限。",
+                "同一金属等级下，不同保险公司的网络和药物目录仍可能不同。比较时要看总年度成本，而不是只看一个数字。"
+              ],
+              "checklist": [
+                "记录每月保费",
+                "比较免赔额",
+                "比较家庭医生和专科 copay",
+                "查看年度自付上限"
+              ]
+            },
+            {
+              "heading": "检查医生网络和处方药",
+              "content": [
+                "购买前使用计划的 provider directory 搜索家庭医生、儿科、妇产科、专科和附近医院，并直接向诊所确认是否接受该具体计划。",
+                "查看 formulary，确认长期处方药是否在目录中、属于哪一层级，以及是否需要事前授权。"
+              ],
+              "checklist": [
+                "搜索家庭医生",
+                "确认附近医院",
+                "核对处方药",
+                "确认是否需要转诊",
+                "保存确认截图"
+              ],
+              "warning": "医生接受某家保险公司，不代表接受该公司的所有计划。"
+            },
+            {
+              "heading": "注意开放投保期和特别投保期",
+              "content": [
+                "个人市场通常有年度开放投保期。搬家、结婚、生育、失去其他保险等符合条件的生活变化，可能触发特别投保期，通常需要在规定时间内申请并提交证明。Medi-Cal 可按其规则全年申请。",
+                "保险生效前发生的医疗费用不一定被追溯覆盖，因此搬家或失去雇主保险后应尽快处理。"
+              ],
+              "checklist": [
+                "记录资格事件日期",
+                "保存失保或搬家证明",
+                "按时选计划并支付首期保费",
+                "确认生效日期"
+              ],
+              "warning": "医保资格和补贴会随收入与家庭情况变化；申请时应如实填写并及时更新。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "Covered California 基本保障",
+          "url": "https://www.coveredca.com/learning-center/coverage-basics/essential-health-benefits/"
+        },
+        {
+          "label": "Covered California 特别投保期",
+          "url": "https://www.coveredca.com/special-enrollment/"
+        },
+        {
+          "label": "Medi-Cal",
+          "url": "https://www.coveredca.com/health/medi-cal/"
+        },
+        {
+          "label": "查询计划医生网络",
+          "url": "https://www.coveredca.com/support/before-you-buy/providers/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-doctor-urgent-care-er-pharmacy",
+      "slug": "guide-doctor-urgent-care-er-pharmacy",
+      "articleType": "guide",
+      "categoryId": "health",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-doctor-urgent-care-er-pharmacy/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T13:45:00Z",
+      "tagIds": [
+        "primary-care",
+        "urgent-care",
+        "pharmacy",
+        "health-insurance"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "在加州看病怎么选：家庭医生、Urgent Care、急诊与药房",
+          "summary": "按症状严重程度和保险网络说明常见就医路径，减少误用急诊和意外账单。",
+          "body": [
+            {
+              "heading": "日常问题先找家庭医生",
+              "content": [
+                "Primary Care Provider（PCP）适合体检、疫苗、慢性病管理、常见感染和持续性症状。部分 HMO 计划要求先由 PCP 转诊才能看专科。",
+                "拿到保险卡后尽快选择 PCP，不要等到生病才发现附近医生不接收新患者。"
+              ],
+              "checklist": [
+                "在保险网站选择 PCP",
+                "预约年度体检",
+                "准备药物和过敏清单",
+                "保存诊所电话和地址"
+              ]
+            },
+            {
+              "heading": "Urgent Care 适合非危及生命的急性问题",
+              "content": [
+                "Urgent Care 常用于需要当天处理但并非生命危险的情况，例如轻中度扭伤、发热、耳痛、尿路感染症状或小伤口。它通常比急诊等待更短、费用更可控。",
+                "出发前确认地点在保险网络内、是否需要预约、营业时间和预计 copay。"
+              ],
+              "checklist": [
+                "确认 in-network",
+                "带保险卡和身份证",
+                "记录症状开始时间",
+                "询问是否可开处方"
+              ]
+            },
+            {
+              "heading": "生命危险直接打 911 或去 ER",
+              "content": [
+                "胸痛、严重呼吸困难、中风迹象、昏迷、严重出血、严重过敏反应等可能危及生命的情况，应立即拨打 911 或前往急诊室。不要因为担心费用而延误急救。",
+                "急诊用于严重、突然或危及生命的情况。即使在急诊得到治疗，也应保留 discharge instructions，并安排后续复诊。"
+              ],
+              "checklist": [
+                "紧急时拨打 911",
+                "携带药物和过敏信息",
+                "通知紧急联系人",
+                "保存出院文件"
+              ],
+              "warning": "网络和费用问题不应阻止真正的紧急医疗救治。"
+            },
+            {
+              "heading": "使用药房和处理账单",
+              "content": [
+                "处方可以发送到连锁或独立药房。取药时核对姓名、剂量、服法、续药次数和保险价格；如价格异常，可询问是否有通用药或需要事前授权。",
+                "收到 Explanation of Benefits（EOB）不一定等于账单。先核对保险处理结果，再与医疗机构账单比较。发现错误时记录电话、日期和工作人员姓名。"
+              ],
+              "checklist": [
+                "选择常用药房",
+                "核对药物说明",
+                "区分 EOB 与账单",
+                "保留付款收据",
+                "对错误账单及时申诉"
+              ]
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "Covered California 就医地点选择",
+          "url": "https://www.coveredca.com/marketing-blog/telehealth-doctors-office-urgent-care-or-emergency-room/"
+        },
+        {
+          "label": "Covered California 医保术语",
+          "url": "https://www.coveredca.com/marketing-blog/do-you-speak-health-insurance/"
+        },
+        {
+          "label": "Covered California 医生网络",
+          "url": "https://www.coveredca.com/support/before-you-buy/providers/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-organize-immigration-documents",
+      "slug": "guide-organize-immigration-documents",
+      "articleType": "guide",
+      "categoryId": "legal-immigration",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-organize-immigration-documents/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T14:00:00Z",
+      "tagIds": [
+        "immigration-documents",
+        "i-94",
+        "first-30-days",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "入境后身份文件整理：I-94、护照、EAD 与到期日管理",
+          "summary": "建立纸质与电子档案，记录身份文件、收据号码、地址和到期日，降低遗失与错过期限的风险。",
+          "body": [
+            {
+              "heading": "建立一份身份文件总目录",
+              "content": [
+                "把护照个人信息页、签证页、入境章、I-94、EAD、绿卡、批准通知、收据通知和移民法庭或政府来信分别归档。目录中记录文件名称、号码、签发机关、签发日期和到期日。",
+                "纸质原件放在防火防水位置，日常办事携带复印件，除非机构明确要求原件。电子版应加密并备份到两个安全位置。"
+              ],
+              "checklist": [
+                "扫描护照与签证",
+                "下载 I-94",
+                "扫描 EAD 或绿卡正反面",
+                "保存所有 I-797",
+                "记录 receipt number"
+              ]
+            },
+            {
+              "heading": "核对 I-94 和身份信息",
+              "content": [
+                "入境后尽快从 CBP 官方系统查询并保存最新 I-94，核对姓名、护照号码、入境类别和 Admit Until Date。I-94 上的获准停留信息可能与签证贴纸有效期不同。",
+                "如果信息疑似错误，应尽快查看 CBP 或 USCIS 的更正渠道，不要自行修改文件或依赖非官方论坛结论。"
+              ],
+              "checklist": [
+                "保存 PDF 和截图",
+                "核对姓名拼写",
+                "核对入境类别",
+                "记录获准停留日期"
+              ],
+              "warning": "签证有效期、I-94 停留期和工作许可有效期是不同概念。"
+            },
+            {
+              "heading": "设置到期日提醒",
+              "content": [
+                "为护照、I-94、EAD、绿卡、驾照和任何案件截止日期设置多层提醒，例如提前 180 天、120 天、90 天和 30 天。续期开放时间因表格和身份类别而异，应以官方说明为准。",
+                "保存每次在线提交的完整副本、付款凭证、快递追踪和收件确认。"
+              ],
+              "checklist": [
+                "建立主日历",
+                "设置多次提醒",
+                "保存申请版本",
+                "记录付款和邮寄追踪"
+              ]
+            },
+            {
+              "heading": "避免信息泄露和文件诈骗",
+              "content": [
+                "不要在社交媒体群组公开 A-Number、Receipt Number、护照号或完整证件照片。收到自称政府人员的电话时，不要因威胁而立即汇款。",
+                "USCIS 表格可从官方渠道下载。需要代表时，确认对方是持牌律师或经认可的授权代表。"
+              ],
+              "checklist": [
+                "遮盖敏感号码",
+                "只使用 .gov 官方网站",
+                "核验律师执照或授权资格",
+                "保留沟通记录"
+              ],
+              "warning": "本文仅提供文件管理方法，不判断任何人的身份、期限或申请策略。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "CBP I-94 官方系统",
+          "url": "https://i94.cbp.dhs.gov/home"
+        },
+        {
+          "label": "USCIS 移民文件更正、更新与补发",
+          "url": "https://www.uscis.gov/tools/uscis-tools-and-resources/immigration-documents-and-how-to-correct-update-or-replace-them"
+        },
+        {
+          "label": "USCIS 案件状态",
+          "url": "https://egov.uscis.gov/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-uscis-address-change-legal-consult",
+      "slug": "guide-uscis-address-change-legal-consult",
+      "articleType": "guide",
+      "categoryId": "legal-immigration",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-uscis-address-change-legal-consult/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T14:15:00Z",
+      "tagIds": [
+        "address-change",
+        "legal-help",
+        "immigration-documents",
+        "moving"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "搬家后更新 USCIS 地址，并为律师咨询做好准备",
+          "summary": "说明地址变更的文件清单、案件逐项核对，以及如何选择合规法律服务和准备咨询问题。",
+          "body": [
+            {
+              "heading": "搬家不等于所有机构自动同步",
+              "content": [
+                "邮局转寄、DMV 改地址、银行改地址和 USCIS 地址变更是不同系统。搬家后应分别检查移民案件、法院、州机构、雇主、银行和保险的地址。",
+                "有待审案件时，错误地址可能导致重要通知寄错。不要只依赖 USPS mail forwarding。"
+              ],
+              "checklist": [
+                "更新 USCIS",
+                "更新 USPS",
+                "更新 DMV",
+                "更新银行与保险",
+                "更新雇主和学校"
+              ]
+            },
+            {
+              "heading": "使用 USCIS 官方地址变更工具",
+              "content": [
+                "多数人可使用 USCIS 在线 Enterprise Change of Address 工具。准备旧地址、新地址、A-Number、每个待审案件的 receipt number 和账户信息。",
+                "完成后保存确认页面，并逐个检查所有案件是否已包含在地址更新中。家庭成员通常需要分别处理自己的案件。"
+              ],
+              "checklist": [
+                "列出全部 receipt number",
+                "分别核对每位家庭成员",
+                "保存确认号码",
+                "数日后检查账户地址"
+              ],
+              "warning": "不同身份和程序可能有额外地址通知要求；有移民法庭案件时尤其要查看相应法院规则。"
+            },
+            {
+              "heading": "怎样找合规的法律服务",
+              "content": [
+                "移民法律建议应由持牌律师或司法部认可机构中的授权代表提供。公证员、文件代办或普通顾问不等于移民律师。",
+                "咨询前核验执照状态、收费方式、服务范围和书面合同。对“保证批准”“内部关系”“必须现金且不给收据”等说法保持警惕。"
+              ],
+              "checklist": [
+                "核验律师执照",
+                "索要书面收费协议",
+                "确认谁实际负责案件",
+                "索取付款收据",
+                "不要签空白表格"
+              ]
+            },
+            {
+              "heading": "律师咨询资料包",
+              "content": [
+                "按时间线整理入境、身份变化、申请提交、批准、拒绝、逮捕或法院记录等事件。带上护照、I-94、EAD/绿卡、所有 USCIS 通知、以前提交的表格副本和问题清单。",
+                "咨询时明确询问：可选路径、关键风险、预计政府费用、律师费、下一截止日期、需要补充的证据，以及不采取行动的后果。"
+              ],
+              "checklist": [
+                "一页时间线",
+                "全部通知和申请副本",
+                "身份文件",
+                "费用与合同问题",
+                "书面记录咨询结论"
+              ],
+              "warning": "不要根据博客直接做高风险移民决定；个案应由合格专业人士审核。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "USCIS 在线地址变更",
+          "url": "https://www.uscis.gov/addresschange"
+        },
+        {
+          "label": "USCIS 寻找法律服务",
+          "url": "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/find-legal-services"
+        },
+        {
+          "label": "USCIS 避免移民诈骗",
+          "url": "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-california-job-search-resume-linkedin",
+      "slug": "guide-california-job-search-resume-linkedin",
+      "articleType": "guide",
+      "categoryId": "jobs",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-california-job-search-resume-linkedin/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T14:30:00Z",
+      "tagIds": [
+        "job-search",
+        "resume",
+        "linkedin",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "在加州找工作：简历、LinkedIn、CalJOBS 与投递追踪",
+          "summary": "建立一套可重复的求职流程，从英文简历和关键词到政府免费就业资源与面试记录。",
+          "body": [
+            {
+              "heading": "先确定目标岗位",
+              "content": [
+                "不要用一份宽泛简历投所有职位。先选 1 至 3 个目标岗位，收集 10 至 20 条真实招聘信息，找出重复出现的技能、软件、证书和职责。",
+                "把海外经验转换成美国招聘者容易理解的成果表达，例如团队规模、销售增长、成本降低、交付时间和服务人数。"
+              ],
+              "checklist": [
+                "确定目标岗位名称",
+                "收集职位描述",
+                "整理关键词",
+                "列出可量化成果"
+              ]
+            },
+            {
+              "heading": "制作一页到两页英文简历",
+              "content": [
+                "多数企业岗位简历采用清晰的倒序结构：联系方式、职业摘要、技能、工作经历和教育。每条经历尽量用动作动词开头，并说明结果。",
+                "不需要在简历中放照片、年龄、婚姻状况、护照号或完整住址。文件名可使用 Firstname_Lastname_Role_Resume.pdf。"
+              ],
+              "checklist": [
+                "使用职位关键词",
+                "检查时态和拼写",
+                "删除不必要个人信息",
+                "导出 PDF",
+                "为每类岗位保存版本"
+              ]
+            },
+            {
+              "heading": "完善 LinkedIn 和公开形象",
+              "content": [
+                "LinkedIn 标题应说明目标角色和核心技能，而不只是写“Looking for opportunities”。About 部分可用 4 至 6 句总结经验、优势和目标。",
+                "联系校友、前同事、行业协会和本地活动时，先提出具体、低压力的问题，例如了解团队、行业或技能要求，而不是第一句话就要求内推。"
+              ],
+              "checklist": [
+                "专业头像",
+                "清晰 headline",
+                "填写技能和经历",
+                "自定义个人链接",
+                "每周建立有质量的联系"
+              ]
+            },
+            {
+              "heading": "使用 CalJOBS 与 AJCC",
+              "content": [
+                "CalJOBS 是加州的在线求职系统，可用于创建简历、搜索职位、设置提醒和查看培训资源。America’s Job Center of California（AJCC）提供免费的求职和培训支持。",
+                "建立投递表，记录职位、日期、联系人、简历版本、下一步和面试反馈。每周复盘哪个渠道带来的回复最多。"
+              ],
+              "checklist": [
+                "注册 CalJOBS",
+                "查找附近 AJCC",
+                "设置职位提醒",
+                "建立投递追踪表",
+                "每周跟进"
+              ]
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California EDD Jobs and Training",
+          "url": "https://edd.ca.gov/jobs_and_training/"
+        },
+        {
+          "label": "America’s Job Center of California",
+          "url": "https://edd.ca.gov/en/jobs_and_training/TCLobby/"
+        },
+        {
+          "label": "CalJOBS",
+          "url": "https://www.caljobs.ca.gov/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-first-job-i9-w4-paystub",
+      "slug": "guide-first-job-i9-w4-paystub",
+      "articleType": "guide",
+      "categoryId": "jobs",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-first-job-i9-w4-paystub/hero.jpg",
+      "readingMinutes": 9,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T14:45:00Z",
+      "tagIds": [
+        "work-authorization",
+        "form-i9",
+        "payroll",
+        "w2",
+        "ssn"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "美国第一份工作入职：I-9、W-4、工卡与工资单",
+          "summary": "解释入职时常见表格和证件选择，帮助员工核对工资、税款预扣与基本劳动权益。",
+          "body": [
+            {
+              "heading": "先确认工作授权",
+              "content": [
+                "在美国工作需要符合身份或工作授权规则。EAD、永久居民身份或某些身份类别可作为工作授权依据，但具体情况应查看 USCIS 规则。SSN 用于工资和税务报告，本身不自动提供工作许可。",
+                "雇主不应要求你从 I-9 可接受文件清单中只能提供某一份特定文件；员工可按规则选择合格的文件组合。"
+              ],
+              "checklist": [
+                "确认授权有效期",
+                "查看 I-9 可接受文件清单",
+                "不提交无关原件",
+                "保存入职文件副本"
+              ],
+              "warning": "ITIN 不能替代工作授权，也不能用于证明合法就业资格。"
+            },
+            {
+              "heading": "Form I-9 是什么",
+              "content": [
+                "Form I-9 用于核验新员工身份和工作授权。员工填写自己的部分，雇主在规定时间内检查文件并完成雇主部分。",
+                "提供真实、有效、属于本人的文件。不要购买、借用或伪造证件。遇到基于国籍或文件选择的不当要求，可记录情况并寻求合适帮助。"
+              ],
+              "checklist": [
+                "阅读完整说明",
+                "核对姓名和地址",
+                "选择合格文件组合",
+                "记录文件到期日"
+              ]
+            },
+            {
+              "heading": "Form W-4 决定联邦预扣",
+              "content": [
+                "W-4 告诉雇主如何计算联邦所得税预扣。婚姻状态、多个工作、其他收入、抵扣和额外预扣都会影响每次工资。",
+                "不要照抄同事的 W-4。家庭或收入变化后可重新提交。工资预扣不是最终税额，报税时会统一结算。"
+              ],
+              "checklist": [
+                "按真实情况填写 filing status",
+                "考虑多个工作",
+                "保留提交副本",
+                "首次工资后核对预扣"
+              ]
+            },
+            {
+              "heading": "读懂 pay stub 并保存税表",
+              "content": [
+                "工资单通常显示工资周期、工时、时薪或薪资、税前收入、扣款、税款和实发金额。核对姓名、工时、加班、州和联邦预扣及福利扣款。",
+                "每年收到 W-2 后，与全年工资单和银行入账比较。发现漏发工资、错误工时或不明扣款，应尽快书面询问雇主。"
+              ],
+              "checklist": [
+                "保存每张工资单",
+                "核对工时和费率",
+                "核对银行入账",
+                "保存 W-2",
+                "记录 HR 联系方式"
+              ],
+              "warning": "劳动权利和最低工资可能受州、市及行业规则影响；本文不替代劳动法意见。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "USCIS Form I-9",
+          "url": "https://www.uscis.gov/i-9"
+        },
+        {
+          "label": "I-9 可接受文件",
+          "url": "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents"
+        },
+        {
+          "label": "IRS Form W-4",
+          "url": "https://www.irs.gov/forms-pubs/about-form-w-4"
+        },
+        {
+          "label": "California 劳工权益",
+          "url": "https://www.dir.ca.gov/dlse/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-california-school-enrollment-newcomer",
+      "slug": "guide-california-school-enrollment-newcomer",
+      "articleType": "guide",
+      "categoryId": "education",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-california-school-enrollment-newcomer/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T15:00:00Z",
+      "tagIds": [
+        "school-enrollment",
+        "english-learners",
+        "newcomer",
+        "first-30-days"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "孩子在加州入学：学区、材料、疫苗与英语支持",
+          "summary": "为新到加州的家庭整理查学区、注册、提交成绩与疫苗记录，以及申请 English Learner 支持的步骤。",
+          "body": [
+            {
+              "heading": "先确认居住地址对应学区",
+              "content": [
+                "公立学校通常按居住地址和学区边界安排。使用当地学区官网的 school locator，并直接向 enrollment office 确认，不要只依赖房产网站或地图。",
+                "如果正处于临时住房、寄住或无固定住所状态，可能适用不同的立即入学保护，应联系学区 homeless education liaison。"
+              ],
+              "checklist": [
+                "查找学区官网",
+                "确认对应学校",
+                "联系注册办公室",
+                "询问年级和开学日期"
+              ]
+            },
+            {
+              "heading": "准备注册材料",
+              "content": [
+                "常见材料包括孩子的出生或身份信息、监护人信息、住址证明、疫苗记录、以前学校成绩单和特殊教育文件。海外文件最好准备原文和英文翻译。",
+                "不同学区接受的住址证明不同，可能包括租约、水电账单、政府信件或其他文件。材料不全时，先与学区说明情况并询问临时处理方式。"
+              ],
+              "checklist": [
+                "身份或出生文件",
+                "住址证明",
+                "疫苗记录",
+                "成绩单和课程说明",
+                "IEP/504 或评估报告（如有）"
+              ]
+            },
+            {
+              "heading": "核对加州疫苗要求",
+              "content": [
+                "加州对托儿和 K-12 入学有疫苗要求，学校会按年级核验记录。海外疫苗本应包含疫苗名称和接种日期；不清楚时可让医生或公共卫生机构评估。",
+                "不要等到注册当天才处理缺失记录。提前查看 Shots for School 的最新要求。"
+              ],
+              "checklist": [
+                "翻译疫苗名称",
+                "核对接种日期",
+                "预约补种或评估",
+                "保存学校提交副本"
+              ],
+              "warning": "疫苗要求和医学豁免有专门规则，应以 CDPH 和学校的最新说明为准。"
+            },
+            {
+              "heading": "申请英语与新生支持",
+              "content": [
+                "学校可能通过家庭语言调查和语言评估确定 English Learner 服务。家长可以询问课程安排、语言支持模式、重分类标准、翻译服务和毕业要求。",
+                "新生应能够进入标准学术课程，同时获得适当语言支持。高年级学生还应尽早进行学分评估，避免因海外课程转换延误毕业。"
+              ],
+              "checklist": [
+                "询问 English Learner 项目",
+                "申请口译或翻译",
+                "核对学分转换",
+                "了解辅导员和家长门户",
+                "参加迎新活动"
+              ]
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California CDE Newcomer Students",
+          "url": "https://www.cde.ca.gov/sp/ml/newcomerstudnts.asp"
+        },
+        {
+          "label": "California English Learner Roadmap",
+          "url": "https://www.cde.ca.gov/sp/ml/roadmap.asp"
+        },
+        {
+          "label": "Shots for School",
+          "url": "https://www.shotsforschool.org/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-adult-esl-community-college",
+      "slug": "guide-adult-esl-community-college",
+      "articleType": "guide",
+      "categoryId": "education",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-adult-esl-community-college/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T15:15:00Z",
+      "tagIds": [
+        "adult-esl",
+        "community-college",
+        "english-learners",
+        "job-search"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "成人英语与社区大学：免费 Noncredit ESL 到证书课程",
+          "summary": "介绍如何寻找成人英语课、社区大学 noncredit 课程、职业证书和学生支持服务。",
+          "body": [
+            {
+              "heading": "先明确学习目标",
+              "content": [
+                "成人英语课程可能侧重生活英语、就业英语、学术英语、公民入籍或职业领域。先确定目标和每周可投入时间，再选择白天、晚间、线上或混合课程。",
+                "如果未来计划读学位，不要只追求口语班，也应了解写作、阅读和大学衔接课程。"
+              ],
+              "checklist": [
+                "生活英语",
+                "工作英语",
+                "大学衔接",
+                "职业证书",
+                "公民入籍准备"
+              ]
+            },
+            {
+              "heading": "寻找 adult school 和社区大学",
+              "content": [
+                "本地成人学校、图书馆、社区组织和 California Community Colleges 都可能提供 ESL。社区大学的 noncredit 课程通常不收学分学费，适合语言、基础技能和职业准备。",
+                "搜索时使用“城市名 + adult school ESL”或在社区大学官网查看 Noncredit、Adult Education 和 ESL 页面。"
+              ],
+              "checklist": [
+                "查找最近学校",
+                "比较上课时间",
+                "确认是否免费",
+                "询问分班测试",
+                "确认停车或公交"
+              ]
+            },
+            {
+              "heading": "了解 credit 与 noncredit",
+              "content": [
+                "Credit 课程计入大学学分，可能用于证书、学位或转学；noncredit 课程通常不计学位学分，但可帮助提升英语、就业和基础技能。部分 noncredit 项目可以获得 completion certificate。",
+                "如果目标是转学或学位，应尽早与 counselor 讨论课程路径，避免选课无法计入计划。"
+              ],
+              "checklist": [
+                "确认课程是否有学分",
+                "查看证书路径",
+                "预约 counselor",
+                "询问衔接到 credit ESL 的条件"
+              ]
+            },
+            {
+              "heading": "利用学生支持服务",
+              "content": [
+                "许多社区大学提供辅导、写作中心、职业服务、残障学生支持、托儿资源、食品援助和技术借用。注册后主动参加 orientation 并查看 student portal。",
+                "准备护照或身份证、地址、以前教育信息和可能要求的居留信息；具体学费和资格由学校决定。"
+              ],
+              "checklist": [
+                "参加 orientation",
+                "申请学生账号",
+                "使用 tutoring",
+                "咨询职业服务",
+                "制定每学期目标"
+              ],
+              "warning": "课程费用、居民学费和资助资格与个人情况有关，应由学校官方办公室确认。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California Community Colleges Noncredit",
+          "url": "https://www.cccco.edu/About-Us/Chancellors-Office/Divisions/Educational-Services-and-Support/What-we-do/Curriculum-and-Instruction-Unit/Curriculum/Noncredit-Curriculum-and-Instructional-Programs"
+        },
+        {
+          "label": "California Community Colleges 学生入口",
+          "url": "https://www.cccco.edu/Students"
+        },
+        {
+          "label": "California Adult Education",
+          "url": "https://caladulted.org/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-buy-used-car-california-private-party",
+      "slug": "guide-buy-used-car-california-private-party",
+      "articleType": "guide",
+      "categoryId": "transportation",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-buy-used-car-california-private-party/hero.jpg",
+      "readingMinutes": 9,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T15:30:00Z",
+      "tagIds": [
+        "used-car",
+        "vehicle-registration",
+        "auto-insurance",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "加州私人交易买二手车：Title、Smog、过户与保险",
+          "summary": "按交易前、付款时和买车后十天内的顺序，整理私人二手车交易的重要步骤。",
+          "body": [
+            {
+              "heading": "看车前先查基本信息",
+              "content": [
+                "向卖家索取 VIN、车牌、里程、title 状态、维修记录和 smog 信息。核对卖家姓名是否与 title 上的车主一致，并查看是否有 lienholder。",
+                "车辆历史报告不能代替独立检测。尽量安排可信技师做 pre-purchase inspection，重点检查事故修复、发动机、变速箱、刹车、轮胎和排放系统。"
+              ],
+              "checklist": [
+                "核对 VIN",
+                "核对 title 车主",
+                "查看 lien",
+                "查看维修记录",
+                "安排购前检测"
+              ],
+              "warning": "不要购买 title 缺失、卖家拒绝核验身份或要求空白签字的车辆。"
+            },
+            {
+              "heading": "付款与文件签署",
+              "content": [
+                "交易时逐项填写 title 和 bill of sale，记录价格、日期、里程、VIN、买卖双方姓名和联系方式。避免在 title 上涂改；填写错误可能需要额外表格。",
+                "使用可追踪付款方式，并在交款前确认钥匙、车辆、原始 title 和相关文件同时交付。"
+              ],
+              "checklist": [
+                "完整填写 title",
+                "签署 bill of sale",
+                "记录里程",
+                "保存卖家身份证明信息",
+                "索要付款收据"
+              ]
+            },
+            {
+              "heading": "安排保险",
+              "content": [
+                "在驾驶车辆前联系保险公司确认生效时间。加州标准汽车保单的最低责任险要求自 2025 年起为 30/60/15：每人身体伤害 30,000 美元、每次事故多人身体伤害 60,000 美元、财产损失 15,000 美元。",
+                "最低限额不一定足以覆盖严重事故。比较责任险、碰撞险、综合险、无保险或保险不足驾驶人保障和 deductible。"
+              ],
+              "checklist": [
+                "取得生效中的保险证明",
+                "核对 VIN",
+                "比较 deductible",
+                "保存保险卡"
+              ],
+              "warning": "保险必须在开车前确认生效，不要假设卖家的保险会继续覆盖买方。"
+            },
+            {
+              "heading": "十天内完成过户",
+              "content": [
+                "买方通常需要在购买后 10 天内向 DMV 报告所有权变更并完成 title transfer。准备签署后的 title、相关表格、费用、税款和适用的 smog 文件。",
+                "提交后保留临时登记或付款凭证，并跟进正式 title 和 registration。卖方则应按规定提交 Notice of Transfer and Release of Liability。"
+              ],
+              "checklist": [
+                "10 天内提交过户",
+                "支付税费",
+                "保留提交凭证",
+                "确认 registration 邮寄地址",
+                "收到 title 后核对信息"
+              ],
+              "warning": "车辆交易税费、smog 例外和特殊 title 情况较复杂，应使用 DMV 官方工具核对。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "DMV 私人交易车辆登记",
+          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/new-registration/registering-a-vehicle-purchased-from-a-private-party/"
+        },
+        {
+          "label": "DMV Title Transfer",
+          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/titles/title-transfers-and-changes/"
+        },
+        {
+          "label": "California 汽车保险要求",
+          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/insurance-requirements/"
+        },
+        {
+          "label": "California Department of Insurance 汽车保险",
+          "url": "https://www.insurance.ca.gov/01-consumers/105-type/95-guides/01-auto/auto101.cfm"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-public-transit-commute-parking",
+      "slug": "guide-public-transit-commute-parking",
+      "articleType": "guide",
+      "categoryId": "transportation",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-public-transit-commute-parking/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T15:45:00Z",
+      "tagIds": [
+        "public-transit",
+        "parking",
+        "first-30-days",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "加州通勤入门：公共交通、换乘、停车与路边颜色",
+          "summary": "帮助新居民规划公交和轨道交通通勤，并理解常见停车标志和路边颜色规则。",
+          "body": [
+            {
+              "heading": "先找本地交通机构",
+              "content": [
+                "加州没有统一覆盖全州所有公交的单一运营商。湾区、洛杉矶、圣地亚哥和其他城市由不同机构运营。先根据住址和目的地确定主要 transit agency，再下载官方 App 或使用官方 trip planner。",
+                "规划时同时查看首末班时间、周末时刻、换乘余量、车站安全、无障碍信息和票价规则。"
+              ],
+              "checklist": [
+                "确认运营机构",
+                "下载官方 App",
+                "收藏常用线路",
+                "查看服务公告",
+                "准备备用路线"
+              ]
+            },
+            {
+              "heading": "试走一次完整通勤",
+              "content": [
+                "正式上班或上学前，在相似时间试走一次，记录步行时间、换乘位置、站台方向和信号较弱的路段。高峰时段和周末班次可能不同。",
+                "使用充值卡或手机票时，确认是否需要上车 tap、下车 tap，或换乘时再次验证。"
+              ],
+              "checklist": [
+                "提前试走",
+                "预留 15 至 20 分钟",
+                "截图线路和站点",
+                "携带充电宝",
+                "查看晚间返程"
+              ]
+            },
+            {
+              "heading": "开车通勤要看停车标志",
+              "content": [
+                "停车规则以现场标志为准。注意街道清扫、居民许可、时间限制、装卸区、消防栓和车道限制。不要只看其他车辆是否停在那里。",
+                "停车收费 App 应从城市或停车运营方官网下载安装，付款后保存车牌和交易记录。"
+              ],
+              "checklist": [
+                "读完整个路牌",
+                "确认日期和时段",
+                "检查车牌输入",
+                "保存付款确认",
+                "设置停车到期提醒"
+              ]
+            },
+            {
+              "heading": "认识常见路边颜色",
+              "content": [
+                "白色路边通常只允许短暂停车上下乘客；绿色表示限时停车；黄色多用于装卸乘客或货物；红色禁止停车、停留或站立。蓝色通常与残障停车相关，需要合法 placard 或牌照。",
+                "具体限制可能随城市标志和时间变化，颜色只是基础提示。"
+              ],
+              "checklist": [
+                "白色：短暂上下客",
+                "绿色：限时",
+                "黄色：装卸",
+                "红色：禁止停车",
+                "蓝色：残障许可"
+              ],
+              "warning": "停车规则违反可能导致罚单或拖车；始终以现场标志、路缘标记和当地规定为准。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "California DMV 路边颜色与停车",
+          "url": "https://www.dmv.ca.gov/portal/handbook/california-driver-handbook/navigating-the-roads-cont1/"
+        },
+        {
+          "label": "湾区 511",
+          "url": "https://511.org/home"
+        },
+        {
+          "label": "南加州 511",
+          "url": "https://go511.com/"
+        },
+        {
+          "label": "Los Angeles Metro Trip Planner",
+          "url": "https://www.metro.net/riding/trip-planner/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-set-up-phone-internet-utilities",
+      "slug": "guide-set-up-phone-internet-utilities",
+      "articleType": "guide",
+      "categoryId": "daily-life",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-set-up-phone-internet-utilities/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T16:00:00Z",
+      "tagIds": [
+        "phone-internet",
+        "utilities",
+        "moving",
+        "first-30-days"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "搬入新家后开通手机、网络、水电煤：顺序与避坑",
+          "summary": "按入住前后时间线安排手机、家庭网络、电力、燃气和水务，并核对押金、设备与账单。",
+          "body": [
+            {
+              "heading": "先问清哪些费用包含在房租里",
+              "content": [
+                "签约前确认水、垃圾、污水、电、燃气、网络和停车分别由谁承担。有些公寓由物业统一计费，有些需要租客直接向公用事业公司开户。",
+                "向房东索取对应供应商名称和 meter 信息，不要根据邻居或旧广告猜测。"
+              ],
+              "checklist": [
+                "确认电力公司",
+                "确认燃气公司",
+                "确认水和垃圾",
+                "确认网络线路",
+                "记录服务起始日"
+              ]
+            },
+            {
+              "heading": "安排 start、stop 或 transfer service",
+              "content": [
+                "电力和燃气通常可通过所在地区的公用事业公司办理开通、停止或转移。准备姓名、服务地址、开始日期、身份证明和可能的押金。",
+                "搬家当天拍摄电表或燃气表读数，保存开通确认号和第一张账单，核对是否包含前住户费用。"
+              ],
+              "checklist": [
+                "提前预约开通",
+                "保存确认号码",
+                "拍摄表读数",
+                "核对首账单",
+                "设置自动付款提醒"
+              ],
+              "warning": "不要向自称公用事业公司的陌生来电立即付款；断电威胁类诈骗很常见。"
+            },
+            {
+              "heading": "选择手机和家庭网络",
+              "content": [
+                "手机计划比较覆盖、数据量、热点、国际漫游、合约、设备分期和税费。家庭网络比较下载和上传速度、数据上限、设备租金、安装费、促销结束后的价格和取消条件。",
+                "先用服务商地址查询工具确认可用线路，再签约。不要只看“最高速度”，还要看实际计划和设备费用。"
+              ],
+              "checklist": [
+                "检查地址覆盖",
+                "比较促销后价格",
+                "确认设备租金",
+                "确认安装时间",
+                "保存退还设备规则"
+              ]
+            },
+            {
+              "heading": "查看低收入折扣项目",
+              "content": [
+                "符合条件的家庭可查看 California LifeLine、联邦 Lifeline、低价网络计划或公用事业援助。项目资格、补贴金额和申请流程会调整，应从 CPUC、FCC 或当地供应商官网申请。",
+                "申请时只提交官方要求的材料，并记录年度续期日期。"
+              ],
+              "checklist": [
+                "查看 California LifeLine",
+                "查看 Federal Lifeline",
+                "查看低价宽带计划",
+                "查看电气费援助",
+                "设置续期提醒"
+              ],
+              "warning": "ACP 已结束，不要把旧的 ACP 广告当成当前仍可申请的项目。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "CPUC 开通、停止或转移公用事业",
+          "url": "https://www.cpuc.ca.gov/consumer-support/late-bill-assistance/my-service"
+        },
+        {
+          "label": "California LifeLine",
+          "url": "https://www.cpuc.ca.gov/consumer-support/financial-assistance-savings-and-discounts/lifeline"
+        },
+        {
+          "label": "California 低价网络计划",
+          "url": "https://webtraining.cpuc.ca.gov/industries-and-topics/internet-and-phone/california-low-cost-internet-plans"
+        },
+        {
+          "label": "Federal Lifeline",
+          "url": "https://www.fcc.gov/lifeline-consumers"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-first-30-days-community-resources",
+      "slug": "guide-first-30-days-community-resources",
+      "articleType": "guide",
+      "categoryId": "daily-life",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-first-30-days-community-resources/hero.jpg",
+      "readingMinutes": 7,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T16:15:00Z",
+      "tagIds": [
+        "first-30-days",
+        "community-resources",
+        "newcomer",
+        "phone-internet"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "到加州前 30 天生活清单：地址、购物、社区与 211 资源",
+          "summary": "把新生活拆成四周任务，优先处理通信、住址、交通、医疗和本地资源。",
+          "body": [
+            {
+              "heading": "第 1 周：建立稳定联系方式",
+              "content": [
+                "先解决可长期使用的美国手机号、电子邮箱和收信地址。重要账户尽量使用同一英文姓名格式，避免中间名、拼音和姓氏顺序不一致。",
+                "建立一个“美国生活文件夹”，保存租约、银行、保险、学校、车辆、税务和移民材料。"
+              ],
+              "checklist": [
+                "开通手机号",
+                "确认收信地址",
+                "创建重要账户邮箱",
+                "建立纸质和云端文件夹"
+              ]
+            },
+            {
+              "heading": "第 2 周：熟悉附近生活圈",
+              "content": [
+                "标记最近的超市、药房、邮局、银行 ATM、urgent care、医院、图书馆、公交站和警察非紧急电话。",
+                "购物时保留高价商品收据，查看退换货期限、restocking fee 和会员自动续费。使用信用卡或借记卡后及时核对交易。"
+              ],
+              "checklist": [
+                "建立附近地点清单",
+                "申请图书馆卡",
+                "保存收据",
+                "了解退货政策",
+                "设置交易提醒"
+              ]
+            },
+            {
+              "heading": "第 3 周：建立本地支持网络",
+              "content": [
+                "公共图书馆、社区中心、学校、宗教或文化组织、城市 recreation program 和非营利机构常提供英语课、求职、青少年活动和法律讲座。",
+                "不要等到紧急情况才寻找资源。提前保存 211、当地 county 服务和所在城市官网。"
+              ],
+              "checklist": [
+                "查找图书馆活动",
+                "查找社区中心",
+                "保存县政府网站",
+                "加入可信本地群组"
+              ]
+            },
+            {
+              "heading": "第 4 周：使用 211 查找帮助",
+              "content": [
+                "211 California 提供免费的信息和转介，可帮助查找住房、食品、医疗、交通、公用事业和财务援助。可通过电话、短信或网站使用，具体方式按当地 211 服务。",
+                "联系时准备 ZIP code、家庭人数、语言、需要的服务和时间限制。记录机构名称、申请条件和下一步。"
+              ],
+              "checklist": [
+                "保存 211",
+                "准备 ZIP code",
+                "明确需求",
+                "记录转介结果",
+                "核验机构官网"
+              ],
+              "warning": "211 是资源转介服务，不是 911。生命危险、火灾或正在发生的犯罪应拨打 911。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "211 California",
+          "url": "https://211ca.org/"
+        },
+        {
+          "label": "查找本地 211",
+          "url": "https://211ca.org/find-your-local-211/"
+        },
+        {
+          "label": "California 州政府服务",
+          "url": "https://www.ca.gov/services/"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-first-year-tax-documents-california",
+      "slug": "guide-first-year-tax-documents-california",
+      "articleType": "guide",
+      "categoryId": "taxes",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-first-year-tax-documents-california/hero.jpg",
+      "readingMinutes": 9,
+      "isFeatured": true,
+      "publishedAt": "2026-07-04T16:30:00Z",
+      "tagIds": [
+        "taxes-basics",
+        "w2",
+        "form-1099",
+        "tax-records",
+        "calfile"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "在加州第一次报税：W-2、1099 与全年文件整理",
+          "summary": "从建立税务文件夹到核对联邦和加州报税材料，帮助新居民为报税季提前准备。",
+          "body": [
+            {
+              "heading": "先建立年度税务文件夹",
+              "content": [
+                "按税务年度分别保存收入、预扣税、医疗保险、教育、托儿、慈善、住房和投资资料。纸质文件扫描后命名为“年份_表格_机构_姓名”。",
+                "常见收入文件包括雇主发出的 W-2，以及银行、平台、客户或政府机构发出的不同类型 1099。即使没有收到某张 1099，应税收入也可能仍需报告。"
+              ],
+              "checklist": [
+                "W-2",
+                "1099-INT",
+                "1099-NEC/MISC",
+                "1099-K",
+                "失业金或其他政府税表",
+                "银行利息和投资税表"
+              ]
+            },
+            {
+              "heading": "核对姓名、税号与地址",
+              "content": [
+                "收到税表后检查姓名拼写、SSN/ITIN 尾号、雇主或付款方信息、收入和预扣税。错误应尽快联系出表机构更正。",
+                "搬家后更新雇主、银行和税务账户地址，避免税表寄往旧址。电子税表下载后应保存在安全位置。"
+              ],
+              "checklist": [
+                "核对姓名",
+                "核对税号",
+                "核对收入",
+                "核对联邦预扣",
+                "核对 California 预扣"
+              ]
+            },
+            {
+              "heading": "联邦和加州可能都要申报",
+              "content": [
+                "联邦报税由 IRS 管理；加州个人所得税由 Franchise Tax Board（FTB）管理。是否需要申报以及使用居民、部分年度居民或非居民表格，取决于居住状态、收入和其他情况。",
+                "如果年中搬入加州或有州外、海外收入，州税居民身份和收入来源判断可能较复杂，应谨慎处理。"
+              ],
+              "checklist": [
+                "确认联邦 filing requirement",
+                "确认 California residency status",
+                "核对州外和海外收入",
+                "保留入境与搬家日期证据"
+              ],
+              "warning": "移民身份、税务居民身份和州税居民身份不是同一概念。"
+            },
+            {
+              "heading": "选择报税方式并保存回执",
+              "content": [
+                "可比较 IRS 官方免费申报选项、合格的 VITA/TCE 志愿者服务、商业软件或税务专业人士。符合条件的加州居民可查看 CalFile 免费州税申报。",
+                "提交后保存完整申报表、所有附件、电子确认、付款记录和退款信息。不要只保留软件摘要。"
+              ],
+              "checklist": [
+                "核验报税员资质",
+                "确认银行退款账户",
+                "保存电子确认",
+                "下载完整 PDF",
+                "记录付款或退款日期"
+              ],
+              "warning": "税法会按年度变化；本文只用于准备文件，不提供个别税务结论。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "IRS 报税前准备",
+          "url": "https://www.irs.gov/individuals/get-ready-to-file-your-taxes"
+        },
+        {
+          "label": "IRS 税务记录保存",
+          "url": "https://www.irs.gov/taxtopics/tc305"
+        },
+        {
+          "label": "California FTB 个人报税",
+          "url": "https://www.ftb.ca.gov/file/personal/index.html"
+        },
+        {
+          "label": "California CalFile",
+          "url": "https://www.ftb.ca.gov/file/ways-to-file/online/calfile/index.asp"
+        }
+      ],
+      "mediaAssets": []
+    },
+    {
+      "id": "guide-itin-basics-application",
+      "slug": "guide-itin-basics-application",
+      "articleType": "guide",
+      "categoryId": "taxes",
+      "status": "draft",
+      "coverImageKey": "assets/platform/guide/guide-itin-basics-application/hero.jpg",
+      "readingMinutes": 8,
+      "isFeatured": false,
+      "publishedAt": "2026-07-04T16:45:00Z",
+      "tagIds": [
+        "itin",
+        "taxes-basics",
+        "tax-records",
+        "newcomer"
+      ],
+      "translations": [
+        {
+          "locale": "zh-CN",
+          "title": "ITIN 是什么：申请用途、W-7 材料与常见误解",
+          "summary": "解释 ITIN 的税务用途、谁可能需要、如何准备 W-7，以及它与 SSN 和工作许可的区别。",
+          "body": [
+            {
+              "heading": "ITIN 的用途",
+              "content": [
+                "Individual Taxpayer Identification Number（ITIN）是 IRS 为需要美国联邦税务识别号码、但不符合 SSN 资格的人签发的九位号码。它用于联邦税务目的。",
+                "ITIN 可能用于提交税表、申请符合条件的退款或税收优惠，或满足其他联邦税务要求。加州也允许符合州申报要求的纳税人使用 ITIN 报州税。"
+              ]
+            },
+            {
+              "heading": "ITIN 不是什么",
+              "content": [
+                "ITIN 不提供或改变移民身份，不授权在美国工作，也不等于 SSN。不要把 ITIN 卡或信件当作工作许可证明。",
+                "是否能开户、租房或办理其他服务由机构政策决定；ITIN 的核心法律用途仍是税务识别。"
+              ],
+              "checklist": [
+                "不等于 SSN",
+                "不等于 EAD",
+                "不改变移民身份",
+                "不自动带来福利资格"
+              ],
+              "warning": "任何声称“买 ITIN 就能合法工作或获得身份”的说法都不可信。"
+            },
+            {
+              "heading": "申请通常使用 Form W-7",
+              "content": [
+                "申请 ITIN 通常提交 Form W-7，并附上证明身份和外国人身份的文件；多数申请还需要附联邦税表，除非符合 IRS 规定的例外。",
+                "原件、签发机构认证副本、Acceptance Agent 或 IRS Taxpayer Assistance Center 的办理方式各有要求。不要把唯一的护照原件寄出前却不了解处理时间和替代验证选项。"
+              ],
+              "checklist": [
+                "确认是否有联邦税务目的",
+                "填写最新版 W-7",
+                "准备合格身份证明",
+                "确认是否附税表",
+                "保存完整申请副本"
+              ]
+            },
+            {
+              "heading": "收到 ITIN 后的管理",
+              "content": [
+                "把 ITIN 通知信与历年税表一起保存。向银行、雇主或税务软件提供税号时，核对用途和隐私保护。",
+                "如果后来取得 SSN，应按 IRS 指引通知并合并税务记录，不要继续用两个号码分别报税。ITIN 可能因长期未使用或其他规则需要续期，报税前查看 IRS 最新状态。"
+              ],
+              "checklist": [
+                "保存 CP565 通知",
+                "保护完整号码",
+                "报税前确认有效状态",
+                "取得 SSN 后联系 IRS"
+              ],
+              "warning": "申请 ITIN 或处理复杂跨境税务时，可咨询有资质的税务专业人士或 IRS 认可渠道。"
+            }
+          ]
+        }
+      ],
+      "officialLinks": [
+        {
+          "label": "IRS ITIN 官方说明",
+          "url": "https://www.irs.gov/tin/itin/individual-taxpayer-identification-number-itin"
+        },
+        {
+          "label": "IRS Form W-7",
+          "url": "https://www.irs.gov/forms-pubs/about-form-w-7"
+        },
+        {
+          "label": "California FTB ITIN",
+          "url": "https://www.ftb.ca.gov/file/personal/credits/itin.html"
+        }
+      ],
+      "mediaAssets": []
+    }
+  ]
+}

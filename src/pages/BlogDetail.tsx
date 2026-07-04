@@ -1,4 +1,5 @@
 import { Bookmark, CalendarDays, Clock, ExternalLink, Tag } from 'lucide-react';
+import { formatBlogBodyBlock, type BlogBodyTone } from '../lib/blogBodyFormat';
 import { BlogArticle } from '../lib/blogContent';
 
 interface BlogDetailProps {
@@ -8,6 +9,8 @@ interface BlogDetailProps {
 }
 
 export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetailProps) {
+  const bodyBlocks = article.body.map(formatBlogBodyBlock);
+
   return (
     <article className="pt-20 pb-24 max-w-2xl mx-auto">
       <header className="px-4 pb-6">
@@ -61,12 +64,37 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
         className="h-64 w-full object-cover md:rounded-2xl"
       />
 
-      <section className="px-4 pt-6 text-base leading-7 text-on-surface">
-        {article.body.map((paragraph, index) => (
-          <p key={index} className="mb-5">
-            {paragraph}
-          </p>
-        ))}
+      <section className="px-4 pt-6">
+        <div className="flex flex-col gap-4">
+          {bodyBlocks.map((block, index) => (
+            <section key={index} className={getBodyBlockClassName(block.tone)}>
+              {block.heading ? (
+                <h2 className={getBodyHeadingClassName(block.tone)}>
+                  {block.heading}
+                </h2>
+              ) : null}
+
+              {block.content ? (
+                <p className={getBodyContentClassName(block.tone)}>
+                  {block.content}
+                </p>
+              ) : null}
+
+              {block.listItems.length ? (
+                <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {block.listItems.map((item) => (
+                    <li
+                      key={item}
+                      className="rounded-xl bg-white px-3 py-2 text-sm font-medium leading-6 text-on-surface shadow-sm"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
+          ))}
+        </div>
       </section>
 
       {article.officialLinks?.length ? (
@@ -95,4 +123,50 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
       ) : null}
     </article>
   );
+}
+
+function getBodyBlockClassName(tone: BlogBodyTone) {
+  const base = "rounded-2xl border p-4";
+
+  if (tone === "checklist") {
+    return `${base} border-primary/20 bg-primary/5`;
+  }
+
+  if (tone === "notice") {
+    return `${base} border-secondary/20 bg-secondary-container/40`;
+  }
+
+  if (tone === "warning") {
+    return `${base} border-red-200 bg-red-50`;
+  }
+
+  return `${base} border-outline-variant bg-white`;
+}
+
+function getBodyHeadingClassName(tone: BlogBodyTone) {
+  const base = "mb-2 text-lg font-bold leading-snug";
+
+  if (tone === "checklist") {
+    return `${base} text-primary`;
+  }
+
+  if (tone === "notice") {
+    return `${base} text-secondary`;
+  }
+
+  if (tone === "warning") {
+    return `${base} text-red-700`;
+  }
+
+  return `${base} text-on-surface`;
+}
+
+function getBodyContentClassName(tone: BlogBodyTone) {
+  const base = "text-[15px] leading-7";
+
+  if (tone === "warning") {
+    return `${base} text-red-900`;
+  }
+
+  return `${base} text-on-surface-variant`;
 }
