@@ -25,8 +25,15 @@ export default function TopAppBar({ title, showBack, onBack }: TopAppBarProps) {
           </button>
         )}
         <div className="flex items-center gap-2">
-          {!showBack && <Languages className="text-primary" size={24} />}
-          <h1 className="text-xl font-bold text-primary tracking-tight">{title}</h1>
+          {!showBack ? (
+            <img
+              src="/brand/full-logo.png"
+              alt="CaliGuide"
+              className="h-9 w-auto max-w-[180px] object-contain"
+            />
+          ) : (
+            <h1 className="text-xl font-bold text-primary tracking-tight">{title}</h1>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-2">

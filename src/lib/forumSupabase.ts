@@ -146,6 +146,7 @@ export async function fetchForumDiscussionsFromSupabase(client: SupabaseLike) {
 }
 
 export function buildForumPostInsert(input: {
+  id?: string;
   userId: string;
   author: string;
   avatar: string;
@@ -156,7 +157,9 @@ export function buildForumPostInsert(input: {
   const body = input.body.trim();
 
   return {
+    ...(input.id ? { id: input.id } : {}),
     user_id: input.userId,
+    author_id: input.userId,
     author_name: input.author.trim() || "CaliGuide Member",
     author_avatar: input.avatar.trim() || createInitials(input.author),
     category: input.category,
@@ -197,6 +200,7 @@ export function buildForumCommentInsert(input: {
   return {
     post_id: input.postId,
     user_id: input.userId,
+    author_id: input.userId,
     author_name: input.author.trim() || "CaliGuide Member",
     author_avatar: input.avatar.trim() || createInitials(input.author),
     body: input.body.trim(),
@@ -224,6 +228,7 @@ export function buildForumVoteUpsert(
     target_type: targetType,
     target_id: targetId,
     user_id: userId,
+    author_id: userId,
     vote_type: voteType,
   };
 }

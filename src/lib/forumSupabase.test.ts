@@ -63,6 +63,7 @@ describe("forumSupabase", () => {
   it("builds inserts for forum posts, comments, and votes", () => {
     expect(
       buildForumPostInsert({
+        id: "11111111-1111-4111-8111-111111111111",
         userId: "user-1",
         author: "Maya Chen",
         avatar: "MC",
@@ -71,7 +72,9 @@ describe("forumSupabase", () => {
         body: "What should I prepare?",
       }),
     ).toMatchObject({
+      id: "11111111-1111-4111-8111-111111111111",
       user_id: "user-1",
+      author_id: "user-1",
       author_name: "Maya Chen",
       author_avatar: "MC",
       category: "Housing",
@@ -90,6 +93,7 @@ describe("forumSupabase", () => {
     ).toEqual({
       post_id: "post-1",
       user_id: "user-1",
+      author_id: "user-1",
       author_name: "Maya Chen",
       author_avatar: "MC",
       body: "Bring proof of income.",
@@ -99,6 +103,7 @@ describe("forumSupabase", () => {
       target_type: "post",
       target_id: "post-1",
       user_id: "user-1",
+      author_id: "user-1",
       vote_type: "useful",
     });
   });

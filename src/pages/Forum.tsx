@@ -42,6 +42,8 @@ interface ForumProps {
   onToggleUnuseful: (discussionId: string) => void;
   onOpenBlog: (articleId: string) => void;
   currentUserId: string;
+  syncError?: string;
+  onClearSyncError?: () => void;
 }
 
 const topicIcons: Record<string, LucideIcon> = {
@@ -63,6 +65,8 @@ export default function Forum({
   onToggleUnuseful,
   onOpenBlog,
   currentUserId,
+  syncError,
+  onClearSyncError,
 }: ForumProps) {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
@@ -123,6 +127,22 @@ export default function Forum({
         <h2 className="text-3xl font-bold text-primary mb-2">{t('forum.title')}</h2>
         <p className="text-sm text-on-surface-variant">{t('forum.subtitle')}</p>
       </section>
+
+      {syncError && (
+        <section className="px-4 mb-5">
+          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="flex-1 leading-6">{syncError}</p>
+            <button
+              type="button"
+              aria-label="Dismiss sync error"
+              onClick={onClearSyncError}
+              className="rounded-full p-1 text-red-700 transition-colors hover:bg-red-100"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </section>
+      )}
 
       <section className="px-4 mb-5">
         <div className="relative">

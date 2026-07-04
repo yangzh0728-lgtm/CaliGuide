@@ -42,6 +42,7 @@ describe("forumContent", () => {
     expect(discussion.title).toBe("What should I prepare for my first apartment tour?");
     expect(discussion.category).toBe("Housing");
     expect(discussion.author).toBe("Preview User");
+    expect(discussion.id).toMatch(/^[0-9a-f-]{36}$/);
     expect(discussion.comments).toBe(0);
     expect(discussion.body[0]).toContain("I want to know");
     expect(discussion.body.join(" ")).not.toMatch(/placeholder/i);
@@ -70,6 +71,7 @@ describe("forumContent", () => {
 
     expect(discussion.replies).toHaveLength(0);
     expect(updated.replies).toHaveLength(1);
+    expect(updated.replies[0].id).toMatch(/^[0-9a-f-]{36}$/);
     expect(updated.replies[0].author).toBe("Maya Chen");
     expect(updated.replies[0].avatar).toBe("MC");
     expect(updated.replies[0].body).toBe("This is a helpful answer from the forum.");

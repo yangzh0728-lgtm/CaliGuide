@@ -382,7 +382,7 @@ export function createForumDiscussion(input: {
       .join("") || "U";
 
   return {
-    id: `user-post-${Date.now()}`,
+    id: createForumId(),
     author,
     avatar: initials,
     time: "Just now",
@@ -423,7 +423,7 @@ export function addForumComment(
     replies: [
       ...discussion.replies,
       {
-        id: `reply-${Date.now()}`,
+        id: createForumId(),
         author,
         avatar: createInitials(author),
         time: "Just now",
@@ -433,6 +433,10 @@ export function addForumComment(
       },
     ],
   };
+}
+
+function createForumId() {
+  return crypto.randomUUID();
 }
 
 export function getUsefulCount(item: { usefulCount?: number; usefulUserIds?: string[] }) {

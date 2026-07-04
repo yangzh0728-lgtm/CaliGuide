@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { CalendarDays, Eye, MessageSquare, Send, Tag, ThumbsDown, ThumbsUp } from "lucide-react";
+import { CalendarDays, Eye, MessageSquare, Send, Tag, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -17,6 +17,8 @@ interface ForumDetailProps {
   onToggleCommentUseful: (discussionId: string, commentId: string) => void;
   onToggleCommentUnuseful: (discussionId: string, commentId: string) => void;
   currentUserId: string;
+  syncError?: string;
+  onClearSyncError?: () => void;
 }
 
 export default function ForumDetail({
@@ -27,6 +29,8 @@ export default function ForumDetail({
   onToggleCommentUseful,
   onToggleCommentUnuseful,
   currentUserId,
+  syncError,
+  onClearSyncError,
 }: ForumDetailProps) {
   const [commentBody, setCommentBody] = useState("");
   const commentCount = getForumReplyCount(discussion);
@@ -45,6 +49,22 @@ export default function ForumDetail({
 
   return (
     <article className="pt-20 pb-24 max-w-2xl mx-auto">
+      {syncError && (
+        <section className="px-4 pb-5">
+          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="flex-1 leading-6">{syncError}</p>
+            <button
+              type="button"
+              aria-label="Dismiss sync error"
+              onClick={onClearSyncError}
+              className="rounded-full p-1 text-red-700 transition-colors hover:bg-red-100"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </section>
+      )}
+
       <header className="px-4 pb-6">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-fixed font-bold text-on-primary-fixed">

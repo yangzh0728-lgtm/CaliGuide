@@ -18,6 +18,11 @@ import {
   buildMem0MemoryContext,
   getRelevantMem0Memories,
 } from "./src/lib/mem0Memory";
+import {
+  buildForumCommentInsert,
+  buildForumPostInsert,
+  buildForumVoteUpsert,
+} from "./src/lib/forumSupabase";
 
 dotenv.config();
 
@@ -140,6 +145,140 @@ async function startServer() {
           console.warn(`[upload:${data.user.id}] media metadata skipped`, error.message);
         }
       });
+  });
+
+  app.post("/api/forum/posts", async (req, res) => {
+    if (!supabaseAdmin) {
+      return res.status(500).json({ error: "Supabase service role must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const title = getRequiredString(req.body?.title, "Title is required");
+    const body = getRequiredString(req.body?.body, "Post body is required");
+    const category = getRequiredString(req.body?.category, "Category is required");
+    const author = getRequiredString(req.body?.author, "Author is required");
+    const avatar = getRequiredString(req.body?.avatar, "Avatar is required");
+    const clientPostId = getOptionalUuid(req.body?.id);
+
+    if (title instanceof Error) return res.status(400).json({ error: title.message });
+    if (body instanceof Error) return res.status(400).json({ error: body.message });
+    if (category instanceof Error) return res.status(400).json({ error: category.message });
+    if (author instanceof Error) return res.status(400).json({ error: author.message });
+    if (avatar instanceof Error) return res.status(400).json({ error: avatar.message });
+    if (clientPostId instanceof Error) return res.status(400).json({ error: clientPostId.message });
+
+    const { data, error } = await supabaseAdmin
+      .from("forum_posts")
+      .insert(buildForumPostInsert({
+        id: clientPostId,
+        userId: authResult.user.id,
+        author,
+        avatar,
+        category,
+        title,
+        body,
+      }))
+      .select("*")
+      .single();
+
+    if (error) {
+      console.warn(`[forum:${authResult.user.id}] post insert failed`, error.message);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json({ post: data });
+  });
+
+  app.post("/api/forum/comments", async (req, res) => {
+    if (!supabaseAdmin) {
+      return res.status(500).json({ error: "Supabase service role must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const postId = getRequiredString(req.body?.postId, "Post is required");
+    const body = getRequiredString(req.body?.body, "Comment body is required");
+    const author = getRequiredString(req.body?.author, "Author is required");
+    const avatar = getRequiredString(req.body?.avatar, "Avatar is required");
+
+    if (postId instanceof Error) return res.status(400).json({ error: postId.message });
+    if (body instanceof Error) return res.status(400).json({ error: body.message });
+    if (author instanceof Error) return res.status(400).json({ error: author.message });
+    if (avatar instanceof Error) return res.status(400).json({ error: avatar.message });
+
+    const { error } = await supabaseAdmin.from("forum_comments").insert(
+      buildForumCommentInsert({
+        postId,
+        userId: authResult.user.id,
+        author,
+        avatar,
+        body,
+      }),
+    );
+
+    if (error) {
+      console.warn(`[forum:${authResult.user.id}] comment insert failed`, error.message);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json({ ok: true });
+  });
+
+  app.post("/api/forum/votes", async (req, res) => {
+    if (!supabaseAdmin) {
+      return res.status(500).json({ error: "Supabase service role must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const targetType = req.body?.target_type;
+    const targetId = getRequiredString(req.body?.target_id, "Vote target is required");
+    const voteType = req.body?.vote_type;
+
+    if (targetType !== "post" && targetType !== "comment") {
+      return res.status(400).json({ error: "Vote target type is invalid" });
+    }
+    if (targetId instanceof Error) return res.status(400).json({ error: targetId.message });
+    if (voteType !== null && voteType !== "useful" && voteType !== "unuseful") {
+      return res.status(400).json({ error: "Vote type is invalid" });
+    }
+
+    const deleteResult = await supabaseAdmin
+      .from("forum_votes")
+      .delete()
+      .eq("target_type", targetType)
+      .eq("target_id", targetId)
+      .eq("user_id", authResult.user.id);
+
+    if (deleteResult.error) {
+      console.warn(`[forum:${authResult.user.id}] vote delete failed`, deleteResult.error.message);
+      return res.status(500).json({ error: deleteResult.error.message });
+    }
+
+    if (!voteType) {
+      return res.json({ ok: true });
+    }
+
+    const { error } = await supabaseAdmin
+      .from("forum_votes")
+      .insert(buildForumVoteUpsert(targetType, targetId, authResult.user.id, voteType));
+
+    if (error) {
+      console.warn(`[forum:${authResult.user.id}] vote insert failed`, error.message);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json({ ok: true });
   });
 
   app.post("/api/chat", async (req, res) => {
@@ -322,4 +461,49 @@ function getUuidOrNull(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
     ? value
     : null;
+}
+
+type SupabaseAdminClient = {
+  auth: {
+    getUser: (token: string) => Promise<{
+      data: { user: { id: string } | null };
+      error: { message: string } | null;
+    }>;
+  };
+};
+
+async function getRequestUser(authorization: string | undefined, supabaseAdmin: SupabaseAdminClient) {
+  const accessToken = authorization?.startsWith("Bearer ") ? authorization.slice("Bearer ".length) : "";
+
+  if (!accessToken) {
+    return { status: 401, error: "Sign in required" } as const;
+  }
+
+  const { data, error } = await supabaseAdmin.auth.getUser(accessToken);
+
+  if (error || !data.user) {
+    return { status: 401, error: "Sign in required" } as const;
+  }
+
+  return { user: data.user } as const;
+}
+
+function getRequiredString(value: unknown, errorMessage: string) {
+  if (typeof value !== "string" || !value.trim()) {
+    return new Error(errorMessage);
+  }
+
+  return value.trim();
+}
+
+function getOptionalUuid(value: unknown) {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+
+  if (typeof value !== "string" || !getUuidOrNull(value)) {
+    return new Error("Post id must be a UUID");
+  }
+
+  return value;
 }

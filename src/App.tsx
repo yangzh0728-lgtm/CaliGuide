@@ -31,11 +31,13 @@ import {
   toggleDiscussionUseful,
 } from './lib/forumContent';
 import {
-  createForumCommentInSupabase,
-  createForumPostInSupabase,
   fetchForumDiscussionsFromSupabase,
-  setForumVoteInSupabase,
 } from './lib/forumSupabase';
+import {
+  createForumCommentViaApi,
+  createForumPostViaApi,
+  setForumVoteViaApi,
+} from './lib/forumApi';
 import { supabase } from './lib/supabaseClient';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -44,6 +46,7 @@ export default function App() {
   const [selectedBlogId, setSelectedBlogId] = useState('category-dmv');
   const [selectedForumId, setSelectedForumId] = useState('post-1');
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
+  const [forumSyncError, setForumSyncError] = useState('');
   const { currentUser, isGuideSaved, isLoading, isPasswordRecovery, removeSavedGuide, saveGuide } = useAuth();
   const { t } = useLanguage();
   const selectedBlog = getBlogArticle(selectedBlogId) ?? getBlogArticle('category-dmv');
@@ -87,11 +90,13 @@ export default function App() {
   };
 
   const addForumDiscussion = (discussion: ForumDiscussion) => {
+    setForumSyncError('');
     setForumDiscussions((currentDiscussions) => [discussion, ...currentDiscussions]);
     setSelectedForumId(discussion.id);
     setCurrentPage('forumDetail');
 
-    void createForumPostInSupabase(supabase, {
+    void createForumPostViaApi(supabase, {
+      id: discussion.id,
       userId: currentUser.id,
       author: currentUser.name,
       avatar: getForumAvatar(currentUser.name),
@@ -107,11 +112,13 @@ export default function App() {
         setSelectedForumId(remoteDiscussion.id);
       })
       .catch((error) => {
+        setForumSyncError(`Forum post saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
         console.warn('Unable to save forum post to Supabase:', error);
       });
   };
 
   const addForumDiscussionComment = (discussionId: string, body: string) => {
+    setForumSyncError('');
     setForumDiscussions((currentDiscussions) =>
       currentDiscussions.map((discussion) =>
         discussion.id === discussionId
@@ -119,10 +126,10 @@ export default function App() {
               author: currentUser?.name ?? 'CaliGuide Member',
               body,
             })
-          : discussion,
+        : discussion,
       ),
     );
-    void createForumCommentInSupabase(supabase, {
+    void createForumCommentViaApi(supabase, {
       postId: discussionId,
       userId: currentUser.id,
       author: currentUser.name,
@@ -131,6 +138,7 @@ export default function App() {
     })
       .then(reloadForumDiscussions)
       .catch((error) => {
+        setForumSyncError(`Comment saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
         console.warn('Unable to save forum comment to Supabase:', error);
       });
   };
@@ -149,7 +157,8 @@ export default function App() {
         discussion.id === discussionId ? toggleDiscussionUseful(discussion, userId) : discussion,
       ),
     );
-    void setForumVoteInSupabase(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
+    void setForumVoteViaApi(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
+      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
       console.warn('Unable to save forum post vote to Supabase:', error);
     });
   };
@@ -169,7 +178,8 @@ export default function App() {
         discussion.id === discussionId ? toggleCommentUseful(discussion, commentId, userId) : discussion,
       ),
     );
-    void setForumVoteInSupabase(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
+    void setForumVoteViaApi(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
+      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
       console.warn('Unable to save forum comment vote to Supabase:', error);
     });
   };
@@ -188,7 +198,8 @@ export default function App() {
         discussion.id === discussionId ? toggleDiscussionUnuseful(discussion, userId) : discussion,
       ),
     );
-    void setForumVoteInSupabase(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
+    void setForumVoteViaApi(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
+      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
       console.warn('Unable to save forum post vote to Supabase:', error);
     });
   };
@@ -208,7 +219,8 @@ export default function App() {
         discussion.id === discussionId ? toggleCommentUnuseful(discussion, commentId, userId) : discussion,
       ),
     );
-    void setForumVoteInSupabase(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
+    void setForumVoteViaApi(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
+      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
       console.warn('Unable to save forum comment vote to Supabase:', error);
     });
   };
@@ -244,6 +256,8 @@ export default function App() {
           onToggleUnuseful={toggleForumDiscussionUnuseful}
           onOpenBlog={openBlog}
           currentUserId={currentUser.id}
+          syncError={forumSyncError}
+          onClearSyncError={() => setForumSyncError('')}
         />
       );
       case 'forumDetail': return selectedForumDiscussion ? (
@@ -255,6 +269,8 @@ export default function App() {
           onToggleCommentUseful={toggleForumCommentUseful}
           onToggleCommentUnuseful={toggleForumCommentUnuseful}
           currentUserId={currentUser.id}
+          syncError={forumSyncError}
+          onClearSyncError={() => setForumSyncError('')}
         />
       ) : (
         <Forum
@@ -265,6 +281,8 @@ export default function App() {
           onToggleUnuseful={toggleForumDiscussionUnuseful}
           onOpenBlog={openBlog}
           currentUserId={currentUser.id}
+          syncError={forumSyncError}
+          onClearSyncError={() => setForumSyncError('')}
         />
       );
       case 'chatbot': return <Chatbot />;
@@ -335,4 +353,8 @@ function getForumAvatar(name: string) {
       .map((part) => part[0]?.toUpperCase())
       .join("") || "U"
   );
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Unknown error';
 }
