@@ -3,7 +3,7 @@ import {
   buildPasswordResetRedirectUrl,
   formatSupabaseAuthError,
   mapSupabaseUser,
-  profileInsertFromRegistration,
+  requiresEmailConfirmationAfterSignUp,
 } from "./supabaseAuth";
 
 describe("supabaseAuth", () => {
@@ -50,20 +50,6 @@ describe("supabaseAuth", () => {
     expect(user.avatarUrl).toStartWith("data:image/svg+xml");
   });
 
-  it("builds a profile insert row from registration input", () => {
-    const row = profileInsertFromRegistration({
-      id: "user-3",
-      name: "  Elena Rivera  ",
-      avatarUrl: "data:image/svg+xml,avatar",
-    });
-
-    expect(row).toEqual({
-      id: "user-3",
-      name: "Elena Rivera",
-      avatar_url: "data:image/svg+xml,avatar",
-    });
-  });
-
   it("normalizes Supabase credential errors for the current UI", () => {
     expect(formatSupabaseAuthError({ message: "Invalid login credentials" })).toBe(
       "Email or password is incorrect",
@@ -77,5 +63,10 @@ describe("supabaseAuth", () => {
     expect(buildPasswordResetRedirectUrl("http://localhost:3000/profile?tab=settings")).toBe(
       "http://localhost:3000/?password-recovery=1",
     );
+  });
+
+  it("detects when sign up requires email confirmation before profile writes", () => {
+    expect(requiresEmailConfirmationAfterSignUp({ session: null })).toBe(true);
+    expect(requiresEmailConfirmationAfterSignUp({ session: { access_token: "token" } })).toBe(false);
   });
 });

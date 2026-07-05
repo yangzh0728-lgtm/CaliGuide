@@ -5,7 +5,7 @@ import {
   formatSupabaseAuthError,
   mapSupabaseUser,
   ProfileRow,
-  profileInsertFromRegistration,
+  requiresEmailConfirmationAfterSignUp,
 } from "../lib/supabaseAuth";
 import { supabase } from "../lib/supabaseClient";
 
@@ -13,7 +13,7 @@ interface AuthContextValue {
   currentUser: AuthUser | null;
   isLoading: boolean;
   isPasswordRecovery: boolean;
-  register: (input: { name: string; email: string; password: string }) => Promise<void>;
+  register: (input: { name: string; email: string; password: string }) => Promise<{ confirmationRequired: boolean }>;
   login: (input: { email: string; password: string }) => Promise<void>;
   requestPasswordReset: (input: { email: string }) => Promise<void>;
   resetRecoveredPassword: (input: { newPassword: string }) => Promise<void>;
@@ -119,8 +119,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("Unable to create account");
         }
 
-        await upsertProfile(profileInsertFromRegistration({ id: data.user.id, name, avatarUrl }));
+        if (requiresEmailConfirmationAfterSignUp(data)) {
+          setCurrentUser(null);
+          return { confirmationRequired: true };
+        }
+
         setCurrentUser(await loadAuthUser(data.user));
+        return { confirmationRequired: false };
       },
       login: async (input) => {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -299,13 +304,6 @@ async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"])
     profile: profile ?? null,
     savedGuideIds: savedGuides?.map((savedGuide) => savedGuide.guide_id) ?? [],
   });
-}
-
-async function upsertProfile(profile: { id: string; name: string; avatar_url: string }) {
-  const { error } = await supabase.from("profiles").upsert(profile, { onConflict: "id" });
-  if (error) {
-    throw new Error(error.message);
-  }
 }
 
 export function useAuth() {

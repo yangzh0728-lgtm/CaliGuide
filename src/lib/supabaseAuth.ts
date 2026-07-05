@@ -14,10 +14,8 @@ export interface ProfileRow {
   member_since: string | null;
 }
 
-export interface ProfileInsertRow {
-  id: string;
-  name: string;
-  avatar_url: string;
+export interface SignUpResultLike {
+  session?: unknown | null;
 }
 
 export function mapSupabaseUser(input: {
@@ -42,18 +40,6 @@ export function mapSupabaseUser(input: {
   };
 }
 
-export function profileInsertFromRegistration(input: {
-  id: string;
-  name: string;
-  avatarUrl: string;
-}): ProfileInsertRow {
-  return {
-    id: input.id,
-    name: input.name.trim(),
-    avatar_url: input.avatarUrl,
-  };
-}
-
 export function formatSupabaseAuthError(error: { message?: string } | null | undefined) {
   const message = error?.message ?? "Something went wrong";
   const normalized = message.toLowerCase();
@@ -74,6 +60,10 @@ export function formatSupabaseAuthError(error: { message?: string } | null | und
 export function buildPasswordResetRedirectUrl(currentUrl: string) {
   const url = new URL(currentUrl);
   return `${url.origin}/?password-recovery=1`;
+}
+
+export function requiresEmailConfirmationAfterSignUp(data: SignUpResultLike) {
+  return !data.session;
 }
 
 function formatMemberSince(dateValue: string) {

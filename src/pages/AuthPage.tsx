@@ -33,7 +33,12 @@ export default function AuthPage() {
         await requestPasswordReset({ email });
         setNotice("Password reset email sent. Check your inbox and follow the link.");
       } else if (isRegistering) {
-        await register({ name, email, password });
+        const result = await register({ name, email, password });
+        if (result.confirmationRequired) {
+          setNotice(t("auth.confirmEmailNotice"));
+          setMode("login");
+          setPassword("");
+        }
       } else {
         await login({ email, password });
       }
