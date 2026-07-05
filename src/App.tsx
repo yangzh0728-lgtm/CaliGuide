@@ -25,6 +25,9 @@ import {
   ForumDiscussion,
   isUnusefulByUser,
   isUsefulByUser,
+  mergeForumDiscussions,
+  removeForumComment,
+  removeForumDiscussion,
   toggleCommentUnuseful,
   toggleCommentUseful,
   toggleDiscussionUnuseful,
@@ -36,6 +39,8 @@ import {
 import {
   createForumCommentViaApi,
   createForumPostViaApi,
+  deleteForumCommentViaApi,
+  deleteForumPostViaApi,
   setForumVoteViaApi,
 } from './lib/forumApi';
 import { supabase } from './lib/supabaseClient';
@@ -62,7 +67,7 @@ export default function App() {
     try {
       const remoteDiscussions = await fetchForumDiscussionsFromSupabase(supabase);
       if (remoteDiscussions.length) {
-        setForumDiscussions(remoteDiscussions);
+        setForumDiscussions((currentDiscussions) => mergeForumDiscussions(currentDiscussions, remoteDiscussions));
       }
     } catch (error) {
       console.warn('Forum Supabase sync skipped:', error);
@@ -108,6 +113,7 @@ export default function App() {
       category: discussion.category,
       title: discussion.title,
       body: discussion.body[0] ?? discussion.excerpt,
+      imageUrls: discussion.imageUrls ?? [],
     })
       .then((remoteDiscussion) => {
         setForumDiscussions((currentDiscussions) => [
@@ -129,6 +135,7 @@ export default function App() {
         discussion.id === discussionId
           ? addForumComment(discussion, {
               author: currentUser?.name ?? 'CaliGuide Member',
+              userId: currentUser?.id,
               body,
             })
         : discussion,
@@ -145,6 +152,60 @@ export default function App() {
       .catch((error) => {
         setForumSyncError(`Comment saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
         console.warn('Unable to save forum comment to Supabase:', error);
+      });
+  };
+
+  const deleteForumDiscussion = (discussionId: string) => {
+    const userId = currentUser?.id;
+    if (!userId) {
+      return;
+    }
+
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    if (discussion?.userId !== userId) {
+      setForumSyncError('You can only delete forum posts that you created.');
+      return;
+    }
+
+    setForumSyncError('');
+    setForumDiscussions((currentDiscussions) => removeForumDiscussion(currentDiscussions, discussionId, userId));
+    if (selectedForumId === discussionId) {
+      setCurrentPage('forum');
+    }
+
+    void deleteForumPostViaApi(supabase, discussionId)
+      .then(reloadForumDiscussions)
+      .catch((error) => {
+        setForumSyncError(`Post deleted locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+        console.warn('Unable to delete forum post from Supabase:', error);
+      });
+  };
+
+  const deleteForumDiscussionComment = (discussionId: string, commentId: string) => {
+    const userId = currentUser?.id;
+    if (!userId) {
+      return;
+    }
+
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    const comment = discussion?.replies.find((reply) => reply.id === commentId);
+    if (comment?.userId !== userId) {
+      setForumSyncError('You can only delete comments that you created.');
+      return;
+    }
+
+    setForumSyncError('');
+    setForumDiscussions((currentDiscussions) =>
+      currentDiscussions.map((discussion) =>
+        discussion.id === discussionId ? removeForumComment(discussion, commentId, userId) : discussion,
+      ),
+    );
+
+    void deleteForumCommentViaApi(supabase, commentId)
+      .then(reloadForumDiscussions)
+      .catch((error) => {
+        setForumSyncError(`Comment deleted locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+        console.warn('Unable to delete forum comment from Supabase:', error);
       });
   };
 
@@ -259,6 +320,7 @@ export default function App() {
           onAddForumDiscussion={addForumDiscussion}
           onToggleUseful={toggleForumDiscussionUseful}
           onToggleUnuseful={toggleForumDiscussionUnuseful}
+          onDeleteDiscussion={deleteForumDiscussion}
           onOpenBlog={openBlog}
           currentUserId={currentUser.id}
           syncError={forumSyncError}
@@ -273,6 +335,8 @@ export default function App() {
           onToggleDiscussionUnuseful={toggleForumDiscussionUnuseful}
           onToggleCommentUseful={toggleForumCommentUseful}
           onToggleCommentUnuseful={toggleForumCommentUnuseful}
+          onDeleteDiscussion={deleteForumDiscussion}
+          onDeleteComment={deleteForumDiscussionComment}
           currentUserId={currentUser.id}
           syncError={forumSyncError}
           onClearSyncError={() => setForumSyncError('')}
@@ -284,6 +348,7 @@ export default function App() {
           onAddForumDiscussion={addForumDiscussion}
           onToggleUseful={toggleForumDiscussionUseful}
           onToggleUnuseful={toggleForumDiscussionUnuseful}
+          onDeleteDiscussion={deleteForumDiscussion}
           onOpenBlog={openBlog}
           currentUserId={currentUser.id}
           syncError={forumSyncError}

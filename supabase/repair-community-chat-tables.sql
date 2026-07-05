@@ -48,6 +48,7 @@ alter table if exists public.chat_messages
   add column if not exists user_id uuid references auth.users(id) on delete cascade,
   add column if not exists role text,
   add column if not exists content text,
+  add column if not exists image_urls text[] default '{}',
   add column if not exists created_at timestamptz default now();
 
 alter table if exists public.media_assets
@@ -119,6 +120,7 @@ alter table if exists public.chat_sessions
   alter column updated_at set default now();
 
 alter table if exists public.chat_messages
+  alter column image_urls set default '{}',
   alter column created_at set default now();
 
 alter table if exists public.media_assets

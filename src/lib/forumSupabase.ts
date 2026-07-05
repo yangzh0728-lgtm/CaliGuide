@@ -13,6 +13,7 @@ export interface ForumPostRow {
   excerpt: string;
   body: string[];
   tags: string[];
+  image_urls?: string[];
   view_count: number;
   created_at: string;
   comments?: ForumCommentRow[];
@@ -61,12 +62,14 @@ export function mapForumPostRows(rows: ForumPostRow[]): ForumDiscussion[] {
       comments: comments.length,
       views: formatViewCount(row.view_count),
       tags: row.tags ?? [],
+      imageUrls: row.image_urls ?? [],
       body: row.body ?? [],
       replies: comments.map((comment) => {
         const votes = commentVotes.filter((vote) => vote.target_id === comment.id);
 
         return {
           id: comment.id,
+          userId: comment.user_id,
           author: comment.author_name,
           avatar: comment.author_avatar,
           time: formatRelativeTime(comment.created_at),
@@ -147,6 +150,7 @@ export function buildForumPostInsert(input: {
   category: string;
   title: string;
   body: string;
+  imageUrls?: string[];
 }) {
   const body = input.body.trim();
 
@@ -164,6 +168,7 @@ export function buildForumPostInsert(input: {
       "Community members can help more when the post includes the city, timeline, documents already prepared, and the specific decision or next step that needs advice.",
     ],
     tags: [input.category, "Community", "New Post"],
+    image_urls: input.imageUrls ?? [],
   };
 }
 

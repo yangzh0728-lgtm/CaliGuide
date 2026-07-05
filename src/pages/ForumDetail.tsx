@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { CalendarDays, Eye, MessageSquare, Send, Tag, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { CalendarDays, Eye, MessageSquare, Send, Tag, ThumbsDown, ThumbsUp, Trash2, X } from "lucide-react";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -16,6 +16,8 @@ interface ForumDetailProps {
   onToggleDiscussionUnuseful: (discussionId: string) => void;
   onToggleCommentUseful: (discussionId: string, commentId: string) => void;
   onToggleCommentUnuseful: (discussionId: string, commentId: string) => void;
+  onDeleteDiscussion: (discussionId: string) => void;
+  onDeleteComment: (discussionId: string, commentId: string) => void;
   currentUserId: string;
   syncError?: string;
   onClearSyncError?: () => void;
@@ -28,6 +30,8 @@ export default function ForumDetail({
   onToggleDiscussionUnuseful,
   onToggleCommentUseful,
   onToggleCommentUnuseful,
+  onDeleteDiscussion,
+  onDeleteComment,
   currentUserId,
   syncError,
   onClearSyncError,
@@ -74,6 +78,16 @@ export default function ForumDetail({
             <p className="font-bold text-on-surface">{discussion.author}</p>
             <p className="text-xs font-medium text-on-surface-variant">{discussion.time}</p>
           </div>
+          {discussion.userId === currentUserId && (
+            <button
+              type="button"
+              aria-label="Delete your forum post"
+              onClick={() => onDeleteDiscussion(discussion.id)}
+              className="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-red-50 text-red-700 transition-colors hover:bg-red-100"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -93,6 +107,19 @@ export default function ForumDetail({
 
         <h1 className="text-3xl font-bold leading-tight text-on-surface">{discussion.title}</h1>
         <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{discussion.excerpt}</p>
+
+        {!!discussion.imageUrls?.length && (
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            {discussion.imageUrls.map((imageUrl, index) => (
+              <img
+                key={`${imageUrl}-${index}`}
+                src={imageUrl}
+                alt={`Forum upload ${index + 1}`}
+                className="h-44 w-full rounded-2xl border border-outline-variant object-cover"
+              />
+            ))}
+          </div>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-on-surface-variant">
           <span className="inline-flex items-center gap-1.5">
@@ -162,6 +189,16 @@ export default function ForumDetail({
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-bold text-on-surface">{reply.author}</p>
                   <p className="text-xs text-on-surface-variant">{reply.time}</p>
+                  {reply.userId === currentUserId && (
+                    <button
+                      type="button"
+                      aria-label="Delete your comment"
+                      onClick={() => onDeleteComment(discussion.id, reply.id)}
+                      className="ml-auto flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-700 transition-colors hover:bg-red-100"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
                 <p className="mt-1 text-sm leading-6 text-on-surface-variant">{reply.body}</p>
                 <div className="mt-3">

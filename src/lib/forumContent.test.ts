@@ -10,6 +10,9 @@ import {
   getUsefulCount,
   isUnusefulByUser,
   isUsefulByUser,
+  mergeForumDiscussions,
+  removeForumComment,
+  removeForumDiscussion,
   toggleCommentUnuseful,
   toggleCommentUseful,
   toggleDiscussionUnuseful,
@@ -65,6 +68,7 @@ describe("forumContent", () => {
     });
 
     const updated = addForumComment(discussion, {
+      userId: "user-2",
       author: "Maya Chen",
       body: "This is a helpful answer from the forum.",
     });
@@ -73,9 +77,65 @@ describe("forumContent", () => {
     expect(updated.replies).toHaveLength(1);
     expect(updated.replies[0].id).toMatch(/^[0-9a-f-]{36}$/);
     expect(updated.replies[0].author).toBe("Maya Chen");
+    expect(updated.replies[0].userId).toBe("user-2");
     expect(updated.replies[0].avatar).toBe("MC");
     expect(updated.replies[0].body).toBe("This is a helpful answer from the forum.");
     expect(getForumReplyCount(updated)).toBe(1);
+  });
+
+  it("removes only posts and comments owned by the current user", () => {
+    const ownDiscussion = createForumDiscussion({
+      id: "11111111-1111-4111-8111-111111111111",
+      title: "My post",
+      category: "Housing",
+      body: "My post body",
+      author: "Sam Y",
+      userId: "user-1",
+    });
+    const otherDiscussion = createForumDiscussion({
+      id: "22222222-2222-4222-8222-222222222222",
+      title: "Other post",
+      category: "Banking",
+      body: "Other post body",
+      author: "Other User",
+      userId: "user-2",
+    });
+
+    expect(removeForumDiscussion([ownDiscussion, otherDiscussion], ownDiscussion.id, "user-1")).toEqual([
+      otherDiscussion,
+    ]);
+    expect(removeForumDiscussion([ownDiscussion, otherDiscussion], otherDiscussion.id, "user-1")).toEqual([
+      ownDiscussion,
+      otherDiscussion,
+    ]);
+
+    const withComment = addForumComment(ownDiscussion, {
+      userId: "user-1",
+      author: "Sam Y",
+      body: "My comment",
+    });
+    const notRemoved = removeForumComment(withComment, withComment.replies[0].id, "user-2");
+    const removed = removeForumComment(withComment, withComment.replies[0].id, "user-1");
+
+    expect(notRemoved.replies).toHaveLength(1);
+    expect(removed.replies).toHaveLength(0);
+  });
+
+  it("keeps original mock posts when remote forum posts are loaded", () => {
+    const remoteDiscussion = createForumDiscussion({
+      id: "33333333-3333-4333-8333-333333333333",
+      title: "Remote post",
+      category: "Housing",
+      body: "Remote post body",
+      author: "Remote User",
+      userId: "user-3",
+    });
+
+    const merged = mergeForumDiscussions(FORUM_DISCUSSIONS, [remoteDiscussion]);
+
+    expect(merged[0].id).toBe(remoteDiscussion.id);
+    expect(merged.map((discussion) => discussion.id)).toContain("post-1");
+    expect(merged.map((discussion) => discussion.id)).toContain("post-7");
   });
 
   it("toggles usefulness votes for discussions and comments", () => {

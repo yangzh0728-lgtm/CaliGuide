@@ -16,6 +16,7 @@ export interface ChatMessageRow {
   user_id: string;
   role: "user" | "bot";
   content: string;
+  image_urls?: string[];
   created_at: string;
 }
 
@@ -34,6 +35,7 @@ export function mapChatSessionRows(
         role: message.role,
         content: message.content,
         timestamp: formatChatTimestamp(message.created_at),
+        ...(message.image_urls?.length ? { imageUrls: message.image_urls } : {}),
       }));
 
     return {
@@ -138,6 +140,7 @@ export function buildChatMessageInserts(
       user_id: userId,
       role: message.role,
       content: message.content.trim(),
+      image_urls: message.imageUrls ?? [],
     }));
 }
 

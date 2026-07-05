@@ -44,4 +44,21 @@ describe("blogLocalization", () => {
     expect(englishArticle?.officialLinks?.[0].purpose).not.toMatch(/[\u3400-\u9fff]/);
     expect(spanishArticle?.officialLinks?.[0].purpose).not.toMatch(/[\u3400-\u9fff]/);
   });
+
+  it("keeps recommended card setup aligned across languages", () => {
+    const englishCards = getRecommendedBlogArticles("en");
+
+    for (const language of ["zh-CN", "zh-TW", "es"] as const) {
+      const localizedCards = getRecommendedBlogArticles(language);
+
+      expect(localizedCards.map((card) => card.id)).toEqual(englishCards.map((card) => card.id));
+      expect(localizedCards.map((card) => card.image)).toEqual(englishCards.map((card) => card.image));
+      expect(localizedCards.map((card) => card.createdAt)).toEqual(englishCards.map((card) => card.createdAt));
+      expect(localizedCards.map((card) => card.readTime)).toEqual(englishCards.map((card) => card.readTime));
+      for (const card of localizedCards) {
+        expect(card.title.trim()).not.toBe("");
+        expect(card.category.trim()).not.toBe("");
+      }
+    }
+  });
 });

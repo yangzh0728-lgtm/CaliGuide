@@ -20,6 +20,7 @@ describe("forumSupabase", () => {
         excerpt: "I am comparing school access and commute.",
         body: ["I need a practical rental checklist."],
         tags: ["Housing", "Schools"],
+        image_urls: ["https://cdn.example.com/forum/post-1/front-door.jpg"],
         view_count: 12,
         created_at: "2026-07-04T04:00:00.000Z",
         comments: [
@@ -54,6 +55,7 @@ describe("forumSupabase", () => {
       views: "12",
       usefulUserIds: ["user-3"],
       unusefulUserIds: ["user-4"],
+      imageUrls: ["https://cdn.example.com/forum/post-1/front-door.jpg"],
     });
     expect(discussions[0].replies[0]).toMatchObject({
       id: "comment-1",
@@ -128,6 +130,7 @@ describe("forumSupabase", () => {
         category: "Housing",
         title: "Rental checklist",
         body: "What should I prepare?",
+        imageUrls: ["https://cdn.example.com/forum/post-2/lease.png"],
       }),
     ).toMatchObject({
       id: "11111111-1111-4111-8111-111111111111",
@@ -137,6 +140,7 @@ describe("forumSupabase", () => {
       author_avatar: "MC",
       category: "Housing",
       title: "Rental checklist",
+      image_urls: ["https://cdn.example.com/forum/post-2/lease.png"],
       tags: ["Housing", "Community", "New Post"],
     });
 

@@ -51,4 +51,30 @@ describe("chatServer", () => {
     expect(request.messages[0].content).toContain("User is Chinese.");
     expect(request.messages[0].content).toContain("User prefers Mandarin.");
   });
+
+  it("sends uploaded image URLs as multimodal user content", () => {
+    const request = buildChatCompletionRequest({
+      model: "deepseek-v4-flash",
+      message: "Can you read these documents?",
+      imageUrls: [
+        "https://cdn.example.com/assets/users/user-1/chat/a.png",
+        "https://cdn.example.com/assets/users/user-1/chat/b.png",
+      ],
+    });
+
+    expect(request.messages.at(-1)).toEqual({
+      role: "user",
+      content: [
+        { type: "text", text: "Can you read these documents?" },
+        {
+          type: "image_url",
+          image_url: { url: "https://cdn.example.com/assets/users/user-1/chat/a.png" },
+        },
+        {
+          type: "image_url",
+          image_url: { url: "https://cdn.example.com/assets/users/user-1/chat/b.png" },
+        },
+      ],
+    });
+  });
 });

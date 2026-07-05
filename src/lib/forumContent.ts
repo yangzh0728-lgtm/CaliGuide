@@ -1,5 +1,6 @@
 export interface ForumComment {
   id: string;
+  userId?: string;
   author: string;
   avatar: string;
   time: string;
@@ -22,6 +23,7 @@ export interface ForumDiscussion {
   comments: number;
   views: string;
   tags: string[];
+  imageUrls?: string[];
   body: string[];
   replies: ForumComment[];
   usefulCount?: number;
@@ -367,11 +369,13 @@ export function filterForumDiscussions(
 }
 
 export function createForumDiscussion(input: {
+  id?: string;
   title: string;
   category: string;
   body: string;
   author: string;
   userId?: string;
+  imageUrls?: string[];
 }): ForumDiscussion {
   const author = input.author.trim() || "CaliGuide Member";
   const body = input.body.trim();
@@ -384,7 +388,7 @@ export function createForumDiscussion(input: {
       .join("") || "U";
 
   return {
-    id: createForumId(),
+    id: input.id ?? createForumId(),
     userId: input.userId,
     author,
     avatar: initials,
@@ -395,6 +399,7 @@ export function createForumDiscussion(input: {
     comments: 0,
     views: "0",
     tags: [input.category, "Community", "New Post"],
+    imageUrls: input.imageUrls ?? [],
     body: [
       body,
       "Community members can help more when the post includes the city, timeline, documents already prepared, and the specific decision or next step that needs advice.",
@@ -411,7 +416,7 @@ export function getForumReplyCount(discussion: ForumDiscussion) {
 
 export function addForumComment(
   discussion: ForumDiscussion,
-  input: { author: string; body: string },
+  input: { userId?: string; author: string; body: string },
 ): ForumDiscussion {
   const author = input.author.trim() || "CaliGuide Member";
   const body = input.body.trim();
@@ -427,6 +432,7 @@ export function addForumComment(
       ...discussion.replies,
       {
         id: createForumId(),
+        userId: input.userId,
         author,
         avatar: createInitials(author),
         time: "Just now",
@@ -436,6 +442,45 @@ export function addForumComment(
       },
     ],
   };
+}
+
+export function removeForumDiscussion(
+  discussions: ForumDiscussion[],
+  discussionId: string,
+  currentUserId: string,
+) {
+  return discussions.filter((discussion) => discussion.id !== discussionId || discussion.userId !== currentUserId);
+}
+
+export function removeForumComment(
+  discussion: ForumDiscussion,
+  commentId: string,
+  currentUserId: string,
+): ForumDiscussion {
+  const nextReplies = discussion.replies.filter(
+    (reply) => reply.id !== commentId || reply.userId !== currentUserId,
+  );
+
+  if (nextReplies.length === discussion.replies.length) {
+    return discussion;
+  }
+
+  return {
+    ...discussion,
+    comments: nextReplies.length,
+    replies: nextReplies,
+  };
+}
+
+export function mergeForumDiscussions(
+  localDiscussions: ForumDiscussion[],
+  remoteDiscussions: ForumDiscussion[],
+) {
+  const remoteIds = new Set(remoteDiscussions.map((discussion) => discussion.id));
+  return [
+    ...remoteDiscussions,
+    ...localDiscussions.filter((discussion) => !remoteIds.has(discussion.id)),
+  ];
 }
 
 function createForumId() {

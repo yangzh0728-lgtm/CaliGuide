@@ -67,6 +67,14 @@ export async function createForumCommentViaApi(
   await postForumJson<{ ok: true }>(client, "/api/forum/comments", input);
 }
 
+export async function deleteForumPostViaApi(client: SupabaseSessionClient, postId: string) {
+  await postForumJson<{ ok: true }>(client, "/api/forum/posts/delete", { postId });
+}
+
+export async function deleteForumCommentViaApi(client: SupabaseSessionClient, commentId: string) {
+  await postForumJson<{ ok: true }>(client, "/api/forum/comments/delete", { commentId });
+}
+
 export async function setForumVoteViaApi(
   client: SupabaseSessionClient,
   targetType: ForumVoteTargetType,

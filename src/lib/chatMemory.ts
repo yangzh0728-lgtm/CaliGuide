@@ -195,6 +195,7 @@ export function toChatHistory(messages: ChatMessage[]) {
     .map((message) => ({
       role: message.role,
       content: message.content,
+      imageUrls: message.imageUrls ?? [],
     }));
 }
 

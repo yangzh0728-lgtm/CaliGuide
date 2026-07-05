@@ -36,7 +36,7 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json({ limit: "5mb" }));
+  app.use(express.json({ limit: "12mb" }));
 
   const apiKey = process.env.API_KEY;
   const appId = process.env.APP_ID;
@@ -214,6 +214,88 @@ async function startServer() {
     });
   });
 
+  app.post("/api/uploads/image", async (req, res) => {
+    if (!supabaseAdmin || !r2Config || !r2Client) {
+      return res.status(500).json({ error: "Supabase and Cloudflare R2 must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const mimeType = typeof req.body?.mimeType === "string" ? req.body.mimeType : "";
+    const base64 = typeof req.body?.base64 === "string" ? req.body.base64 : "";
+    const folder = typeof req.body?.folder === "string" ? req.body.folder : "";
+    const resourceId = typeof req.body?.resourceId === "string" ? req.body.resourceId : undefined;
+    const attachedToType = normalizeAttachedToType(req.body?.attachedToType, folder);
+    const attachedToId =
+      typeof req.body?.attachedToId === "string" ? getUuidOrNull(req.body.attachedToId) : null;
+    const sizeBytes = typeof req.body?.sizeBytes === "number" ? req.body.sizeBytes : null;
+
+    if (folder !== "chat" && folder !== "forum") {
+      return res.status(400).json({ error: "Upload folder is invalid" });
+    }
+    if (!isAllowedUploadMimeType(mimeType)) {
+      return res.status(400).json({ error: "Choose a PNG, JPG, GIF, or WebP image" });
+    }
+    if (!base64) {
+      return res.status(400).json({ error: "Image is required" });
+    }
+
+    let objectKey = "";
+    try {
+      objectKey = createR2ObjectKey({
+        userId: authResult.user.id,
+        folder,
+        resourceId,
+        mimeType,
+      });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message || "Upload path is invalid" });
+    }
+
+    const body = Buffer.from(base64, "base64");
+    const publicUrl = buildPublicR2Url(r2Config.publicBaseUrl, objectKey);
+
+    try {
+      await r2Client.send(
+        new PutObjectCommand({
+          Bucket: r2Config.bucketName,
+          Key: objectKey,
+          Body: body,
+          ContentType: mimeType,
+        }),
+      );
+    } catch (error) {
+      console.warn(`[upload:${authResult.user.id}] image upload failed`, error);
+      return res.status(502).json({ error: "Unable to upload image" });
+    }
+
+    void supabaseAdmin
+      .from("media_assets")
+      .insert({
+        owner_user_id: authResult.user.id,
+        bucket: r2Config.bucketName,
+        object_key: objectKey,
+        public_url: publicUrl,
+        mime_type: mimeType,
+        size_bytes: sizeBytes,
+        attached_to_type: attachedToType,
+        attached_to_id: attachedToId,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.warn(`[upload:${authResult.user.id}] image metadata skipped`, error.message);
+        }
+      });
+
+    res.json({
+      objectKey,
+      publicUrl,
+    });
+  });
+
   app.post("/api/forum/posts", async (req, res) => {
     if (!supabaseAdmin) {
       return res.status(500).json({ error: "Supabase service role must be configured" });
@@ -230,6 +312,7 @@ async function startServer() {
     const author = getRequiredString(req.body?.author, "Author is required");
     const avatar = getRequiredString(req.body?.avatar, "Avatar is required");
     const clientPostId = getOptionalUuid(req.body?.id);
+    const imageUrls = getOptionalStringArray(req.body?.imageUrls);
 
     if (title instanceof Error) return res.status(400).json({ error: title.message });
     if (body instanceof Error) return res.status(400).json({ error: body.message });
@@ -237,6 +320,7 @@ async function startServer() {
     if (author instanceof Error) return res.status(400).json({ error: author.message });
     if (avatar instanceof Error) return res.status(400).json({ error: avatar.message });
     if (clientPostId instanceof Error) return res.status(400).json({ error: clientPostId.message });
+    if (imageUrls instanceof Error) return res.status(400).json({ error: imageUrls.message });
 
     const { data, error } = await supabaseAdmin
       .from("forum_posts")
@@ -248,6 +332,7 @@ async function startServer() {
         category,
         title,
         body,
+        imageUrls,
       }))
       .select("*")
       .single();
@@ -292,6 +377,60 @@ async function startServer() {
 
     if (error) {
       console.warn(`[forum:${authResult.user.id}] comment insert failed`, error.message);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json({ ok: true });
+  });
+
+  app.post("/api/forum/posts/delete", async (req, res) => {
+    if (!supabaseAdmin) {
+      return res.status(500).json({ error: "Supabase service role must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const postId = getRequiredString(req.body?.postId, "Post is required");
+    if (postId instanceof Error) return res.status(400).json({ error: postId.message });
+
+    const { error } = await supabaseAdmin
+      .from("forum_posts")
+      .delete()
+      .eq("id", postId)
+      .eq("user_id", authResult.user.id);
+
+    if (error) {
+      console.warn(`[forum:${authResult.user.id}] post delete failed`, error.message);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json({ ok: true });
+  });
+
+  app.post("/api/forum/comments/delete", async (req, res) => {
+    if (!supabaseAdmin) {
+      return res.status(500).json({ error: "Supabase service role must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const commentId = getRequiredString(req.body?.commentId, "Comment is required");
+    if (commentId instanceof Error) return res.status(400).json({ error: commentId.message });
+
+    const { error } = await supabaseAdmin
+      .from("forum_comments")
+      .delete()
+      .eq("id", commentId)
+      .eq("user_id", authResult.user.id);
+
+    if (error) {
+      console.warn(`[forum:${authResult.user.id}] comment delete failed`, error.message);
       return res.status(500).json({ error: error.message });
     }
 
@@ -358,9 +497,13 @@ async function startServer() {
 
     try {
       const { message, history, userId } = req.body;
+      const imageUrls = getOptionalStringArray(req.body?.imageUrls);
 
       if (typeof message !== "string" || !message.trim()) {
         return res.status(400).json({ error: "Message is required" });
+      }
+      if (imageUrls instanceof Error) {
+        return res.status(400).json({ error: imageUrls.message });
       }
 
       const memoryUserId =
@@ -383,9 +526,10 @@ async function startServer() {
         message,
         history: Array.isArray(history) ? history : [],
         memoryContext,
+        imageUrls,
       });
       console.log(
-        `[chat:${requestId}] start model=${CHAT_MODEL} user=${memoryUserId} messageChars=${message.length} history=${chatRequest.messages.length - 2} memories=${memories.length} pending=${pendingMemoryContext ? 1 : 0}`,
+        `[chat:${requestId}] start model=${CHAT_MODEL} user=${memoryUserId} messageChars=${message.length} images=${imageUrls.length} history=${chatRequest.messages.length - 2} memories=${memories.length} pending=${pendingMemoryContext ? 1 : 0}`,
       );
 
       res.writeHead(200, {
@@ -573,4 +717,25 @@ function getOptionalUuid(value: unknown) {
   }
 
   return value;
+}
+
+function getOptionalStringArray(value: unknown) {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    return new Error("Expected a list of image URLs");
+  }
+
+  const cleanValues = value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (cleanValues.length !== value.length) {
+    return new Error("Image URLs must be strings");
+  }
+
+  return cleanValues;
 }

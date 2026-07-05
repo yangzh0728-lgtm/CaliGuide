@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   ArrowRight,
   Briefcase,
@@ -8,6 +8,7 @@ import {
   GraduationCap,
   HeartPulse,
   HomeIcon,
+  ImagePlus,
   Landmark,
   MessageSquare,
   Plus,
@@ -16,6 +17,7 @@ import {
   Send,
   ThumbsDown,
   ThumbsUp,
+  Trash2,
   Users,
   X,
   type LucideIcon,
@@ -33,6 +35,8 @@ import {
   isUnusefulByUser,
   isUsefulByUser,
 } from '../lib/forumContent';
+import { uploadImagesToR2 } from '../lib/imageUpload';
+import { supabase } from '../lib/supabaseClient';
 
 interface ForumProps {
   discussions: ForumDiscussion[];
@@ -40,6 +44,7 @@ interface ForumProps {
   onAddForumDiscussion: (discussion: ForumDiscussion) => void;
   onToggleUseful: (discussionId: string) => void;
   onToggleUnuseful: (discussionId: string) => void;
+  onDeleteDiscussion: (discussionId: string) => void;
   onOpenBlog: (articleId: string) => void;
   currentUserId: string;
   syncError?: string;
@@ -63,6 +68,7 @@ export default function Forum({
   onAddForumDiscussion,
   onToggleUseful,
   onToggleUnuseful,
+  onDeleteDiscussion,
   onOpenBlog,
   currentUserId,
   syncError,
@@ -77,6 +83,13 @@ export default function Forum({
   const [newPostTitle, setNewPostTitle] = useState('');
   const [newPostCategory, setNewPostCategory] = useState('Housing');
   const [newPostBody, setNewPostBody] = useState('');
+  const [newPostImages, setNewPostImages] = useState<File[]>([]);
+  const [composerError, setComposerError] = useState('');
+  const [isSubmittingPost, setIsSubmittingPost] = useState(false);
+  const newPostImagePreviews = useMemo(
+    () => newPostImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
+    [newPostImages],
+  );
   const categories = FORUM_TOPICS.map((topic) => ({
     ...topic,
     label: t(topic.translationKey),
@@ -98,28 +111,72 @@ export default function Forum({
   const featuredDiscussion = filteredDiscussions.find((discussion) => discussion.id === 'post-1');
   const remainingDiscussions = filteredDiscussions.filter((discussion) => discussion.id !== 'post-1');
   const postCategories = categories.filter((category) => category.id !== 'All Topics');
-  const canSubmitPost = newPostTitle.trim().length > 0 && newPostBody.trim().length > 0;
+  const canSubmitPost = newPostTitle.trim().length > 0 && newPostBody.trim().length > 0 && !isSubmittingPost;
 
-  const handleCreatePost = (event: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    return () => {
+      newPostImagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    };
+  }, [newPostImagePreviews]);
+
+  const handleCreatePost = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!canSubmitPost) {
       return;
     }
 
-    const discussion = createForumDiscussion({
-      title: newPostTitle,
-      category: newPostCategory,
-      body: newPostBody,
-      author: currentUser?.name ?? 'Preview User',
-      userId: currentUser?.id,
-    });
+    setComposerError('');
+    setIsSubmittingPost(true);
+    const postId = crypto.randomUUID();
 
-    onAddForumDiscussion(discussion);
-    setNewPostTitle('');
-    setNewPostCategory('Housing');
-    setNewPostBody('');
-    setIsComposerOpen(false);
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const uploads = await uploadImagesToR2(newPostImages, data.session?.access_token ?? '', {
+        folder: 'forum',
+        resourceId: postId,
+        attachedToType: 'forum_post',
+        attachedToId: postId,
+      });
+
+      const discussion = createForumDiscussion({
+        id: postId,
+        title: newPostTitle,
+        category: newPostCategory,
+        body: newPostBody,
+        author: currentUser?.name ?? 'Preview User',
+        userId: currentUser?.id,
+        imageUrls: uploads.map((upload) => upload.publicUrl),
+      });
+
+      onAddForumDiscussion(discussion);
+      setNewPostTitle('');
+      setNewPostCategory('Housing');
+      setNewPostBody('');
+      setNewPostImages([]);
+      setIsComposerOpen(false);
+    } catch (error) {
+      setComposerError(getErrorMessage(error));
+    } finally {
+      setIsSubmittingPost(false);
+    }
+  };
+
+  const handleSelectPostImages = (files: FileList | null) => {
+    if (!files?.length) {
+      return;
+    }
+
+    setComposerError('');
+    setNewPostImages((currentImages) => [...currentImages, ...Array.from(files)].slice(0, 8));
+  };
+
+  const handleRemovePostImage = (index: number) => {
+    setNewPostImages((currentImages) => currentImages.filter((_, currentIndex) => currentIndex !== index));
   };
 
   return (
@@ -191,6 +248,16 @@ export default function Forum({
               </div>
             </div>
             <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-[10px] font-bold">{featuredDiscussion.category}</span>
+            {featuredDiscussion.userId === currentUserId && (
+              <button
+                type="button"
+                aria-label="Delete your forum post"
+                onClick={() => onDeleteDiscussion(featuredDiscussion.id)}
+                className="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-700 transition-colors hover:bg-red-100"
+              >
+                <Trash2 size={15} />
+              </button>
+            )}
           </div>
           <button type="button" onClick={() => onOpenForumDetail(featuredDiscussion.id)} className="text-left">
             <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors leading-tight">
@@ -200,6 +267,7 @@ export default function Forum({
               {featuredDiscussion.excerpt}
             </p>
           </button>
+          <ForumImageGrid imageUrls={featuredDiscussion.imageUrls} compact />
           <div className="flex items-center justify-between border-t border-outline-variant pt-4">
             <div className="flex gap-4">
               <div className="flex items-center gap-1 text-xs text-on-surface-variant">
@@ -293,7 +361,18 @@ export default function Forum({
                 </div>
                 <h4 className="text-lg font-bold text-on-surface leading-tight">{post.title}</h4>
                 <p className="text-xs text-on-surface-variant mt-2 line-clamp-1">{post.excerpt}</p>
+                <ForumImageGrid imageUrls={post.imageUrls} compact />
               </button>
+              {post.userId === currentUserId && (
+                <button
+                  type="button"
+                  aria-label="Delete your forum post"
+                  onClick={() => onDeleteDiscussion(post.id)}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-700 transition-colors hover:bg-red-100"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
               <div className="flex md:flex-col items-center justify-center gap-1 md:border-l border-outline-variant md:pl-5 min-w-[60px]">
                 <span className="text-2xl font-bold text-primary">{getForumReplyCount(post)}</span>
                 <span className="text-[10px] font-bold text-on-surface-variant uppercase">{t('forum.replies')}</span>
@@ -384,19 +463,97 @@ export default function Forum({
               />
             </label>
 
+            <div className="mb-5">
+              <span className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-primary">Images</span>
+              <input
+                id="forum-post-images"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                multiple
+                className="hidden"
+                onChange={(event) => {
+                  handleSelectPostImages(event.target.files);
+                  event.currentTarget.value = '';
+                }}
+              />
+              <label
+                htmlFor="forum-post-images"
+                className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-outline-variant bg-surface-container-low text-sm font-bold text-primary transition-colors hover:bg-surface-container-high"
+              >
+                <ImagePlus size={17} />
+                Add photos
+              </label>
+              {!!newPostImagePreviews.length && (
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  {newPostImagePreviews.map((preview, index) => (
+                    <div key={`${preview.name}-${preview.url}`} className="relative aspect-square">
+                      <img
+                        src={preview.url}
+                        alt={preview.name}
+                        className="h-full w-full rounded-xl object-cover"
+                      />
+                      <button
+                        type="button"
+                        aria-label={`Remove ${preview.name}`}
+                        onClick={() => handleRemovePostImage(index)}
+                        className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {composerError && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+                {composerError}
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={!canSubmitPost}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-white transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant"
             >
               <Send size={17} />
-              Post discussion
+              {isSubmittingPost ? 'Posting...' : 'Post discussion'}
             </button>
           </form>
         </div>
       )}
     </div>
   );
+}
+
+function ForumImageGrid({ imageUrls, compact = false }: { imageUrls?: string[]; compact?: boolean }) {
+  if (!imageUrls?.length) {
+    return null;
+  }
+
+  return (
+    <div className={`grid gap-2 ${compact ? 'mb-4 mt-3 grid-cols-3' : 'grid-cols-2'}`}>
+      {imageUrls.slice(0, compact ? 3 : 8).map((imageUrl, index) => (
+        <div key={`${imageUrl}-${index}`} className="relative overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low">
+          <img
+            src={imageUrl}
+            alt={`Forum upload ${index + 1}`}
+            className={compact ? 'h-20 w-full object-cover' : 'h-40 w-full object-cover'}
+          />
+          {compact && index === 2 && imageUrls.length > 3 && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-sm font-bold text-white">
+              +{imageUrls.length - 3}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Unable to upload images';
 }
 
 function VoteControls({

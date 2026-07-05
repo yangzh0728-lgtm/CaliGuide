@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { createForumPostViaApi } from "./forumApi";
+import { createForumPostViaApi, deleteForumCommentViaApi, deleteForumPostViaApi } from "./forumApi";
 
 const originalFetch = globalThis.fetch;
 
@@ -90,5 +90,35 @@ describe("forumApi", () => {
         },
       ),
     ).rejects.toThrow("forum_posts schema is missing user_id");
+  });
+
+  it("deletes forum posts and comments through owner-scoped server APIs", async () => {
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    globalThis.fetch = (async (url, init) => {
+      requests.push({ url: String(url), init: init ?? {} });
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+    const client = {
+      auth: {
+        getSession: async () => ({
+          data: { session: { access_token: "access-token" } },
+          error: null,
+        }),
+      },
+    };
+
+    await deleteForumPostViaApi(client, "post-1");
+    await deleteForumCommentViaApi(client, "comment-1");
+
+    expect(requests.map((request) => request.url)).toEqual([
+      "/api/forum/posts/delete",
+      "/api/forum/comments/delete",
+    ]);
+    expect(JSON.parse(String(requests[0].init.body))).toEqual({ postId: "post-1" });
+    expect(JSON.parse(String(requests[1].init.body))).toEqual({ commentId: "comment-1" });
+    expect((requests[0].init.headers as Record<string, string>).Authorization).toBe("Bearer access-token");
   });
 });

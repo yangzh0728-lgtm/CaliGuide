@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Bot, User, Send, PlusCircle, MessageSquare, X } from 'lucide-react';
+import { Bot, User, Send, PlusCircle, MessageSquare, X, ImagePlus } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
@@ -24,6 +24,7 @@ import {
   fetchChatUserMemoryFromSupabase,
 } from '../lib/chatSupabase';
 import { supabase } from '../lib/supabaseClient';
+import { uploadImagesToR2 } from '../lib/imageUpload';
 
 export default function Chatbot() {
   const { t } = useLanguage();
@@ -39,9 +40,16 @@ export default function Chatbot() {
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const userMemory = getChatUserMemory(chatMemory, userId, introMessage);
   const messages = userMemory.messages;
+  const selectedImagePreviews = useMemo(
+    () => selectedImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
+    [selectedImages],
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -78,13 +86,43 @@ export default function Chatbot() {
     }
   }, [chatMemory]);
 
+  useEffect(() => {
+    return () => {
+      selectedImagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    };
+  }, [selectedImagePreviews]);
+
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-    const messageText = input.trim();
+    if ((!input.trim() && !selectedImages.length) || isLoading) return;
+    const messageText = input.trim() || 'Please read these uploaded images and explain the important details.';
+    const imagesToUpload = [...selectedImages];
+    setIsLoading(true);
+    setUploadError('');
+
+    let imageUrls: string[] = [];
+    try {
+      if (imagesToUpload.length) {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        const uploads = await uploadImagesToR2(imagesToUpload, data.session?.access_token ?? '', {
+          folder: 'chat',
+          attachedToType: 'chat',
+        });
+        imageUrls = uploads.map((upload) => upload.publicUrl);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      setUploadError(getErrorMessage(error));
+      return;
+    }
 
     const userMessage: ChatMessage = {
       role: 'user',
       content: messageText,
+      imageUrls,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -101,7 +139,7 @@ export default function Chatbot() {
       appendChatMemoryMessages(currentMemory, userId, [userMessage, botMessage]),
     );
     setInput('');
-    setIsLoading(true);
+    setSelectedImages([]);
 
     try {
       const requestStartedAt = performance.now();
@@ -109,7 +147,7 @@ export default function Chatbot() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageText, history, userId })
+        body: JSON.stringify({ message: messageText, history, userId, imageUrls })
       });
 
       if (!response.ok) {
@@ -196,6 +234,22 @@ export default function Chatbot() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSelectImages = (files: FileList | null) => {
+    if (!files?.length) {
+      return;
+    }
+
+    setUploadError('');
+    setSelectedImages((currentImages) => [...currentImages, ...Array.from(files)].slice(0, 6));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveSelectedImage = (index: number) => {
+    setSelectedImages((currentImages) => currentImages.filter((_, currentIndex) => currentIndex !== index));
   };
 
   const handleNewChat = () => {
@@ -330,6 +384,18 @@ export default function Chatbot() {
                 ? 'bg-primary text-white rounded-tr-none border-primary' 
                 : 'bg-white text-on-surface rounded-tl-none border-outline-variant'
               }`}>
+                {!!msg.imageUrls?.length && (
+                  <div className="mb-3 grid grid-cols-2 gap-2">
+                    {msg.imageUrls.map((imageUrl, imageIndex) => (
+                      <img
+                        key={`${imageUrl}-${imageIndex}`}
+                        src={imageUrl}
+                        alt={`Uploaded chat image ${imageIndex + 1}`}
+                        className="h-24 w-full rounded-xl border border-white/20 object-cover"
+                      />
+                    ))}
+                  </div>
+                )}
                 <p className="text-sm leading-relaxed">{msg.content}</p>
                 <span className={`text-[10px] mt-2 block ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-on-surface-variant'}`}>
                   {msg.timestamp}
@@ -372,9 +438,48 @@ export default function Chatbot() {
       {/* Input Area */}
       <div className="fixed bottom-24 left-0 w-full px-4 z-40 bg-gradient-to-t from-background via-background/80 to-transparent pt-8">
         <div className="max-w-lg mx-auto">
+          {uploadError && (
+            <div className="mb-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+              {uploadError}
+            </div>
+          )}
+          {!!selectedImagePreviews.length && (
+            <div className="mb-2 flex gap-2 overflow-x-auto rounded-2xl border border-outline-variant bg-white p-2 shadow-sm no-scrollbar">
+              {selectedImagePreviews.map((preview, index) => (
+                <div key={`${preview.name}-${preview.url}`} className="relative h-16 w-16 shrink-0">
+                  <img
+                    src={preview.url}
+                    alt={preview.name}
+                    className="h-full w-full rounded-xl object-cover"
+                  />
+                  <button
+                    type="button"
+                    aria-label={`Remove ${preview.name}`}
+                    onClick={() => handleRemoveSelectedImage(index)}
+                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="bg-white border border-outline-variant rounded-2xl p-2.5 flex items-center gap-2 shadow-xl mb-2">
-            <button className="text-on-surface-variant p-2 hover:bg-surface-container-high rounded-full transition-colors">
-              <PlusCircle size={24} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              multiple
+              className="hidden"
+              onChange={(event) => handleSelectImages(event.target.files)}
+            />
+            <button
+              type="button"
+              aria-label="Upload images"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-on-surface-variant p-2 hover:bg-surface-container-high rounded-full transition-colors"
+            >
+              <ImagePlus size={24} />
             </button>
             <input 
               value={input}
@@ -386,7 +491,7 @@ export default function Chatbot() {
             />
             <button 
               onClick={handleSend}
-              disabled={isLoading || !input.trim()}
+              disabled={isLoading || (!input.trim() && !selectedImages.length)}
               className="bg-primary text-white w-10 h-10 flex items-center justify-center rounded-full hover:opacity-90 transition-all active:scale-95 disabled:opacity-50"
             >
               <Send size={18} />
@@ -404,4 +509,8 @@ function createIntroMessage(content: string): ChatMessage {
     content,
     timestamp: '10:02 AM',
   };
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Unable to upload images';
 }
