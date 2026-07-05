@@ -65,11 +65,29 @@ describe("blogLocalization", () => {
 
   it("keeps DMV article body sections aligned across languages", () => {
     for (const articleId of ["category-dmv", "guide-1"]) {
+      const englishArticle = getLocalizedBlogArticle(articleId, "en");
+      const englishBlocks = englishArticle?.body.map(formatBlogBodyBlock) ?? [];
+      const englishTones = englishBlocks.map((block) => block.tone);
+
+      expect(englishArticle?.body.length).toBe(8);
+      expect(englishTones).toEqual([
+        "default",
+        "checklist",
+        "default",
+        "default",
+        "default",
+        "default",
+        "warning",
+        "notice",
+      ]);
+
       for (const language of OFFICIAL_CONTENT_LANGUAGES) {
         const article = getLocalizedBlogArticle(articleId, language);
         const blocks = article?.body.map(formatBlogBodyBlock) ?? [];
         const tones = blocks.map((block) => block.tone);
 
+        expect(article?.body.length).toBe(englishArticle?.body.length);
+        expect(tones).toEqual(englishTones);
         expect(tones).toContain("checklist");
         expect(tones).toContain("notice");
         expect(blocks.find((block) => block.tone === "checklist")?.listItems.length).toBeGreaterThan(3);

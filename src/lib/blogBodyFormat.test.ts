@@ -44,4 +44,21 @@ describe("blogBodyFormat", () => {
       tone: "notice",
     });
   });
+
+  it("highlights common mistake headings across supported languages", () => {
+    expect(formatBlogBodyBlock("常见错误：只带复印件，没有原件。")).toMatchObject({
+      heading: "常见错误",
+      tone: "warning",
+    });
+
+    expect(formatBlogBodyBlock("Common mistakes: bringing copies without originals.")).toMatchObject({
+      heading: "Common mistakes",
+      tone: "warning",
+    });
+
+    expect(formatBlogBodyBlock("Errores comunes: llevar copias sin originales.")).toMatchObject({
+      heading: "Errores comunes",
+      tone: "warning",
+    });
+  });
 });

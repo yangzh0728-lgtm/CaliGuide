@@ -64,7 +64,14 @@ function getTone(heading: string): BlogBodyTone {
     return "notice";
   }
 
-  if (heading.includes("错误") || heading.includes("避坑") || normalizedHeading.includes("warning")) {
+  if (
+    heading.includes("错误") ||
+    heading.includes("錯誤") ||
+    heading.includes("避坑") ||
+    normalizedHeading.includes("warning") ||
+    normalizedHeading.includes("mistake") ||
+    normalizedHeading.includes("error")
+  ) {
     return "warning";
   }
 
