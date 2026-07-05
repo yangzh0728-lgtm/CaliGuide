@@ -29,46 +29,32 @@ export async function uploadAvatarToR2(file: File, accessToken: string, fetcher:
     throw new Error("Sign in required");
   }
 
-  const signResponse = await fetcher("/api/uploads/sign", {
+  const uploadResponse = await fetcher("/api/uploads/avatar", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      folder: "profile",
       mimeType: file.type,
       sizeBytes: file.size,
-      attachedToType: "profile",
+      base64: await fileToBase64(file),
     }),
   });
 
-  if (!signResponse.ok) {
-    throw new Error(await readUploadError(signResponse, "Unable to prepare profile picture upload"));
+  if (!uploadResponse.ok) {
+    throw new Error(await readUploadError(uploadResponse, "Unable to upload profile picture"));
   }
 
-  const signedUpload = (await signResponse.json()) as {
-    uploadUrl?: string;
+  const uploadedAvatar = (await uploadResponse.json()) as {
     publicUrl?: string;
   };
 
-  if (!signedUpload.uploadUrl || !signedUpload.publicUrl) {
-    throw new Error("Upload URL response is invalid");
+  if (!uploadedAvatar.publicUrl) {
+    throw new Error("Upload response is invalid");
   }
 
-  const uploadResponse = await fetcher(signedUpload.uploadUrl, {
-    method: "PUT",
-    headers: {
-      "Content-Type": file.type,
-    },
-    body: file,
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error("Unable to upload profile picture");
-  }
-
-  return signedUpload.publicUrl;
+  return uploadedAvatar.publicUrl;
 }
 
 function validateAvatarFile(file: File) {
@@ -88,4 +74,16 @@ async function readUploadError(response: Response, fallback: string) {
   } catch {
     return fallback;
   }
+}
+
+async function fileToBase64(file: File) {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary);
 }

@@ -49,6 +49,25 @@ after insert on auth.users
 for each row
 execute function public.create_profile_for_new_auth_user();
 
+insert into public.profiles (id, name, avatar_url)
+select
+  users.id,
+  coalesce(
+    nullif(users.raw_user_meta_data ->> 'name', ''),
+    nullif(split_part(users.email, '@', 1), ''),
+    'CaliGuide Member'
+  ) as name,
+  coalesce(
+    nullif(users.raw_user_meta_data ->> 'avatar_url', ''),
+    'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 96 96%22%3E%3Crect width=%2296%22 height=%2296%22 rx=%2224%22 fill=%22%230b3f75%22/%3E%3Ccircle cx=%2248%22 cy=%2238%22 r=%2215%22 fill=%22%23fff%22/%3E%3Cpath d=%22M24 80c4-18 16-28 24-28s20 10 24 28%22 fill=%22%23fff%22/%3E%3C/svg%3E'
+  ) as avatar_url
+from auth.users
+where not exists (
+  select 1
+  from public.profiles
+  where profiles.id = users.id
+);
+
 drop policy if exists "Users read their own profile" on public.profiles;
 create policy "Users read their own profile"
 on public.profiles

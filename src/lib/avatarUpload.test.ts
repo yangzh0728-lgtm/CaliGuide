@@ -16,16 +16,15 @@ describe("avatarUpload", () => {
     await expect(readAvatarFile(file)).rejects.toThrow("Choose an image file");
   });
 
-  test("uploads an avatar through a signed R2 upload URL", async () => {
+  test("uploads an avatar through the same-origin avatar API", async () => {
     const file = new File(["avatar"], "avatar.png", { type: "image/png" });
     const requests: Array<{ url: string; init?: RequestInit }> = [];
     const fetcher = async (url: string, init?: RequestInit) => {
       requests.push({ url, init });
 
-      if (url === "/api/uploads/sign") {
+      if (url === "/api/uploads/avatar") {
         return new Response(
           JSON.stringify({
-            uploadUrl: "https://upload.example.com/avatar",
             publicUrl: "https://pub.example.com/avatars/user/avatar.png",
           }),
           { status: 200, headers: { "Content-Type": "application/json" } },
@@ -38,20 +37,17 @@ describe("avatarUpload", () => {
     const publicUrl = await uploadAvatarToR2(file, "access-token", fetcher);
 
     expect(publicUrl).toBe("https://pub.example.com/avatars/user/avatar.png");
-    expect(requests[0].url).toBe("/api/uploads/sign");
+    expect(requests[0].url).toBe("/api/uploads/avatar");
     expect(requests[0].init?.method).toBe("POST");
     expect(requests[0].init?.headers).toEqual({
       Authorization: "Bearer access-token",
       "Content-Type": "application/json",
     });
-    expect(JSON.parse(String(requests[0].init?.body))).toEqual({
-      folder: "profile",
+    expect(JSON.parse(String(requests[0].init?.body))).toMatchObject({
       mimeType: "image/png",
       sizeBytes: file.size,
-      attachedToType: "profile",
     });
-    expect(requests[1].url).toBe("https://upload.example.com/avatar");
-    expect(requests[1].init?.method).toBe("PUT");
-    expect(requests[1].init?.body).toBe(file);
+    expect(JSON.parse(String(requests[0].init?.body)).base64).toBe("YXZhdGFy");
+    expect(requests).toHaveLength(1);
   });
 });

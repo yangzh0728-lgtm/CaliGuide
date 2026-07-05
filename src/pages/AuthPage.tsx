@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { KeyRound, LockKeyhole, LogIn, Mail, UserPlus } from "lucide-react";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 
@@ -27,11 +28,11 @@ export default function AuthPage() {
     try {
       if (isResettingPassword) {
         await resetRecoveredPassword({ newPassword: password });
-        setNotice("Your password has been updated. You can continue using CaliGuide.");
+        setNotice(t("auth.passwordUpdatedNotice"));
         setPassword("");
       } else if (isForgotPassword) {
         await requestPasswordReset({ email });
-        setNotice("Password reset email sent. Check your inbox and follow the link.");
+        setNotice(t("auth.resetEmailSentNotice"));
       } else if (isRegistering) {
         const result = await register({ name, email, password });
         if (result.confirmationRequired) {
@@ -43,14 +44,17 @@ export default function AuthPage() {
         await login({ email, password });
       }
     } catch (authError) {
-      setError(authError instanceof Error ? authError.message : "Something went wrong");
+      setError(authError instanceof Error ? authError.message : t("auth.genericError"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-10 flex items-center justify-center">
+    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="absolute right-4 top-4 z-20 rounded-full bg-white/80 shadow-sm backdrop-blur-sm">
+        <LanguageSwitcher />
+      </div>
       <main className="w-full max-w-md">
         <section className="mb-8">
           <div className="w-14 h-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg mb-5">
@@ -64,18 +68,18 @@ export default function AuthPage() {
           </div>
           <h1 className="text-3xl font-bold text-on-surface">
             {isResettingPassword
-              ? "Reset your password"
+              ? t("auth.resetPasswordTitle")
               : isForgotPassword
-                ? "Forgot password?"
+                ? t("auth.forgotPasswordTitle")
                 : isRegistering
                   ? t("auth.createAccount")
                   : t("auth.welcome")}
           </h1>
           <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">
             {isResettingPassword
-              ? "Enter a new password for your CaliGuide account."
+              ? t("auth.resetPasswordCopy")
               : isForgotPassword
-                ? "Enter your email and we will send a secure password reset link."
+                ? t("auth.forgotPasswordCopy")
                 : isRegistering
               ? t("auth.registerCopy")
               : t("auth.loginCopy")}
@@ -148,7 +152,7 @@ export default function AuthPage() {
           {!isForgotPassword && (
             <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">
-              {isResettingPassword ? "New password" : t("auth.password")}
+              {isResettingPassword ? t("auth.newPassword") : t("auth.password")}
             </span>
             <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
               <LockKeyhole size={18} className="text-on-surface-variant" />
@@ -180,11 +184,11 @@ export default function AuthPage() {
             className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting
-              ? "Please wait..."
+              ? t("auth.pleaseWait")
               : isResettingPassword
-                ? "Update password"
+                ? t("auth.updatePassword")
                 : isForgotPassword
-                  ? "Send reset email"
+                  ? t("auth.sendResetEmail")
                   : isRegistering
                     ? t("auth.submitRegister")
                     : t("auth.login")}
@@ -201,7 +205,7 @@ export default function AuthPage() {
                 }}
                 className="text-sm font-bold text-primary hover:underline"
               >
-                {isForgotPassword ? "Back to login" : "Forgot password?"}
+                {isForgotPassword ? t("auth.backToLogin") : t("auth.forgotPassword")}
               </button>
             </div>
           )}

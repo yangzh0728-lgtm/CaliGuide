@@ -36,7 +36,7 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "5mb" }));
 
   const apiKey = process.env.API_KEY;
   const appId = process.env.APP_ID;
@@ -145,6 +145,73 @@ async function startServer() {
           console.warn(`[upload:${data.user.id}] media metadata skipped`, error.message);
         }
       });
+  });
+
+  app.post("/api/uploads/avatar", async (req, res) => {
+    if (!supabaseAdmin || !r2Config || !r2Client) {
+      return res.status(500).json({ error: "Supabase and Cloudflare R2 must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const mimeType = typeof req.body?.mimeType === "string" ? req.body.mimeType : "";
+    const base64 = typeof req.body?.base64 === "string" ? req.body.base64 : "";
+    const sizeBytes = typeof req.body?.sizeBytes === "number" ? req.body.sizeBytes : null;
+
+    if (!isAllowedUploadMimeType(mimeType)) {
+      return res.status(400).json({ error: "Choose a PNG, JPG, GIF, or WebP image" });
+    }
+    if (!base64) {
+      return res.status(400).json({ error: "Profile picture is required" });
+    }
+
+    const body = Buffer.from(base64, "base64");
+    const objectKey = createR2ObjectKey({
+      userId: authResult.user.id,
+      folder: "profile",
+      mimeType,
+    });
+    const publicUrl = buildPublicR2Url(r2Config.publicBaseUrl, objectKey);
+
+    try {
+      await r2Client.send(
+        new PutObjectCommand({
+          Bucket: r2Config.bucketName,
+          Key: objectKey,
+          Body: body,
+          ContentType: mimeType,
+        }),
+      );
+    } catch (error) {
+      console.warn(`[upload:${authResult.user.id}] avatar upload failed`, error);
+      return res.status(502).json({ error: "Unable to upload profile picture" });
+    }
+
+    void supabaseAdmin
+      .from("media_assets")
+      .insert({
+        owner_user_id: authResult.user.id,
+        bucket: r2Config.bucketName,
+        object_key: objectKey,
+        public_url: publicUrl,
+        mime_type: mimeType,
+        size_bytes: sizeBytes,
+        attached_to_type: "profile",
+        attached_to_id: authResult.user.id,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.warn(`[upload:${authResult.user.id}] avatar metadata skipped`, error.message);
+        }
+      });
+
+    res.json({
+      objectKey,
+      publicUrl,
+    });
   });
 
   app.post("/api/forum/posts", async (req, res) => {

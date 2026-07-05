@@ -55,6 +55,10 @@ export default function App() {
     forumDiscussions.find((discussion) => discussion.id === selectedForumId) ?? forumDiscussions[0];
 
   const reloadForumDiscussions = useCallback(async () => {
+    if (!currentUser) {
+      return;
+    }
+
     try {
       const remoteDiscussions = await fetchForumDiscussionsFromSupabase(supabase);
       if (remoteDiscussions.length) {
@@ -63,7 +67,7 @@ export default function App() {
     } catch (error) {
       console.warn('Forum Supabase sync skipped:', error);
     }
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     void reloadForumDiscussions();
