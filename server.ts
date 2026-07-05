@@ -450,6 +450,16 @@ async function startServer() {
       return res.status(500).json({ error: postVoteDeleteError.message });
     }
 
+    const { error: commentDeleteError } = await supabaseAdmin
+      .from("forum_comments")
+      .delete()
+      .eq("post_id", postId);
+
+    if (commentDeleteError) {
+      console.warn(`[forum:${authResult.user.id}] post comments delete failed`, commentDeleteError.message);
+      return res.status(500).json({ error: commentDeleteError.message });
+    }
+
     const { error } = await supabaseAdmin
       .from("forum_posts")
       .delete()

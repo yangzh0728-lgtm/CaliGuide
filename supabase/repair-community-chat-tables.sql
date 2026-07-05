@@ -90,6 +90,52 @@ begin
   end if;
 end $$;
 
+do $$
+declare
+  existing_constraint text;
+begin
+  if to_regclass('public.forum_comments') is not null
+    and to_regclass('public.forum_posts') is not null
+    and exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'forum_comments'
+        and column_name = 'post_id'
+    )
+  then
+    delete from public.forum_comments c
+    where c.post_id is not null
+      and not exists (
+        select 1
+        from public.forum_posts post
+        where post.id = c.post_id
+      );
+
+    for existing_constraint in
+      select usage.constraint_name
+      from information_schema.key_column_usage usage
+      join information_schema.table_constraints constraint_info
+        on constraint_info.constraint_schema = usage.constraint_schema
+       and constraint_info.constraint_name = usage.constraint_name
+       and constraint_info.table_schema = usage.table_schema
+       and constraint_info.table_name = usage.table_name
+      where usage.table_schema = 'public'
+        and usage.table_name = 'forum_comments'
+        and usage.column_name = 'post_id'
+        and constraint_info.constraint_type = 'FOREIGN KEY'
+    loop
+      execute format('alter table public.forum_comments drop constraint if exists %I', existing_constraint);
+    end loop;
+
+    alter table public.forum_comments
+      add constraint forum_comments_post_id_fkey
+      foreign key (post_id)
+      references public.forum_posts(id)
+      on delete cascade;
+  end if;
+end $$;
+
 alter table if exists public.forum_posts
   alter column body set default '{}',
   alter column tags set default '{}',
@@ -142,3 +188,15 @@ grant select, insert, update, delete on public.forum_votes to authenticated, ser
 grant select, insert, update, delete on public.chat_sessions to authenticated, service_role;
 grant select, insert, update, delete on public.chat_messages to authenticated, service_role;
 grant select, insert, update, delete on public.media_assets to authenticated, service_role;
+
+drop policy if exists "Users delete their own forum posts" on public.forum_posts;
+create policy "Users delete their own forum posts"
+on public.forum_posts for delete
+to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists "Users delete their own forum comments" on public.forum_comments;
+create policy "Users delete their own forum comments"
+on public.forum_comments for delete
+to authenticated
+using (auth.uid() = user_id);
