@@ -51,6 +51,7 @@ export function mapForumPostRows(rows: ForumPostRow[]): ForumDiscussion[] {
 
     return {
       id: row.id,
+      userId: row.user_id,
       author: row.author_name,
       avatar: row.author_avatar,
       time: formatRelativeTime(row.created_at),
@@ -105,22 +106,16 @@ export async function fetchForumDiscussionsFromSupabase(client: SupabaseLike) {
     return [];
   }
 
-  const [{ data: comments, error: commentsError }, { data: votes, error: votesError }] =
-    await Promise.all([
-      client.from("forum_comments").select("*").in("post_id", postIds),
-      client.from("forum_votes").select("*").in("target_id", postIds),
-    ]);
+  const [commentsResult, votesResult] = await Promise.all([
+    client.from("forum_comments").select("*").in("post_id", postIds),
+    client.from("forum_votes").select("*").in("target_id", postIds),
+  ]);
 
-  if (commentsError) {
-    throw new Error(commentsError.message);
-  }
-  if (votesError) {
-    throw new Error(votesError.message);
-  }
-
-  const commentRows = (comments ?? []) as ForumCommentRow[];
+  const commentRows = commentsResult.error ? [] : ((commentsResult.data ?? []) as ForumCommentRow[]);
   const commentIds = commentRows.map((comment) => comment.id);
-  const postVotes = ((votes ?? []) as ForumVoteRow[]).filter((vote) => vote.target_type === "post");
+  const postVotes = (votesResult.error ? [] : ((votesResult.data ?? []) as ForumVoteRow[])).filter(
+    (vote) => vote.target_type === "post",
+  );
   let commentVotes: ForumVoteRow[] = [];
 
   if (commentIds.length) {
@@ -129,10 +124,9 @@ export async function fetchForumDiscussionsFromSupabase(client: SupabaseLike) {
       .select("*")
       .in("target_id", commentIds);
 
-    if (error) {
-      throw new Error(error.message);
+    if (!error) {
+      commentVotes = ((data ?? []) as ForumVoteRow[]).filter((vote) => vote.target_type === "comment");
     }
-    commentVotes = ((data ?? []) as ForumVoteRow[]).filter((vote) => vote.target_type === "comment");
   }
 
   return mapForumPostRows(

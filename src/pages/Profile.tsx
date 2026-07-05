@@ -65,8 +65,8 @@ export default function Profile({
     [articles, currentUser?.savedGuideIds],
   );
   const userForumPosts = useMemo(
-    () => forumDiscussions.filter((discussion) => discussion.author === currentUser?.name),
-    [forumDiscussions, currentUser?.name],
+    () => forumDiscussions.filter((discussion) => discussion.userId === currentUser?.id),
+    [forumDiscussions, currentUser?.id],
   );
 
   useEffect(() => {

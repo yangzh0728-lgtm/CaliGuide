@@ -12,6 +12,7 @@ export interface ForumComment {
 
 export interface ForumDiscussion {
   id: string;
+  userId?: string;
   author: string;
   avatar: string;
   time: string;
@@ -370,6 +371,7 @@ export function createForumDiscussion(input: {
   category: string;
   body: string;
   author: string;
+  userId?: string;
 }): ForumDiscussion {
   const author = input.author.trim() || "CaliGuide Member";
   const body = input.body.trim();
@@ -383,6 +385,7 @@ export function createForumDiscussion(input: {
 
   return {
     id: createForumId(),
+    userId: input.userId,
     author,
     avatar: initials,
     time: "Just now",

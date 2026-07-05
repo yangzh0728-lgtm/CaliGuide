@@ -3,6 +3,7 @@ import {
   buildForumCommentInsert,
   buildForumPostInsert,
   buildForumVoteUpsert,
+  fetchForumDiscussionsFromSupabase,
   mapForumPostRows,
 } from "./forumSupabase";
 
@@ -44,6 +45,7 @@ describe("forumSupabase", () => {
 
     expect(discussions[0]).toMatchObject({
       id: "post-1",
+      userId: "user-1",
       author: "Maya Chen",
       avatar: "MC",
       category: "Housing",
@@ -57,6 +59,62 @@ describe("forumSupabase", () => {
       id: "comment-1",
       author: "Leo C.",
       usefulUserIds: ["user-1"],
+    });
+  });
+
+  it("still returns posts when comments or votes are not readable", async () => {
+    const client = {
+      from(table: string) {
+        if (table === "forum_posts") {
+          return {
+            select() {
+              return {
+                order: async () => ({
+                  data: [
+                    {
+                      id: "post-remote",
+                      user_id: "user-owner",
+                      author_name: "Owner",
+                      author_avatar: "OW",
+                      category: "Housing",
+                      title: "Remote post",
+                      excerpt: "Visible even when vote reads fail.",
+                      body: ["Visible even when vote reads fail."],
+                      tags: ["Housing"],
+                      view_count: 0,
+                      created_at: "2026-07-04T04:00:00.000Z",
+                    },
+                  ],
+                  error: null,
+                }),
+              };
+            },
+          };
+        }
+
+        return {
+          select() {
+            return {
+              in: async () => ({
+                data: null,
+                error: { message: `permission denied for table ${table}` },
+              }),
+            };
+          },
+        };
+      },
+    };
+
+    const discussions = await fetchForumDiscussionsFromSupabase(client);
+
+    expect(discussions).toHaveLength(1);
+    expect(discussions[0]).toMatchObject({
+      id: "post-remote",
+      userId: "user-owner",
+      title: "Remote post",
+      replies: [],
+      usefulUserIds: [],
+      unusefulUserIds: [],
     });
   });
 

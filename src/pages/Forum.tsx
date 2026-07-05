@@ -112,6 +112,7 @@ export default function Forum({
       category: newPostCategory,
       body: newPostBody,
       author: currentUser?.name ?? 'Preview User',
+      userId: currentUser?.id,
     });
 
     onAddForumDiscussion(discussion);
