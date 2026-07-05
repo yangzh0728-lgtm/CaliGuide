@@ -92,6 +92,28 @@ describe("forumApi", () => {
     ).rejects.toThrow("forum_posts schema is missing user_id");
   });
 
+  it("surfaces non-json server errors with status context", async () => {
+    globalThis.fetch = (async () =>
+      new Response("Route not found", {
+        status: 404,
+        headers: { "Content-Type": "text/plain" },
+      })) as typeof fetch;
+
+    await expect(
+      deleteForumPostViaApi(
+        {
+          auth: {
+            getSession: async () => ({
+              data: { session: { access_token: "access-token" } },
+              error: null,
+            }),
+          },
+        },
+        "11111111-1111-4111-8111-111111111111",
+      ),
+    ).rejects.toThrow("Forum sync failed with HTTP 404: Route not found");
+  });
+
   it("deletes forum posts and comments through owner-scoped server APIs", async () => {
     const requests: Array<{ url: string; init: RequestInit }> = [];
     globalThis.fetch = (async (url, init) => {

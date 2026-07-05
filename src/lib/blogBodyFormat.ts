@@ -7,7 +7,7 @@ export interface BlogBodyBlock {
   tone: BlogBodyTone;
 }
 
-const HEADING_SEPARATOR_PATTERN = /^([^：:]{2,18})[：:]\s*(.+)$/;
+const HEADING_SEPARATOR_PATTERN = /^([^：:]{2,32})[：:]\s*(.+)$/;
 
 export function formatBlogBodyBlock(paragraph: string): BlogBodyBlock {
   const trimmed = paragraph.trim();
@@ -44,15 +44,27 @@ export function formatBlogBodyBlock(paragraph: string): BlogBodyBlock {
 }
 
 function getTone(heading: string): BlogBodyTone {
-  if (heading.includes("清单") || heading.toLowerCase().includes("checklist")) {
+  const normalizedHeading = heading.toLowerCase();
+
+  if (
+    heading.includes("清单") ||
+    normalizedHeading.includes("checklist") ||
+    normalizedHeading.includes("preparation") ||
+    normalizedHeading.includes("lista")
+  ) {
     return "checklist";
   }
 
-  if (heading.includes("提醒") || heading.toLowerCase().includes("note")) {
+  if (
+    heading.includes("提醒") ||
+    normalizedHeading.includes("note") ||
+    normalizedHeading.includes("reminder") ||
+    normalizedHeading.includes("recordatorio")
+  ) {
     return "notice";
   }
 
-  if (heading.includes("错误") || heading.includes("避坑") || heading.toLowerCase().includes("warning")) {
+  if (heading.includes("错误") || heading.includes("避坑") || normalizedHeading.includes("warning")) {
     return "warning";
   }
 

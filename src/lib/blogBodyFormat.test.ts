@@ -26,4 +26,22 @@ describe("blogBodyFormat", () => {
       tone: "notice",
     });
   });
+
+  it("formats English and Spanish checklist and reminder headings", () => {
+    expect(formatBlogBodyBlock("Preparation checklist: Passport, address proof, DMV appointment.")).toMatchObject({
+      heading: "Preparation checklist",
+      listItems: ["Passport", "address proof", "DMV appointment"],
+      tone: "checklist",
+    });
+
+    expect(formatBlogBodyBlock("Official reminder: Confirm details with DMV.")).toMatchObject({
+      heading: "Official reminder",
+      tone: "notice",
+    });
+
+    expect(formatBlogBodyBlock("Recordatorio oficial: Confirma los requisitos actuales.")).toMatchObject({
+      heading: "Recordatorio oficial",
+      tone: "notice",
+    });
+  });
 });

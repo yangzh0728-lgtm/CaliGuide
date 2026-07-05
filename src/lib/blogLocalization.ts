@@ -29,10 +29,14 @@ const zhCnPatches: Record<string, BlogArticleTranslation> = {
     tags: ["DMV", "驾照", "REAL ID", "加州"],
     excerpt: "帮助新居民规划最常见的 DMV 事项，包括驾照、REAL ID、车辆登记和地址更新。",
     body: [
+      "适合人群：刚搬到加州、需要办理驾照或州身份证、考虑 REAL ID、从外州带车进入加州，或需要更新 DMV 地址的新居民。",
+      "准备清单：护照或其他身份证明、加州住址证明、Social Security 信息、外州驾照或车辆登记、预约确认、申请费付款方式、车辆保险和注册文件。",
       "先确认你最需要办理的 DMV 事项：加州驾照、州身份证、REAL ID、车辆登记或地址更新。新居民应查看官方 DMV 时间要求，因为截止日期可能取决于何时建立加州居民身份，以及是否从外州带车进入加州。",
       "预约前整理身份、住址和合法居留相关材料。常见材料包括护照或其他身份证明、加州住址证明、适用时的 Social Security 信息，以及已有的外州驾照或车辆登记。",
       "访问 DMV 官网确认表格、费用、考试要求和预约情况。许多步骤可以在线开始，但到现场前仍应用官方页面核对最新规则。",
       "办理后保存收据、临时文件、考试结果和续期提醒。正式驾照或 REAL ID 邮寄到家后，应立即核对姓名和地址是否正确。",
+      "常见错误：只带复印件没有原件、住址证明姓名或地址不一致、没有提前确认 REAL ID 材料、路考车辆保险或注册无效、搬家后没有更新 DMV 地址。",
+      "官方提醒：DMV 要求会因年龄、身份文件、申请类型和车辆情况而不同。提交申请前应使用加州 DMV 官方页面和文件清单确认最新要求。",
     ],
   },
   "forum-first-30-days": {
@@ -67,6 +71,16 @@ const englishTranslations: Record<string, BlogArticleTranslation> = {
     category: "DMV",
     tags: ["DMV", "Driver License", "REAL ID", "California"],
     excerpt: "Plan your first DMV tasks, including licenses, REAL ID documents, vehicle registration, and address updates.",
+    body: [
+      "Who this helps: new California residents who need a driver's license or state ID, people deciding whether to apply for REAL ID, and residents bringing a vehicle from another state.",
+      "Preparation checklist: Passport or other identity document, California address proof, Social Security information when applicable, out-of-state license or vehicle registration, appointment confirmation, fee payment method, vehicle insurance, vehicle registration.",
+      "Start by deciding which DMV task you need first: a California driver's license, state ID, REAL ID, vehicle registration, or address update. New residents should review official DMV timelines because deadlines can depend on when they establish residency and whether they bring a vehicle from another state.",
+      "Before booking an appointment, organize identity, residency, and legal-presence documents. Common documents include a passport or other identity proof, proof of California address, Social Security information when applicable, and any existing out-of-state license or registration.",
+      "Use the DMV website to check forms, fees, test requirements, and appointment availability before visiting an office. Many steps can start online, but users should confirm current rules on the official DMV site before relying on any checklist.",
+      "After the visit, keep receipts, temporary paperwork, test results, and renewal reminders together. If a REAL ID or license card arrives by mail, verify the name and address as soon as it is delivered.",
+      "Common mistakes: bringing copies without originals, using address documents with mismatched names, skipping the REAL ID checklist, arriving for a road test with invalid insurance or registration, or forgetting to update a DMV address after moving.",
+      "Official reminder: DMV requirements can vary by age, identity document, application type, and vehicle situation. Confirm the latest requirements with California DMV official pages and document checklists before applying.",
+    ],
   },
   "category-banking": {
     title: "How Newcomers Can Open a U.S. Bank Account",
@@ -114,10 +128,12 @@ const englishTranslations: Record<string, BlogArticleTranslation> = {
     excerpt: "Learn which documents, tests, appointments, and DMV steps first-time California license applicants should expect.",
     body: [
       "Who this helps: new California residents, adults applying for a U.S. license for the first time, drivers with a foreign or out-of-state license, and applicants comparing a standard license, REAL ID license, or AB 60 license.",
-      "Prepare identity and legal-presence documents, California address proof, SSN information if applicable, existing licenses, fee payment, study materials, and a road-test vehicle with valid registration and insurance.",
+      "Preparation checklist: Identity and legal-presence documents, California address proof, SSN information if applicable, existing licenses, fee payment, study materials, road-test vehicle, valid registration, valid insurance.",
       "Choose the correct license type before applying. A standard license, REAL ID license, and AB 60 license have different document rules and uses; AB 60 cannot be used as REAL ID.",
       "Start the online driver's license or ID application, then visit DMV to verify documents, take a photo, provide fingerprints, pay fees, and complete required tests.",
       "Study the latest California Driver's Handbook for the vision and knowledge tests. Before a road test, make sure the vehicle is safe, registered, insured, and that you have practiced turns, lane changes, parking, observation, and speed control.",
+      "Common mistakes: choosing the wrong license type, bringing copies instead of originals, using address documents that do not match, assuming a foreign license removes all test requirements, or arriving for a road test in a vehicle without valid insurance or registration.",
+      "Official reminder: Driver license requirements vary by age, document type, and license category. Use the California DMV document checklist and latest Driver's Handbook before applying or taking a test.",
     ],
   },
   "guide-real-id-documents": {
@@ -251,10 +267,14 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
     tags: ["DMV", "Licencia de conducir", "REAL ID", "California"],
     excerpt: "Planifica tus primeros trámites del DMV: licencia, REAL ID, registro del vehículo y cambio de dirección.",
     body: [
-      "Primero decide qué trámite necesitas: licencia de California, identificación estatal, REAL ID, registro del vehículo o cambio de dirección.",
+      "A quién ayuda: nuevos residentes de California que necesitan licencia de conducir o identificación estatal, personas que están considerando REAL ID y residentes que traen un vehículo de otro estado.",
+      "Lista de preparación: Pasaporte u otro documento de identidad, comprobante de domicilio en California, información del Seguro Social si aplica, licencia o registro vehicular de otro estado, confirmación de cita, forma de pago, seguro del vehículo, registro del vehículo.",
+      "Primero decide qué trámite necesitas: licencia de California, identificación estatal, REAL ID, registro del vehículo o cambio de dirección. Los plazos pueden depender de cuándo estableces residencia y de si traes un vehículo de otro estado.",
       "Prepara documentos de identidad, residencia y presencia legal antes de pedir cita. También lleva cualquier licencia o registro de otro estado si aplica.",
       "Usa el sitio oficial del DMV para confirmar formularios, costos, exámenes y citas. Muchas gestiones empiezan en línea, pero las reglas actuales deben verificarse en la fuente oficial.",
       "Después de la visita, guarda recibos, documentos temporales, resultados de exámenes y recordatorios. Cuando llegue la tarjeta, revisa nombre y dirección.",
+      "Errores comunes: llevar copias sin originales, usar comprobantes de dirección con nombres diferentes, saltar la lista de REAL ID, presentarse al examen práctico con seguro o registro inválido, u olvidar actualizar la dirección en el DMV después de mudarse.",
+      "Recordatorio oficial: Los requisitos del DMV pueden variar por edad, documento de identidad, tipo de solicitud y situación del vehículo. Confirma los requisitos actuales en páginas y listas oficiales del DMV de California antes de aplicar.",
     ],
   },
   "category-banking": {
@@ -303,10 +323,12 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
     excerpt: "Conoce documentos, citas, exámenes y pasos del DMV para solicitar tu primera licencia en California.",
     body: [
       "Esta guía ayuda a nuevos residentes, adultos que solicitan por primera vez una licencia en EE. UU. y personas con licencia extranjera o de otro estado.",
-      "Prepara documentos de identidad y presencia legal, comprobantes de domicilio en California, información de SSN si aplica, licencias existentes, pago de tarifa y materiales de estudio.",
+      "Lista de preparación: Documentos de identidad y presencia legal, comprobante de domicilio en California, información de SSN si aplica, licencias existentes, pago de tarifas, materiales de estudio, vehículo para examen práctico, registro válido, seguro válido.",
       "Elige el tipo correcto: licencia estándar, licencia REAL ID o AB 60. Cada una tiene requisitos y usos diferentes; AB 60 no sirve como REAL ID.",
       "Empieza con la solicitud en línea, luego visita el DMV para verificar documentos, tomar foto, huellas, pagar tarifas y completar exámenes.",
       "Estudia el California Driver's Handbook. Para el examen de manejo, el vehículo debe estar seguro, registrado, asegurado y listo para demostrar giros, cambios de carril, estacionamiento, observación y control de velocidad.",
+      "Errores comunes: elegir el tipo incorrecto de licencia, llevar copias en lugar de originales, usar comprobantes de dirección que no coinciden, asumir que una licencia extranjera elimina todos los exámenes, o llegar al examen práctico con un vehículo sin seguro o registro válido.",
+      "Recordatorio oficial: Los requisitos de licencia varían por edad, tipo de documento y categoría de licencia. Usa la lista de documentos del DMV de California y el Driver's Handbook más reciente antes de aplicar o tomar un examen.",
     ],
   },
   "guide-real-id-documents": {

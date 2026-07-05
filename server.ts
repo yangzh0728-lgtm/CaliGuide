@@ -395,6 +395,60 @@ async function startServer() {
 
     const postId = getRequiredString(req.body?.postId, "Post is required");
     if (postId instanceof Error) return res.status(400).json({ error: postId.message });
+    if (!getUuidOrNull(postId)) {
+      return res.json({ ok: true });
+    }
+
+    const { data: ownedPost, error: ownedPostError } = await supabaseAdmin
+      .from("forum_posts")
+      .select("id")
+      .eq("id", postId)
+      .eq("user_id", authResult.user.id)
+      .maybeSingle();
+
+    if (ownedPostError) {
+      console.warn(`[forum:${authResult.user.id}] post owner check failed`, ownedPostError.message);
+      return res.status(500).json({ error: ownedPostError.message });
+    }
+    if (!ownedPost) {
+      return res.json({ ok: true });
+    }
+
+    const { data: comments, error: commentsReadError } = await supabaseAdmin
+      .from("forum_comments")
+      .select("id")
+      .eq("post_id", postId);
+
+    if (commentsReadError) {
+      console.warn(`[forum:${authResult.user.id}] post comment lookup failed`, commentsReadError.message);
+      return res.status(500).json({ error: commentsReadError.message });
+    }
+
+    const commentIds = (comments ?? []).map((comment) => comment.id).filter(Boolean);
+
+    if (commentIds.length) {
+      const { error: commentVoteDeleteError } = await supabaseAdmin
+        .from("forum_votes")
+        .delete()
+        .eq("target_type", "comment")
+        .in("target_id", commentIds);
+
+      if (commentVoteDeleteError) {
+        console.warn(`[forum:${authResult.user.id}] comment vote delete failed`, commentVoteDeleteError.message);
+        return res.status(500).json({ error: commentVoteDeleteError.message });
+      }
+    }
+
+    const { error: postVoteDeleteError } = await supabaseAdmin
+      .from("forum_votes")
+      .delete()
+      .eq("target_type", "post")
+      .eq("target_id", postId);
+
+    if (postVoteDeleteError) {
+      console.warn(`[forum:${authResult.user.id}] post vote delete failed`, postVoteDeleteError.message);
+      return res.status(500).json({ error: postVoteDeleteError.message });
+    }
 
     const { error } = await supabaseAdmin
       .from("forum_posts")
@@ -422,6 +476,35 @@ async function startServer() {
 
     const commentId = getRequiredString(req.body?.commentId, "Comment is required");
     if (commentId instanceof Error) return res.status(400).json({ error: commentId.message });
+    if (!getUuidOrNull(commentId)) {
+      return res.json({ ok: true });
+    }
+
+    const { data: ownedComment, error: ownedCommentError } = await supabaseAdmin
+      .from("forum_comments")
+      .select("id")
+      .eq("id", commentId)
+      .eq("user_id", authResult.user.id)
+      .maybeSingle();
+
+    if (ownedCommentError) {
+      console.warn(`[forum:${authResult.user.id}] comment owner check failed`, ownedCommentError.message);
+      return res.status(500).json({ error: ownedCommentError.message });
+    }
+    if (!ownedComment) {
+      return res.json({ ok: true });
+    }
+
+    const { error: voteDeleteError } = await supabaseAdmin
+      .from("forum_votes")
+      .delete()
+      .eq("target_type", "comment")
+      .eq("target_id", commentId);
+
+    if (voteDeleteError) {
+      console.warn(`[forum:${authResult.user.id}] comment vote delete failed`, voteDeleteError.message);
+      return res.status(500).json({ error: voteDeleteError.message });
+    }
 
     const { error } = await supabaseAdmin
       .from("forum_comments")

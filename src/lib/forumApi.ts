@@ -43,13 +43,32 @@ async function postForumJson<TResponse>(
     body: JSON.stringify(body),
   });
 
-  const payload = await response.json().catch(() => ({}));
+  const responseText = await response.text();
+  const payload = parseJsonObject(responseText);
 
   if (!response.ok) {
-    throw new Error(typeof payload.error === "string" ? payload.error : "Unable to sync forum data");
+    if (typeof payload.error === "string") {
+      throw new Error(payload.error);
+    }
+
+    const detail = responseText.trim();
+    throw new Error(
+      detail
+        ? `Forum sync failed with HTTP ${response.status}: ${detail}`
+        : `Forum sync failed with HTTP ${response.status}`,
+    );
   }
 
   return payload as TResponse;
+}
+
+function parseJsonObject(value: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
 }
 
 export async function createForumPostViaApi(
