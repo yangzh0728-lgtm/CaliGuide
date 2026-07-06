@@ -3,6 +3,8 @@ import {
   buildForumCommentInsert,
   buildForumPostInsert,
   buildForumVoteUpsert,
+  deleteForumCommentInSupabase,
+  deleteForumPostInSupabase,
   ForumVoteTargetType,
   ForumVoteType,
   mapForumPostRows,
@@ -87,11 +89,29 @@ export async function createForumCommentViaApi(
 }
 
 export async function deleteForumPostViaApi(client: SupabaseSessionClient, postId: string) {
-  await postForumJson<{ ok: true }>(client, "/api/forum/posts/delete", { postId });
+  try {
+    await postForumJson<{ ok: true }>(client, "/api/forum/posts/delete", { postId });
+  } catch (error) {
+    if (isMissingForumDeleteRoute(error) && hasSupabaseTableClient(client)) {
+      await deleteForumPostInSupabase(client, postId);
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export async function deleteForumCommentViaApi(client: SupabaseSessionClient, commentId: string) {
-  await postForumJson<{ ok: true }>(client, "/api/forum/comments/delete", { commentId });
+  try {
+    await postForumJson<{ ok: true }>(client, "/api/forum/comments/delete", { commentId });
+  } catch (error) {
+    if (isMissingForumDeleteRoute(error) && hasSupabaseTableClient(client)) {
+      await deleteForumCommentInSupabase(client, commentId);
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export async function setForumVoteViaApi(
@@ -105,4 +125,20 @@ export async function setForumVoteViaApi(
     ...buildForumVoteUpsert(targetType, targetId, userId, voteType ?? "useful"),
     vote_type: voteType,
   });
+}
+
+function isMissingForumDeleteRoute(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return (
+    error.message.includes("Forum sync failed with HTTP 404") &&
+    (error.message.includes("Cannot POST /api/forum/posts/delete") ||
+      error.message.includes("Cannot POST /api/forum/comments/delete"))
+  );
+}
+
+function hasSupabaseTableClient(client: SupabaseSessionClient): client is SupabaseClient {
+  return typeof (client as SupabaseClient).from === "function";
 }

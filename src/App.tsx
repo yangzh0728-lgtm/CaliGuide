@@ -46,12 +46,17 @@ import {
 import { supabase } from './lib/supabaseClient';
 import { AnimatePresence, motion } from 'motion/react';
 
+type PendingForumDelete =
+  | { type: 'post'; discussionId: string; title: string }
+  | { type: 'comment'; discussionId: string; commentId: string };
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedBlogId, setSelectedBlogId] = useState('category-dmv');
   const [selectedForumId, setSelectedForumId] = useState('post-1');
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
   const [forumSyncError, setForumSyncError] = useState('');
+  const [pendingForumDelete, setPendingForumDelete] = useState<PendingForumDelete | null>(null);
   const { currentUser, isGuideSaved, isLoading, isPasswordRecovery, removeSavedGuide, saveGuide } = useAuth();
   const { language, t } = useLanguage();
   const localizedBlogArticles = getLocalizedBlogArticles(language);
@@ -155,6 +160,25 @@ export default function App() {
       });
   };
 
+  const requestDeleteForumDiscussion = (discussionId: string) => {
+    const userId = currentUser?.id;
+    if (!userId) {
+      return;
+    }
+
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    if (discussion?.userId !== userId) {
+      setForumSyncError('You can only delete forum posts that you created.');
+      return;
+    }
+
+    setPendingForumDelete({
+      type: 'post',
+      discussionId,
+      title: discussion.title,
+    });
+  };
+
   const deleteForumDiscussion = (discussionId: string) => {
     const userId = currentUser?.id;
     if (!userId) {
@@ -179,6 +203,26 @@ export default function App() {
         setForumSyncError(`Post deleted locally, but Supabase sync failed: ${getErrorMessage(error)}`);
         console.warn('Unable to delete forum post from Supabase:', error);
       });
+  };
+
+  const requestDeleteForumDiscussionComment = (discussionId: string, commentId: string) => {
+    const userId = currentUser?.id;
+    if (!userId) {
+      return;
+    }
+
+    const discussion = forumDiscussions.find((currentDiscussion) => currentDiscussion.id === discussionId);
+    const comment = discussion?.replies.find((reply) => reply.id === commentId);
+    if (comment?.userId !== userId) {
+      setForumSyncError('You can only delete comments that you created.');
+      return;
+    }
+
+    setPendingForumDelete({
+      type: 'comment',
+      discussionId,
+      commentId,
+    });
   };
 
   const deleteForumDiscussionComment = (discussionId: string, commentId: string) => {
@@ -207,6 +251,20 @@ export default function App() {
         setForumSyncError(`Comment deleted locally, but Supabase sync failed: ${getErrorMessage(error)}`);
         console.warn('Unable to delete forum comment from Supabase:', error);
       });
+  };
+
+  const confirmForumDelete = () => {
+    if (!pendingForumDelete) {
+      return;
+    }
+
+    if (pendingForumDelete.type === 'post') {
+      deleteForumDiscussion(pendingForumDelete.discussionId);
+    } else {
+      deleteForumDiscussionComment(pendingForumDelete.discussionId, pendingForumDelete.commentId);
+    }
+
+    setPendingForumDelete(null);
   };
 
   const toggleForumDiscussionUseful = (discussionId: string) => {
@@ -320,7 +378,7 @@ export default function App() {
           onAddForumDiscussion={addForumDiscussion}
           onToggleUseful={toggleForumDiscussionUseful}
           onToggleUnuseful={toggleForumDiscussionUnuseful}
-          onDeleteDiscussion={deleteForumDiscussion}
+          onDeleteDiscussion={requestDeleteForumDiscussion}
           onOpenBlog={openBlog}
           currentUserId={currentUser.id}
           syncError={forumSyncError}
@@ -335,8 +393,8 @@ export default function App() {
           onToggleDiscussionUnuseful={toggleForumDiscussionUnuseful}
           onToggleCommentUseful={toggleForumCommentUseful}
           onToggleCommentUnuseful={toggleForumCommentUnuseful}
-          onDeleteDiscussion={deleteForumDiscussion}
-          onDeleteComment={deleteForumDiscussionComment}
+          onDeleteDiscussion={requestDeleteForumDiscussion}
+          onDeleteComment={requestDeleteForumDiscussionComment}
           currentUserId={currentUser.id}
           syncError={forumSyncError}
           onClearSyncError={() => setForumSyncError('')}
@@ -348,7 +406,7 @@ export default function App() {
           onAddForumDiscussion={addForumDiscussion}
           onToggleUseful={toggleForumDiscussionUseful}
           onToggleUnuseful={toggleForumDiscussionUnuseful}
-          onDeleteDiscussion={deleteForumDiscussion}
+          onDeleteDiscussion={requestDeleteForumDiscussion}
           onOpenBlog={openBlog}
           currentUserId={currentUser.id}
           syncError={forumSyncError}
@@ -409,6 +467,63 @@ export default function App() {
         currentPage={currentPage} 
         onPageChange={setCurrentPage} 
       />
+      <ConfirmDeleteDialog
+        pendingDelete={pendingForumDelete}
+        onCancel={() => setPendingForumDelete(null)}
+        onConfirm={confirmForumDelete}
+      />
+    </div>
+  );
+}
+
+function ConfirmDeleteDialog({
+  pendingDelete,
+  onCancel,
+  onConfirm,
+}: {
+  pendingDelete: PendingForumDelete | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  if (!pendingDelete) {
+    return null;
+  }
+
+  const isPost = pendingDelete.type === 'post';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-confirm-title"
+        className="w-full max-w-sm rounded-2xl border border-outline-variant bg-white p-5 shadow-xl"
+      >
+        <h2 id="delete-confirm-title" className="text-xl font-bold text-on-surface">
+          Delete {isPost ? 'this post' : 'this comment'}?
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+          {isPost
+            ? `This will remove "${pendingDelete.title}" and its comments from the forum.`
+            : 'This will remove your comment from the forum.'}
+        </p>
+        <div className="mt-5 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 rounded-xl border border-outline-variant bg-white px-4 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-surface-container-high"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-red-700"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

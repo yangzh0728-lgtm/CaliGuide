@@ -143,4 +143,44 @@ describe("forumApi", () => {
     expect(JSON.parse(String(requests[1].init.body))).toEqual({ commentId: "comment-1" });
     expect((requests[0].init.headers as Record<string, string>).Authorization).toBe("Bearer access-token");
   });
+
+  it("falls back to direct Supabase deletes when the forum delete API route is missing", async () => {
+    const deletedRows: Array<{ table: string; column: string; value: string }> = [];
+    globalThis.fetch = (async (url) =>
+      new Response(
+        `<!DOCTYPE html><html><body><pre>Cannot POST ${String(url)}</pre></body></html>`,
+        {
+          status: 404,
+          headers: { "Content-Type": "text/html" },
+        },
+      )) as typeof fetch;
+    const client = {
+      auth: {
+        getSession: async () => ({
+          data: { session: { access_token: "access-token" } },
+          error: null,
+        }),
+      },
+      from(table: string) {
+        return {
+          delete() {
+            return {
+              eq(column: string, value: string) {
+                deletedRows.push({ table, column, value });
+                return Promise.resolve({ error: null });
+              },
+            };
+          },
+        };
+      },
+    };
+
+    await deleteForumPostViaApi(client as any, "post-1");
+    await deleteForumCommentViaApi(client as any, "comment-1");
+
+    expect(deletedRows).toEqual([
+      { table: "forum_posts", column: "id", value: "post-1" },
+      { table: "forum_comments", column: "id", value: "comment-1" },
+    ]);
+  });
 });

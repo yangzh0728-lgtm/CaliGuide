@@ -217,6 +217,22 @@ export async function createForumCommentInSupabase(
   }
 }
 
+export async function deleteForumPostInSupabase(client: SupabaseLike, postId: string) {
+  const { error } = await client.from("forum_posts").delete().eq("id", postId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function deleteForumCommentInSupabase(client: SupabaseLike, commentId: string) {
+  const { error } = await client.from("forum_comments").delete().eq("id", commentId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export function buildForumVoteUpsert(
   targetType: ForumVoteTargetType,
   targetId: string,
