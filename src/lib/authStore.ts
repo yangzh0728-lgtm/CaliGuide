@@ -5,6 +5,7 @@ export interface AuthUser {
   avatarUrl: string;
   memberSince: string;
   savedGuideIds: string[];
+  savedPostIds: string[];
 }
 
 interface StoredUser extends AuthUser {
@@ -61,6 +62,7 @@ export function registerUser(
       year: "numeric",
     }),
     savedGuideIds: [],
+    savedPostIds: [],
   };
 
   return {
@@ -160,6 +162,55 @@ export function removeSavedGuide(state: AuthState, guideId: string): AuthState {
   const users = state.users.map((user) =>
     user.id === currentUser.id
       ? { ...user, savedGuideIds: user.savedGuideIds.filter((savedGuideId) => savedGuideId !== guideId) }
+      : user,
+  );
+  const updatedUser = users.find((user) => user.id === currentUser.id);
+
+  if (!updatedUser) {
+    throw new Error("User not found");
+  }
+
+  return {
+    users,
+    currentUser: publicUser(updatedUser),
+  };
+}
+
+export function savePost(state: AuthState, postId: string): AuthState {
+  const currentUser = requireCurrentUser(state);
+  const normalizedPostId = postId.trim();
+
+  if (!normalizedPostId) {
+    throw new Error("Post is required");
+  }
+
+  const users = state.users.map((user) => {
+    if (user.id !== currentUser.id || user.savedPostIds.includes(normalizedPostId)) {
+      return user;
+    }
+
+    return {
+      ...user,
+      savedPostIds: [...user.savedPostIds, normalizedPostId],
+    };
+  });
+  const updatedUser = users.find((user) => user.id === currentUser.id);
+
+  if (!updatedUser) {
+    throw new Error("User not found");
+  }
+
+  return {
+    users,
+    currentUser: publicUser(updatedUser),
+  };
+}
+
+export function removeSavedPost(state: AuthState, postId: string): AuthState {
+  const currentUser = requireCurrentUser(state);
+  const users = state.users.map((user) =>
+    user.id === currentUser.id
+      ? { ...user, savedPostIds: user.savedPostIds.filter((savedPostId) => savedPostId !== postId) }
       : user,
   );
   const updatedUser = users.find((user) => user.id === currentUser.id);
@@ -279,6 +330,7 @@ function publicUser(user: StoredUser): AuthUser {
     avatarUrl: user.avatarUrl,
     memberSince: user.memberSince,
     savedGuideIds: user.savedGuideIds ?? [],
+    savedPostIds: user.savedPostIds ?? [],
   };
 }
 
@@ -286,5 +338,6 @@ function hydrateStoredUser(user: StoredUser): StoredUser {
   return {
     ...user,
     savedGuideIds: Array.isArray(user.savedGuideIds) ? user.savedGuideIds : [],
+    savedPostIds: Array.isArray(user.savedPostIds) ? user.savedPostIds : [],
   };
 }

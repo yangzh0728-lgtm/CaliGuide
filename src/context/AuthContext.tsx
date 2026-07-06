@@ -23,6 +23,9 @@ interface AuthContextValue {
   saveGuide: (guideId: string) => Promise<void>;
   removeSavedGuide: (guideId: string) => Promise<void>;
   isGuideSaved: (guideId: string) => boolean;
+  savePost: (postId: string) => Promise<void>;
+  removeSavedPost: (postId: string) => Promise<void>;
+  isPostSaved: (postId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -286,6 +289,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       },
       isGuideSaved: (guideId) => currentUser?.savedGuideIds.includes(guideId) ?? false,
+      savePost: async (postId) => {
+        if (!currentUser) {
+          throw new Error("Sign in required");
+        }
+
+        const normalizedPostId = postId.trim();
+        if (!normalizedPostId) {
+          throw new Error("Post is required");
+        }
+
+        const { error } = await supabase
+          .from("saved_forum_posts")
+          .upsert({ user_id: currentUser.id, post_id: normalizedPostId }, { onConflict: "user_id,post_id" });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        setCurrentUser({
+          ...currentUser,
+          savedPostIds: currentUser.savedPostIds.includes(normalizedPostId)
+            ? currentUser.savedPostIds
+            : [...currentUser.savedPostIds, normalizedPostId],
+        });
+      },
+      removeSavedPost: async (postId) => {
+        if (!currentUser) {
+          throw new Error("Sign in required");
+        }
+
+        const { error } = await supabase
+          .from("saved_forum_posts")
+          .delete()
+          .eq("user_id", currentUser.id)
+          .eq("post_id", postId);
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        setCurrentUser({
+          ...currentUser,
+          savedPostIds: currentUser.savedPostIds.filter((savedPostId) => savedPostId !== postId),
+        });
+      },
+      isPostSaved: (postId) => currentUser?.savedPostIds.includes(postId) ?? false,
     }),
     [currentUser, isLoading, isPasswordRecovery],
   );
@@ -294,15 +343,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"]): Promise<AuthUser> {
-  const [{ data: profile }, { data: savedGuides }] = await Promise.all([
+  const [{ data: profile }, { data: savedGuides }, { data: savedPosts }] = await Promise.all([
     supabase.from("profiles").select("id,name,avatar_url,member_since").eq("id", user.id).maybeSingle<ProfileRow>(),
     supabase.from("saved_guides").select("guide_id").eq("user_id", user.id),
+    supabase.from("saved_forum_posts").select("post_id").eq("user_id", user.id),
   ]);
 
   return mapSupabaseUser({
     user,
     profile: profile ?? null,
     savedGuideIds: savedGuides?.map((savedGuide) => savedGuide.guide_id) ?? [],
+    savedPostIds: savedPosts?.map((savedPost) => savedPost.post_id) ?? [],
   });
 }
 

@@ -22,6 +22,7 @@ export function mapSupabaseUser(input: {
   user: SupabaseUserLike;
   profile: ProfileRow | null;
   savedGuideIds: string[];
+  savedPostIds: string[];
 }): AuthUser {
   const metadataName = typeof input.user.user_metadata?.name === "string" ? input.user.user_metadata.name : "";
   const metadataAvatar =
@@ -37,6 +38,7 @@ export function mapSupabaseUser(input: {
     avatarUrl,
     memberSince: formatMemberSince(memberSinceDate),
     savedGuideIds: input.savedGuideIds,
+    savedPostIds: input.savedPostIds,
   };
 }
 

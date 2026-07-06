@@ -64,6 +64,10 @@ export default function Profile({
     () => articles.filter((article) => currentUser?.savedGuideIds.includes(article.id)),
     [articles, currentUser?.savedGuideIds],
   );
+  const savedForumPosts = useMemo(
+    () => forumDiscussions.filter((discussion) => currentUser?.savedPostIds.includes(discussion.id)),
+    [forumDiscussions, currentUser?.savedPostIds],
+  );
   const userForumPosts = useMemo(
     () => forumDiscussions.filter((discussion) => discussion.userId === currentUser?.id),
     [forumDiscussions, currentUser?.id],
@@ -85,7 +89,7 @@ export default function Profile({
     {
       id: "saved",
       title: t("profile.saved"),
-      desc: `${savedArticles.length} saved ${savedArticles.length === 1 ? "guide" : "guides"}`,
+      desc: `${savedArticles.length + savedForumPosts.length} saved ${savedArticles.length + savedForumPosts.length === 1 ? "item" : "items"}`,
       icon: Bookmark,
       color: "bg-primary-container text-on-primary-container",
       filled: true,
@@ -319,35 +323,64 @@ export default function Profile({
       <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
         <ProfilePanelHeader title={t("profile.saved")} onBack={closeProfilePanel} />
 
-        {savedArticles.length > 0 ? (
-          <div className="space-y-3">
-            {savedArticles.map((article) => (
-              <button
-                key={article.id}
-                onClick={() => onOpenBlog(article.id)}
-                className="w-full overflow-hidden rounded-2xl border border-outline-variant bg-white text-left shadow-sm transition-colors hover:bg-surface-container-low"
-              >
-                <img src={article.image} alt={article.title} className="h-32 w-full object-cover" />
-                <div className="p-4">
-                  <div className="mb-2 flex flex-wrap gap-2">
-                    {article.tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="rounded-full bg-surface-container-high px-2.5 py-1 text-[10px] font-bold text-on-surface-variant">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <h3 className="text-lg font-bold leading-tight text-on-surface">{article.title}</h3>
-                  <p className="mt-2 text-xs leading-5 text-on-surface-variant">{article.excerpt}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <EmptyProfileState
-            title="No saved guides yet"
-            body="Open a guide and tap Save guide to keep it here."
-          />
-        )}
+        <div className="space-y-6">
+          <section>
+            <h3 className="mb-3 text-lg font-bold text-on-surface">{t("profile.savedGuides")}</h3>
+            {savedArticles.length > 0 ? (
+              <div className="space-y-3">
+                {savedArticles.map((article) => (
+                  <button
+                    key={article.id}
+                    onClick={() => onOpenBlog(article.id)}
+                    className="w-full overflow-hidden rounded-2xl border border-outline-variant bg-white text-left shadow-sm transition-colors hover:bg-surface-container-low"
+                  >
+                    <img src={article.image} alt={article.title} className="h-32 w-full object-cover" />
+                    <div className="p-4">
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {article.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="rounded-full bg-surface-container-high px-2.5 py-1 text-[10px] font-bold text-on-surface-variant">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <h3 className="text-lg font-bold leading-tight text-on-surface">{article.title}</h3>
+                      <p className="mt-2 text-xs leading-5 text-on-surface-variant">{article.excerpt}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <EmptyProfileState
+                title={t("profile.noSavedGuides")}
+                body={t("profile.noSavedGuidesDesc")}
+              />
+            )}
+          </section>
+
+          <section>
+            <h3 className="mb-3 text-lg font-bold text-on-surface">{t("profile.savedPosts")}</h3>
+            {savedForumPosts.length > 0 ? (
+              <div className="space-y-3">
+                {savedForumPosts.map((post) => (
+                  <ForumPostCard
+                    key={post.id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    onOpenForumDetail={onOpenForumDetail}
+                    onToggleForumUseful={onToggleForumUseful}
+                    onToggleForumUnuseful={onToggleForumUnuseful}
+                    t={t}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyProfileState
+                title={t("profile.noSavedPosts")}
+                body={t("profile.noSavedPostsDesc")}
+              />
+            )}
+          </section>
+        </div>
       </div>
     );
   }
@@ -360,40 +393,15 @@ export default function Profile({
         {userForumPosts.length > 0 ? (
           <div className="space-y-3">
             {userForumPosts.map((post) => (
-              <article
+              <ForumPostCard
                 key={post.id}
-                className="w-full rounded-2xl border border-outline-variant bg-white p-4 text-left shadow-sm transition-colors hover:bg-surface-container-low"
-              >
-                <button type="button" onClick={() => onOpenForumDetail(post.id)} className="w-full text-left">
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className="rounded bg-surface-container-high px-2 py-1 text-[10px] font-bold text-on-surface-variant">
-                      {post.category}
-                    </span>
-                    <span className="text-xs text-on-surface-variant">{post.time}</span>
-                  </div>
-                  <h3 className="text-lg font-bold leading-tight text-on-surface">{post.title}</h3>
-                  <p className="mt-2 text-xs leading-5 text-on-surface-variant">{post.excerpt}</p>
-                  <p className="mt-3 text-xs font-bold text-primary">
-                    {getForumReplyCount(post)} {t("forum.replies")} · {post.views} {t("forum.views")}
-                  </p>
-                </button>
-                <div className="mt-3 inline-flex items-center gap-2">
-                  <VoteButton
-                    label="Mark useful"
-                    isActive={isUsefulByUser(post, currentUserId)}
-                    count={getUsefulCount(post)}
-                    onClick={() => onToggleForumUseful(post.id)}
-                    icon="up"
-                  />
-                  <VoteButton
-                    label="Mark unuseful"
-                    isActive={isUnusefulByUser(post, currentUserId)}
-                    count={getUnusefulCount(post)}
-                    onClick={() => onToggleForumUnuseful(post.id)}
-                    icon="down"
-                  />
-                </div>
-              </article>
+                post={post}
+                currentUserId={currentUserId}
+                onOpenForumDetail={onOpenForumDetail}
+                onToggleForumUseful={onToggleForumUseful}
+                onToggleForumUnuseful={onToggleForumUnuseful}
+                t={t}
+              />
             ))}
           </div>
         ) : (
@@ -509,6 +517,57 @@ function EmptyProfileState({ title, body }: { title: string; body: string }) {
       <h3 className="text-lg font-bold text-on-surface">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-on-surface-variant">{body}</p>
     </div>
+  );
+}
+
+function ForumPostCard({
+  post,
+  currentUserId,
+  onOpenForumDetail,
+  onToggleForumUseful,
+  onToggleForumUnuseful,
+  t,
+}: {
+  post: ForumDiscussion;
+  currentUserId: string;
+  onOpenForumDetail: (discussionId: string) => void;
+  onToggleForumUseful: (discussionId: string) => void;
+  onToggleForumUnuseful: (discussionId: string) => void;
+  t: (key: string) => string;
+  key?: string;
+}) {
+  return (
+    <article className="w-full rounded-2xl border border-outline-variant bg-white p-4 text-left shadow-sm transition-colors hover:bg-surface-container-low">
+      <button type="button" onClick={() => onOpenForumDetail(post.id)} className="w-full text-left">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="rounded bg-surface-container-high px-2 py-1 text-[10px] font-bold text-on-surface-variant">
+            {post.category}
+          </span>
+          <span className="text-xs text-on-surface-variant">{post.time}</span>
+        </div>
+        <h3 className="text-lg font-bold leading-tight text-on-surface">{post.title}</h3>
+        <p className="mt-2 text-xs leading-5 text-on-surface-variant">{post.excerpt}</p>
+        <p className="mt-3 text-xs font-bold text-primary">
+          {getForumReplyCount(post)} {t("forum.replies")} · {post.views} {t("forum.views")}
+        </p>
+      </button>
+      <div className="mt-3 inline-flex items-center gap-2">
+        <VoteButton
+          label="Mark useful"
+          isActive={isUsefulByUser(post, currentUserId)}
+          count={getUsefulCount(post)}
+          onClick={() => onToggleForumUseful(post.id)}
+          icon="up"
+        />
+        <VoteButton
+          label="Mark unuseful"
+          isActive={isUnusefulByUser(post, currentUserId)}
+          count={getUnusefulCount(post)}
+          onClick={() => onToggleForumUnuseful(post.id)}
+          icon="down"
+        />
+      </div>
+    </article>
   );
 }
 

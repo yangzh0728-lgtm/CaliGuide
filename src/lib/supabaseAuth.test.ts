@@ -7,7 +7,7 @@ import {
 } from "./supabaseAuth";
 
 describe("supabaseAuth", () => {
-  it("maps a Supabase user, profile row, and saved guide ids into AuthUser", () => {
+  it("maps a Supabase user, profile row, and saved item ids into AuthUser", () => {
     const user = mapSupabaseUser({
       user: {
         id: "user-1",
@@ -22,6 +22,7 @@ describe("supabaseAuth", () => {
         member_since: "2026-07-03T10:00:00.000Z",
       },
       savedGuideIds: ["guide-1"],
+      savedPostIds: ["post-1"],
     });
 
     expect(user).toEqual({
@@ -31,6 +32,7 @@ describe("supabaseAuth", () => {
       avatarUrl: "https://example.com/avatar.png",
       memberSince: "July 2026",
       savedGuideIds: ["guide-1"],
+      savedPostIds: ["post-1"],
     });
   });
 
@@ -44,6 +46,7 @@ describe("supabaseAuth", () => {
       },
       profile: null,
       savedGuideIds: [],
+      savedPostIds: [],
     });
 
     expect(user.name).toBe("No Profile");

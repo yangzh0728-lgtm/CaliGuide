@@ -57,7 +57,17 @@ export default function App() {
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
   const [forumSyncError, setForumSyncError] = useState('');
   const [pendingForumDelete, setPendingForumDelete] = useState<PendingForumDelete | null>(null);
-  const { currentUser, isGuideSaved, isLoading, isPasswordRecovery, removeSavedGuide, saveGuide } = useAuth();
+  const {
+    currentUser,
+    isGuideSaved,
+    isLoading,
+    isPasswordRecovery,
+    isPostSaved,
+    removeSavedGuide,
+    removeSavedPost,
+    saveGuide,
+    savePost,
+  } = useAuth();
   const { language, t } = useLanguage();
   const localizedBlogArticles = getLocalizedBlogArticles(language);
   const selectedBlog = getLocalizedBlogArticle(selectedBlogId, language) ?? getLocalizedBlogArticle('category-dmv', language);
@@ -365,6 +375,20 @@ export default function App() {
     })();
   };
 
+  const toggleSavedPost = (postId: string) => {
+    setForumSyncError('');
+    void (async () => {
+      if (isPostSaved(postId)) {
+        await removeSavedPost(postId);
+      } else {
+        await savePost(postId);
+      }
+    })().catch((error) => {
+      setForumSyncError(`Post save failed: ${getErrorMessage(error)}`);
+      console.warn('Unable to save forum post:', error);
+    });
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => setCurrentPage('recommended')} />;
@@ -401,6 +425,8 @@ export default function App() {
           onToggleCommentUnuseful={toggleForumCommentUnuseful}
           onDeleteDiscussion={requestDeleteForumDiscussion}
           onDeleteComment={requestDeleteForumDiscussionComment}
+          isSaved={isPostSaved(selectedForumDiscussion.id)}
+          onToggleSave={toggleSavedPost}
           currentUserId={currentUser.id}
           syncError={forumSyncError}
           onClearSyncError={() => setForumSyncError('')}

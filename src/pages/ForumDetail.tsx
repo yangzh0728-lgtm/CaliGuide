@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
-import { CalendarDays, Eye, MessageSquare, Send, Tag, ThumbsDown, ThumbsUp, Trash2, X } from "lucide-react";
+import { Bookmark, CalendarDays, Eye, MessageSquare, Send, Tag, ThumbsDown, ThumbsUp, Trash2, X } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -18,6 +19,8 @@ interface ForumDetailProps {
   onToggleCommentUnuseful: (discussionId: string, commentId: string) => void;
   onDeleteDiscussion: (discussionId: string) => void;
   onDeleteComment: (discussionId: string, commentId: string) => void;
+  isSaved: boolean;
+  onToggleSave: (discussionId: string) => void;
   currentUserId: string;
   syncError?: string;
   onClearSyncError?: () => void;
@@ -32,10 +35,13 @@ export default function ForumDetail({
   onToggleCommentUnuseful,
   onDeleteDiscussion,
   onDeleteComment,
+  isSaved,
+  onToggleSave,
   currentUserId,
   syncError,
   onClearSyncError,
 }: ForumDetailProps) {
+  const { t } = useLanguage();
   const [commentBody, setCommentBody] = useState("");
   const commentCount = getForumReplyCount(discussion);
   const canSubmitComment = commentBody.trim().length > 0;
@@ -136,14 +142,29 @@ export default function ForumDetail({
           </span>
         </div>
         <div className="mt-5">
-          <VoteControls
-            usefulActive={isUsefulByUser(discussion, currentUserId)}
-            unusefulActive={isUnusefulByUser(discussion, currentUserId)}
-            usefulCount={getUsefulCount(discussion)}
-            unusefulCount={getUnusefulCount(discussion)}
-            onUseful={() => onToggleDiscussionUseful(discussion.id)}
-            onUnuseful={() => onToggleDiscussionUnuseful(discussion.id)}
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <VoteControls
+              usefulActive={isUsefulByUser(discussion, currentUserId)}
+              unusefulActive={isUnusefulByUser(discussion, currentUserId)}
+              usefulCount={getUsefulCount(discussion)}
+              unusefulCount={getUnusefulCount(discussion)}
+              onUseful={() => onToggleDiscussionUseful(discussion.id)}
+              onUnuseful={() => onToggleDiscussionUnuseful(discussion.id)}
+            />
+            <button
+              type="button"
+              aria-pressed={isSaved}
+              onClick={() => onToggleSave(discussion.id)}
+              className={`inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold transition-all ${
+                isSaved
+                  ? "bg-primary text-white shadow-sm"
+                  : "bg-surface-container-high text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container"
+              }`}
+            >
+              <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
+              {isSaved ? t("forum.savedPost") : t("forum.savePost")}
+            </button>
+          </div>
         </div>
       </header>
 

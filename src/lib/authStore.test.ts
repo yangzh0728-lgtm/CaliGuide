@@ -4,7 +4,9 @@ import {
   createAuthState,
   registerUser,
   removeSavedGuide,
+  removeSavedPost,
   saveGuide,
+  savePost,
   signInUser,
   updateProfile,
 } from "./authStore";
@@ -121,5 +123,31 @@ describe("authStore", () => {
     const removed = removeSavedGuide(signedIn, "guide-1");
 
     expect(removed.currentUser?.savedGuideIds).toEqual([]);
+  });
+
+  test("saves and removes forum posts for the signed-in user", () => {
+    const state = registerUser(createAuthState(), {
+      name: "Maya Chen",
+      email: "maya@example.com",
+      password: "secure123",
+    });
+
+    expect(state.currentUser?.savedPostIds).toEqual([]);
+
+    const saved = savePost(state, "post-1");
+    const savedAgain = savePost(saved, "post-1");
+
+    expect(savedAgain.currentUser?.savedPostIds).toEqual(["post-1"]);
+
+    const signedIn = signInUser(
+      { ...savedAgain, currentUser: null },
+      { email: "maya@example.com", password: "secure123" },
+    );
+
+    expect(signedIn.currentUser?.savedPostIds).toEqual(["post-1"]);
+
+    const removed = removeSavedPost(signedIn, "post-1");
+
+    expect(removed.currentUser?.savedPostIds).toEqual([]);
   });
 });
