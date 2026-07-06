@@ -17,10 +17,14 @@ describe("authStore", () => {
       name: "Maya Chen",
       email: "maya@example.com",
       password: "secure123",
+      dateOfBirth: "1993-04-12",
+      sex: "female",
     });
 
     expect(registered.currentUser?.name).toBe("Maya Chen");
     expect(registered.currentUser?.email).toBe("maya@example.com");
+    expect(registered.currentUser?.dateOfBirth).toBe("1993-04-12");
+    expect(registered.currentUser?.sex).toBe("female");
 
     const signedIn = signInUser(
       { ...registered, currentUser: null },
@@ -39,6 +43,29 @@ describe("authStore", () => {
 
     expect(registered.currentUser?.avatarUrl).toStartWith("data:image/svg+xml");
     expect(registered.currentUser?.avatarUrl).not.toContain("images.unsplash.com");
+  });
+
+  test("defaults optional registration demographics for older local auth flows", () => {
+    const registered = registerUser(createAuthState(), {
+      name: "Maya Chen",
+      email: "maya@example.com",
+      password: "secure123",
+    });
+
+    expect(registered.currentUser?.dateOfBirth).toBeNull();
+    expect(registered.currentUser?.sex).toBe("prefer_not_to_say");
+  });
+
+  test("rejects future dates of birth", () => {
+    expect(() =>
+      registerUser(createAuthState(), {
+        name: "Maya Chen",
+        email: "maya@example.com",
+        password: "secure123",
+        dateOfBirth: "2999-01-01",
+        sex: "female",
+      }),
+    ).toThrow("Enter a valid date of birth");
   });
 
   test("incorrect login password reports an error without signing in", () => {

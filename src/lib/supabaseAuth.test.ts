@@ -20,6 +20,8 @@ describe("supabaseAuth", () => {
         name: "Maya Chen",
         avatar_url: "https://example.com/avatar.png",
         member_since: "2026-07-03T10:00:00.000Z",
+        date_of_birth: "1993-04-12",
+        sex: "female",
       },
       savedGuideIds: ["guide-1"],
       savedPostIds: ["post-1"],
@@ -31,6 +33,8 @@ describe("supabaseAuth", () => {
       email: "maya@example.com",
       avatarUrl: "https://example.com/avatar.png",
       memberSince: "July 2026",
+      dateOfBirth: "1993-04-12",
+      sex: "female",
       savedGuideIds: ["guide-1"],
       savedPostIds: ["post-1"],
     });
@@ -42,7 +46,7 @@ describe("supabaseAuth", () => {
         id: "user-2",
         email: "no-profile@example.com",
         created_at: "2026-07-03T10:00:00.000Z",
-        user_metadata: { name: "No Profile" },
+        user_metadata: { name: "No Profile", date_of_birth: "1990-01-01", sex: "male" },
       },
       profile: null,
       savedGuideIds: [],
@@ -50,6 +54,8 @@ describe("supabaseAuth", () => {
     });
 
     expect(user.name).toBe("No Profile");
+    expect(user.dateOfBirth).toBe("1990-01-01");
+    expect(user.sex).toBe("male");
     expect(user.avatarUrl).toStartWith("data:image/svg+xml");
   });
 

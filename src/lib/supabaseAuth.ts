@@ -1,4 +1,4 @@
-import { AuthUser, createRandomAvatar } from "./authStore";
+import { AuthUser, createRandomAvatar, SexOption } from "./authStore";
 
 export interface SupabaseUserLike {
   id: string;
@@ -12,6 +12,8 @@ export interface ProfileRow {
   name: string;
   avatar_url: string | null;
   member_since: string | null;
+  date_of_birth: string | null;
+  sex: SexOption | null;
 }
 
 export interface SignUpResultLike {
@@ -30,6 +32,9 @@ export function mapSupabaseUser(input: {
   const name = input.profile?.name || metadataName || input.user.email?.split("@")[0] || "CaliGuide Member";
   const avatarUrl = input.profile?.avatar_url || metadataAvatar || createRandomAvatar(name);
   const memberSinceDate = input.profile?.member_since || input.user.created_at || new Date().toISOString();
+  const metadataDateOfBirth =
+    typeof input.user.user_metadata?.date_of_birth === "string" ? input.user.user_metadata.date_of_birth : null;
+  const metadataSex = normalizeSex(input.user.user_metadata?.sex);
 
   return {
     id: input.user.id,
@@ -37,6 +42,8 @@ export function mapSupabaseUser(input: {
     email: input.user.email ?? "",
     avatarUrl,
     memberSince: formatMemberSince(memberSinceDate),
+    dateOfBirth: input.profile?.date_of_birth ?? metadataDateOfBirth,
+    sex: normalizeSex(input.profile?.sex ?? metadataSex),
     savedGuideIds: input.savedGuideIds,
     savedPostIds: input.savedPostIds,
   };
@@ -75,4 +82,8 @@ function formatMemberSince(dateValue: string) {
   }
 
   return date.toLocaleString("en-US", { month: "long", year: "numeric" });
+}
+
+function normalizeSex(value: unknown): SexOption {
+  return value === "male" || value === "female" || value === "prefer_not_to_say" ? value : "prefer_not_to_say";
 }

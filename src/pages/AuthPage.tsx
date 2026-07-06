@@ -1,14 +1,17 @@
 import { FormEvent, useState } from "react";
-import { KeyRound, LockKeyhole, LogIn, Mail, UserPlus } from "lucide-react";
+import { CalendarDays, KeyRound, LockKeyhole, LogIn, Mail, UserPlus, UsersRound } from "lucide-react";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
+import { SexOption } from "../lib/authStore";
 
 export default function AuthPage() {
   const { isPasswordRecovery, login, register, requestPasswordReset, resetRecoveredPassword } = useAuth();
   const { t } = useLanguage();
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [name, setName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [sex, setSex] = useState<SexOption>("prefer_not_to_say");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -34,7 +37,7 @@ export default function AuthPage() {
         await requestPasswordReset({ email });
         setNotice(t("auth.resetEmailSentNotice"));
       } else if (isRegistering) {
-        const result = await register({ name, email, password });
+        const result = await register({ name, email, password, dateOfBirth, sex });
         if (result.confirmationRequired) {
           setNotice(t("auth.confirmEmailNotice"));
           setMode("login");
@@ -119,18 +122,51 @@ export default function AuthPage() {
           )}
 
           {isRegistering && !isResettingPassword && (
-            <label className="block">
-              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.name")}</span>
-              <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
-                <UserPlus size={18} className="text-on-surface-variant" />
-                <input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  className="w-full py-3 bg-transparent outline-none text-sm"
-                  placeholder={t("auth.namePlaceholder")}
-                />
-              </div>
-            </label>
+            <>
+              <label className="block">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.name")}</span>
+                <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
+                  <UserPlus size={18} className="text-on-surface-variant" />
+                  <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                    placeholder={t("auth.namePlaceholder")}
+                  />
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.dateOfBirth")}</span>
+                <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
+                  <CalendarDays size={18} className="text-on-surface-variant" />
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(event) => setDateOfBirth(event.target.value)}
+                    max={new Date().toISOString().slice(0, 10)}
+                    required={isRegistering}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                  />
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.sex")}</span>
+                <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
+                  <UsersRound size={18} className="text-on-surface-variant" />
+                  <select
+                    value={sex}
+                    onChange={(event) => setSex(event.target.value as SexOption)}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                  >
+                    <option value="male">{t("auth.sexMale")}</option>
+                    <option value="female">{t("auth.sexFemale")}</option>
+                    <option value="prefer_not_to_say">{t("auth.sexPreferNotToSay")}</option>
+                  </select>
+                </div>
+              </label>
+            </>
           )}
 
           {!isResettingPassword && (

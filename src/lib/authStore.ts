@@ -1,9 +1,13 @@
+export type SexOption = "male" | "female" | "prefer_not_to_say";
+
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
   avatarUrl: string;
   memberSince: string;
+  dateOfBirth: string | null;
+  sex: SexOption;
   savedGuideIds: string[];
   savedPostIds: string[];
 }
@@ -32,11 +36,13 @@ export function createAuthState(): AuthState {
 
 export function registerUser(
   state: AuthState,
-  input: { name: string; email: string; password: string },
+  input: { name: string; email: string; password: string; dateOfBirth?: string; sex?: SexOption },
 ): AuthState {
   const name = input.name.trim();
   const email = normalizeEmail(input.email);
   const password = input.password.trim();
+  const dateOfBirth = normalizeDateOfBirth(input.dateOfBirth);
+  const sex = normalizeSex(input.sex);
 
   if (!name) {
     throw new Error("Name is required");
@@ -61,6 +67,8 @@ export function registerUser(
       month: "long",
       year: "numeric",
     }),
+    dateOfBirth,
+    sex,
     savedGuideIds: [],
     savedPostIds: [],
   };
@@ -284,6 +292,24 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+function normalizeDateOfBirth(dateOfBirth: string | undefined) {
+  const normalizedDateOfBirth = dateOfBirth?.trim() ?? "";
+  if (!normalizedDateOfBirth) {
+    return null;
+  }
+
+  const date = new Date(`${normalizedDateOfBirth}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime()) || date > new Date()) {
+    throw new Error("Enter a valid date of birth");
+  }
+
+  return normalizedDateOfBirth;
+}
+
+function normalizeSex(sex: SexOption | undefined): SexOption {
+  return sex === "male" || sex === "female" || sex === "prefer_not_to_say" ? sex : "prefer_not_to_say";
+}
+
 export function createRandomAvatar(name: string) {
   const background = randomItem(AVATAR_BACKGROUNDS);
   const shirt = randomItem(AVATAR_SHIRTS);
@@ -329,6 +355,8 @@ function publicUser(user: StoredUser): AuthUser {
     email: user.email,
     avatarUrl: user.avatarUrl,
     memberSince: user.memberSince,
+    dateOfBirth: user.dateOfBirth ?? null,
+    sex: normalizeSex(user.sex),
     savedGuideIds: user.savedGuideIds ?? [],
     savedPostIds: user.savedPostIds ?? [],
   };
@@ -337,6 +365,8 @@ function publicUser(user: StoredUser): AuthUser {
 function hydrateStoredUser(user: StoredUser): StoredUser {
   return {
     ...user,
+    dateOfBirth: user.dateOfBirth ?? null,
+    sex: normalizeSex(user.sex),
     savedGuideIds: Array.isArray(user.savedGuideIds) ? user.savedGuideIds : [],
     savedPostIds: Array.isArray(user.savedPostIds) ? user.savedPostIds : [],
   };

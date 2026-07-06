@@ -42,6 +42,7 @@ export default function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [uploadError, setUploadError] = useState('');
+  const [isBotPopoverOpen, setIsBotPopoverOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const userMemory = getChatUserMemory(chatMemory, userId, introMessage);
@@ -303,8 +304,29 @@ export default function Chatbot() {
     <div className="pt-20 pb-40 max-w-lg mx-auto flex flex-col h-[100dvh]">
       {/* Bot Intro */}
       <div className="flex flex-col items-center justify-center mb-8 shrink-0">
-        <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-3 shadow-md">
-          <Bot size={32} className="text-white" fill="currentColor" />
+        <div className="relative mb-3">
+          <button
+            type="button"
+            aria-label="CaliBot status"
+            aria-expanded={isBotPopoverOpen}
+            onClick={() => setIsBotPopoverOpen((isOpen) => !isOpen)}
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-container shadow-md transition-transform hover:scale-105 active:scale-95"
+          >
+            <Bot size={32} className="text-white" fill="currentColor" />
+          </button>
+          <AnimatePresence>
+            {isBotPopoverOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, x: -4 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.96, x: -4 }}
+                transition={{ duration: 0.16 }}
+                className="absolute left-[calc(100%+0.75rem)] top-1/2 z-20 w-40 -translate-y-1/2 rounded-xl border border-outline-variant bg-white px-3 py-2 text-xs font-bold text-on-surface shadow-lg"
+              >
+                currently unabvliable
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <h1 className="text-2xl font-bold text-on-surface">CaliBot</h1>
         <p className="text-sm text-on-surface-variant text-center max-w-xs mt-2 px-4 leading-relaxed">

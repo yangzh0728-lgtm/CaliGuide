@@ -11,6 +11,19 @@ grant usage on schema public to anon, authenticated;
 grant select, insert, update on table public.profiles to authenticated;
 grant select, insert, delete on table public.saved_guides to authenticated;
 
+alter table public.profiles
+  add column if not exists date_of_birth date,
+  add column if not exists sex text not null default 'prefer_not_to_say';
+
+do $$
+begin
+  alter table public.profiles
+    add constraint profiles_sex_check
+    check (sex in ('male', 'female', 'prefer_not_to_say'));
+exception
+  when duplicate_object then null;
+end $$;
+
 alter table public.profiles enable row level security;
 alter table public.saved_guides enable row level security;
 
@@ -21,7 +34,7 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, name, avatar_url)
+  insert into public.profiles (id, name, avatar_url, date_of_birth, sex)
   values (
     new.id,
     coalesce(
@@ -32,12 +45,20 @@ begin
     coalesce(
       nullif(new.raw_user_meta_data ->> 'avatar_url', ''),
       'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 96 96%22%3E%3Crect width=%2296%22 height=%2296%22 rx=%2224%22 fill=%22%230b3f75%22/%3E%3Ccircle cx=%2248%22 cy=%2238%22 r=%2215%22 fill=%22%23fff%22/%3E%3Cpath d=%22M24 80c4-18 16-28 24-28s20 10 24 28%22 fill=%22%23fff%22/%3E%3C/svg%3E'
-    )
+    ),
+    nullif(new.raw_user_meta_data ->> 'date_of_birth', '')::date,
+    case
+      when new.raw_user_meta_data ->> 'sex' in ('male', 'female', 'prefer_not_to_say')
+        then new.raw_user_meta_data ->> 'sex'
+      else 'prefer_not_to_say'
+    end
   )
   on conflict (id) do update
   set
     name = excluded.name,
-    avatar_url = excluded.avatar_url;
+    avatar_url = excluded.avatar_url,
+    date_of_birth = excluded.date_of_birth,
+    sex = excluded.sex;
 
   return new;
 end;
@@ -49,7 +70,7 @@ after insert on auth.users
 for each row
 execute function public.create_profile_for_new_auth_user();
 
-insert into public.profiles (id, name, avatar_url)
+insert into public.profiles (id, name, avatar_url, date_of_birth, sex)
 select
   users.id,
   coalesce(
@@ -60,7 +81,13 @@ select
   coalesce(
     nullif(users.raw_user_meta_data ->> 'avatar_url', ''),
     'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 96 96%22%3E%3Crect width=%2296%22 height=%2296%22 rx=%2224%22 fill=%22%230b3f75%22/%3E%3Ccircle cx=%2248%22 cy=%2238%22 r=%2215%22 fill=%22%23fff%22/%3E%3Cpath d=%22M24 80c4-18 16-28 24-28s20 10 24 28%22 fill=%22%23fff%22/%3E%3C/svg%3E'
-  ) as avatar_url
+  ) as avatar_url,
+  nullif(users.raw_user_meta_data ->> 'date_of_birth', '')::date as date_of_birth,
+  case
+    when users.raw_user_meta_data ->> 'sex' in ('male', 'female', 'prefer_not_to_say')
+      then users.raw_user_meta_data ->> 'sex'
+    else 'prefer_not_to_say'
+  end as sex
 from auth.users
 where not exists (
   select 1
