@@ -179,7 +179,7 @@ export default function App() {
     });
   };
 
-  const deleteForumDiscussion = (discussionId: string) => {
+  const deleteForumDiscussion = async (discussionId: string) => {
     const userId = currentUser?.id;
     if (!userId) {
       return;
@@ -192,17 +192,20 @@ export default function App() {
     }
 
     setForumSyncError('');
+    try {
+      await deleteForumPostViaApi(supabase, discussionId);
+    } catch (error) {
+      setForumSyncError(`Post delete failed: ${getErrorMessage(error)}`);
+      console.warn('Unable to delete forum post from Supabase:', error);
+      return;
+    }
+
     setForumDiscussions((currentDiscussions) => removeForumDiscussion(currentDiscussions, discussionId, userId));
     if (selectedForumId === discussionId) {
       setCurrentPage('forum');
     }
 
-    void deleteForumPostViaApi(supabase, discussionId)
-      .then(reloadForumDiscussions)
-      .catch((error) => {
-        setForumSyncError(`Post deleted locally, but Supabase sync failed: ${getErrorMessage(error)}`);
-        console.warn('Unable to delete forum post from Supabase:', error);
-      });
+    void reloadForumDiscussions();
   };
 
   const requestDeleteForumDiscussionComment = (discussionId: string, commentId: string) => {
@@ -225,7 +228,7 @@ export default function App() {
     });
   };
 
-  const deleteForumDiscussionComment = (discussionId: string, commentId: string) => {
+  const deleteForumDiscussionComment = async (discussionId: string, commentId: string) => {
     const userId = currentUser?.id;
     if (!userId) {
       return;
@@ -239,18 +242,21 @@ export default function App() {
     }
 
     setForumSyncError('');
+    try {
+      await deleteForumCommentViaApi(supabase, commentId);
+    } catch (error) {
+      setForumSyncError(`Comment delete failed: ${getErrorMessage(error)}`);
+      console.warn('Unable to delete forum comment from Supabase:', error);
+      return;
+    }
+
     setForumDiscussions((currentDiscussions) =>
       currentDiscussions.map((discussion) =>
         discussion.id === discussionId ? removeForumComment(discussion, commentId, userId) : discussion,
       ),
     );
 
-    void deleteForumCommentViaApi(supabase, commentId)
-      .then(reloadForumDiscussions)
-      .catch((error) => {
-        setForumSyncError(`Comment deleted locally, but Supabase sync failed: ${getErrorMessage(error)}`);
-        console.warn('Unable to delete forum comment from Supabase:', error);
-      });
+    void reloadForumDiscussions();
   };
 
   const confirmForumDelete = () => {
@@ -259,9 +265,9 @@ export default function App() {
     }
 
     if (pendingForumDelete.type === 'post') {
-      deleteForumDiscussion(pendingForumDelete.discussionId);
+      void deleteForumDiscussion(pendingForumDelete.discussionId);
     } else {
-      deleteForumDiscussionComment(pendingForumDelete.discussionId, pendingForumDelete.commentId);
+      void deleteForumDiscussionComment(pendingForumDelete.discussionId, pendingForumDelete.commentId);
     }
 
     setPendingForumDelete(null);

@@ -411,7 +411,7 @@ async function startServer() {
       return res.status(500).json({ error: ownedPostError.message });
     }
     if (!ownedPost) {
-      return res.json({ ok: true });
+      return res.status(403).json({ error: "You can only delete forum posts that you created." });
     }
 
     const { data: comments, error: commentsReadError } = await supabaseAdmin
@@ -460,15 +460,20 @@ async function startServer() {
       return res.status(500).json({ error: commentDeleteError.message });
     }
 
-    const { error } = await supabaseAdmin
+    const { data: deletedPost, error } = await supabaseAdmin
       .from("forum_posts")
       .delete()
       .eq("id", postId)
-      .eq("user_id", authResult.user.id);
+      .eq("user_id", authResult.user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       console.warn(`[forum:${authResult.user.id}] post delete failed`, error.message);
       return res.status(500).json({ error: error.message });
+    }
+    if (!deletedPost) {
+      return res.status(500).json({ error: "Forum post was not deleted. Please refresh and try again." });
     }
 
     res.json({ ok: true });
@@ -502,7 +507,7 @@ async function startServer() {
       return res.status(500).json({ error: ownedCommentError.message });
     }
     if (!ownedComment) {
-      return res.json({ ok: true });
+      return res.status(403).json({ error: "You can only delete comments that you created." });
     }
 
     const { error: voteDeleteError } = await supabaseAdmin
@@ -516,15 +521,20 @@ async function startServer() {
       return res.status(500).json({ error: voteDeleteError.message });
     }
 
-    const { error } = await supabaseAdmin
+    const { data: deletedComment, error } = await supabaseAdmin
       .from("forum_comments")
       .delete()
       .eq("id", commentId)
-      .eq("user_id", authResult.user.id);
+      .eq("user_id", authResult.user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       console.warn(`[forum:${authResult.user.id}] comment delete failed`, error.message);
       return res.status(500).json({ error: error.message });
+    }
+    if (!deletedComment) {
+      return res.status(500).json({ error: "Forum comment was not deleted. Please refresh and try again." });
     }
 
     res.json({ ok: true });

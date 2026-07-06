@@ -218,18 +218,24 @@ export async function createForumCommentInSupabase(
 }
 
 export async function deleteForumPostInSupabase(client: SupabaseLike, postId: string) {
-  const { error } = await client.from("forum_posts").delete().eq("id", postId);
+  const { data, error } = await client.from("forum_posts").delete().eq("id", postId).select("id").maybeSingle();
 
   if (error) {
     throw new Error(error.message);
   }
+  if (!data) {
+    throw new Error("Forum post was not deleted. Please refresh and try again.");
+  }
 }
 
 export async function deleteForumCommentInSupabase(client: SupabaseLike, commentId: string) {
-  const { error } = await client.from("forum_comments").delete().eq("id", commentId);
+  const { data, error } = await client.from("forum_comments").delete().eq("id", commentId).select("id").maybeSingle();
 
   if (error) {
     throw new Error(error.message);
+  }
+  if (!data) {
+    throw new Error("Forum comment was not deleted. Please refresh and try again.");
   }
 }
 

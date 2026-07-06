@@ -166,8 +166,16 @@ describe("forumApi", () => {
           delete() {
             return {
               eq(column: string, value: string) {
-                deletedRows.push({ table, column, value });
-                return Promise.resolve({ error: null });
+                return {
+                  select() {
+                    return {
+                      maybeSingle() {
+                        deletedRows.push({ table, column, value });
+                        return Promise.resolve({ data: { id: value }, error: null });
+                      },
+                    };
+                  },
+                };
               },
             };
           },
@@ -182,5 +190,47 @@ describe("forumApi", () => {
       { table: "forum_posts", column: "id", value: "post-1" },
       { table: "forum_comments", column: "id", value: "comment-1" },
     ]);
+  });
+
+  it("does not treat a missing direct Supabase delete row as success", async () => {
+    globalThis.fetch = (async (url) =>
+      new Response(
+        `<!DOCTYPE html><html><body><pre>Cannot POST ${String(url)}</pre></body></html>`,
+        {
+          status: 404,
+          headers: { "Content-Type": "text/html" },
+        },
+      )) as typeof fetch;
+    const client = {
+      auth: {
+        getSession: async () => ({
+          data: { session: { access_token: "access-token" } },
+          error: null,
+        }),
+      },
+      from() {
+        return {
+          delete() {
+            return {
+              eq() {
+                return {
+                  select() {
+                    return {
+                      maybeSingle() {
+                        return Promise.resolve({ data: null, error: null });
+                      },
+                    };
+                  },
+                };
+              },
+            };
+          },
+        };
+      },
+    };
+
+    await expect(deleteForumPostViaApi(client as any, "post-1")).rejects.toThrow(
+      "Forum post was not deleted. Please refresh and try again.",
+    );
   });
 });
