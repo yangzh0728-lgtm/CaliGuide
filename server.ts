@@ -36,6 +36,10 @@ const pendingMemoryByUserId = new Map<string, Array<{ content: string; createdAt
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  const imageUploadBodyParser = express.raw({
+    type: ["image/png", "image/jpeg", "image/webp", "image/gif"],
+    limit: "10mb",
+  });
 
   app.use(express.json({ limit: "16mb" }));
 
@@ -206,6 +210,90 @@ async function startServer() {
       .then(({ error }) => {
         if (error) {
           console.warn(`[upload:${authResult.user.id}] avatar metadata skipped`, error.message);
+        }
+      });
+
+    res.json({
+      objectKey,
+      publicUrl,
+    });
+  });
+
+  app.post("/api/uploads/file", imageUploadBodyParser, async (req, res) => {
+    if (!supabaseAdmin || !r2Config || !r2Client) {
+      return res.status(500).json({ error: "Supabase and Cloudflare R2 must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const mimeType = getHeaderString(req.headers["content-type"]).split(";")[0].trim();
+    const folder = getHeaderString(req.headers["x-upload-folder"]);
+    const resourceId = getHeaderString(req.headers["x-resource-id"]) || undefined;
+    const attachedToType = normalizeAttachedToType(getHeaderString(req.headers["x-attached-to-type"]), folder);
+    const attachedToIdHeader = getHeaderString(req.headers["x-attached-to-id"]);
+    const attachedToId = attachedToIdHeader ? getUuidOrNull(attachedToIdHeader) : null;
+    const sizeBytesHeader = Number(getHeaderString(req.headers["x-size-bytes"]));
+    const sizeBytes = Number.isFinite(sizeBytesHeader) ? sizeBytesHeader : null;
+    const body = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
+
+    if (folder !== "chat" && folder !== "forum") {
+      return res.status(400).json({ error: "Upload folder is invalid" });
+    }
+    if (!isAllowedUploadMimeType(mimeType)) {
+      return res.status(400).json({ error: "Choose a PNG, JPG, GIF, or WebP image" });
+    }
+    if (!body.length) {
+      return res.status(400).json({ error: "Image is required" });
+    }
+
+    let objectKey = "";
+    try {
+      objectKey = createR2ObjectKey({
+        userId: authResult.user.id,
+        folder,
+        resourceId,
+        mimeType,
+      });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message || "Upload path is invalid" });
+    }
+
+    const publicUrl = buildPublicR2Url(r2Config.publicBaseUrl, objectKey);
+
+    try {
+      await r2Client.send(
+        new PutObjectCommand({
+          Bucket: r2Config.bucketName,
+          Key: objectKey,
+          Body: body,
+          ContentType: mimeType,
+        }),
+      );
+    } catch (error) {
+      console.warn(`[upload:${authResult.user.id}] binary image upload failed`, error);
+      return res.status(502).json({
+        error: "Unable to upload image to Cloudflare R2. Check R2 credentials, bucket name, and public URL.",
+      });
+    }
+
+    void supabaseAdmin
+      .from("media_assets")
+      .insert({
+        owner_user_id: authResult.user.id,
+        bucket: r2Config.bucketName,
+        object_key: objectKey,
+        public_url: publicUrl,
+        mime_type: mimeType,
+        size_bytes: sizeBytes,
+        attached_to_type: attachedToType,
+        attached_to_id: attachedToId,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.warn(`[upload:${authResult.user.id}] image metadata skipped`, error.message);
         }
       });
 
@@ -775,6 +863,14 @@ function normalizeAttachedToType(value: unknown, folder: string) {
   }
 
   return "profile";
+}
+
+function getHeaderString(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
 }
 
 function getUuidOrNull(value: string) {

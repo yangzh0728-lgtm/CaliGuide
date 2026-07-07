@@ -94,6 +94,13 @@ The upload signing API accepts these folder values:
 - `platform-guide` with `resourceId` set to the guide id.
 - `platform-public` for shared marketing assets such as logos and favicons.
 
+Forum and chatbot images upload to the same-origin app server first, then the
+server writes the raw image file to Cloudflare R2. This avoids browser-to-R2
+CORS problems during normal posting. A signed browser upload path remains as a
+fallback; if you use that path directly, the R2 bucket CORS policy must allow
+your local and production origins to `PUT` and `GET` objects with the
+`Content-Type` header.
+
 To create visible placeholder folders in Cloudflare R2 before real files exist, run:
 
 ```bash

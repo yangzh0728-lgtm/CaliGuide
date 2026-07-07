@@ -7,6 +7,10 @@ export interface UploadedImage {
   publicUrl: string;
 }
 
+interface SignedUploadResponse extends Partial<UploadedImage> {
+  uploadUrl?: string;
+}
+
 export interface UploadImagesOptions {
   folder: "chat" | "forum";
   resourceId?: string;
@@ -34,36 +38,13 @@ export async function uploadImagesToR2(
   const uploads: UploadedImage[] = [];
 
   for (const file of files) {
-    const uploadResponse = await fetcher("/api/uploads/image", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        folder: options.folder,
-        resourceId: options.resourceId,
-        attachedToType: options.attachedToType,
-        attachedToId: options.attachedToId,
-        mimeType: file.type,
-        sizeBytes: file.size,
-        base64: await fileToBase64(file),
-      }),
-    });
+    const uploadedImage = await uploadImageThroughBinaryServer(file, accessToken, options, fetcher).catch(async () =>
+      uploadImageWithSignedUrl(file, accessToken, options, fetcher).catch(async () =>
+        uploadImageThroughServer(file, accessToken, options, fetcher),
+      ),
+    );
 
-    if (!uploadResponse.ok) {
-      throw new Error(await readUploadError(uploadResponse, "Unable to upload image"));
-    }
-
-    const uploadedImage = (await uploadResponse.json()) as Partial<UploadedImage>;
-    if (!uploadedImage.publicUrl || !uploadedImage.objectKey) {
-      throw new Error("Upload response is invalid");
-    }
-
-    uploads.push({
-      objectKey: uploadedImage.objectKey,
-      publicUrl: uploadedImage.publicUrl,
-    });
+    uploads.push(uploadedImage);
     options.onProgress?.({
       completed: uploads.length,
       total: files.length,
@@ -72,6 +53,137 @@ export async function uploadImagesToR2(
   }
 
   return uploads;
+}
+
+async function uploadImageThroughBinaryServer(
+  file: File,
+  accessToken: string,
+  options: UploadImagesOptions,
+  fetcher: Fetcher,
+) {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": file.type,
+    "X-Upload-Folder": options.folder,
+    "X-Size-Bytes": String(file.size),
+  };
+
+  if (options.resourceId) {
+    headers["X-Resource-Id"] = options.resourceId;
+  }
+  if (options.attachedToType) {
+    headers["X-Attached-To-Type"] = options.attachedToType;
+  }
+  if (options.attachedToId) {
+    headers["X-Attached-To-Id"] = options.attachedToId;
+  }
+
+  const uploadResponse = await fetcher("/api/uploads/file", {
+    method: "POST",
+    headers,
+    body: file,
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(await readUploadError(uploadResponse, "Unable to upload image"));
+  }
+
+  const uploadedImage = (await uploadResponse.json()) as Partial<UploadedImage>;
+  if (!uploadedImage.publicUrl || !uploadedImage.objectKey) {
+    throw new Error("Upload response is invalid");
+  }
+
+  return {
+    objectKey: uploadedImage.objectKey,
+    publicUrl: uploadedImage.publicUrl,
+  };
+}
+
+async function uploadImageWithSignedUrl(
+  file: File,
+  accessToken: string,
+  options: UploadImagesOptions,
+  fetcher: Fetcher,
+) {
+  const signResponse = await fetcher("/api/uploads/sign", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      folder: options.folder,
+      resourceId: options.resourceId,
+      attachedToType: options.attachedToType,
+      attachedToId: options.attachedToId,
+      mimeType: file.type,
+      sizeBytes: file.size,
+    }),
+  });
+
+  if (!signResponse.ok) {
+    throw new Error(await readUploadError(signResponse, "Unable to prepare image upload"));
+  }
+
+  const signedUpload = (await signResponse.json()) as SignedUploadResponse;
+  if (!signedUpload.uploadUrl || !signedUpload.publicUrl || !signedUpload.objectKey) {
+    throw new Error("Upload signature response is invalid");
+  }
+
+  const putResponse = await fetcher(signedUpload.uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+
+  if (!putResponse.ok) {
+    throw new Error(await readUploadError(putResponse, "Unable to upload image to Cloudflare R2"));
+  }
+
+  return {
+    objectKey: signedUpload.objectKey,
+    publicUrl: signedUpload.publicUrl,
+  };
+}
+
+async function uploadImageThroughServer(
+  file: File,
+  accessToken: string,
+  options: UploadImagesOptions,
+  fetcher: Fetcher,
+) {
+  const uploadResponse = await fetcher("/api/uploads/image", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      folder: options.folder,
+      resourceId: options.resourceId,
+      attachedToType: options.attachedToType,
+      attachedToId: options.attachedToId,
+      mimeType: file.type,
+      sizeBytes: file.size,
+      base64: await fileToBase64(file),
+    }),
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(await readUploadError(uploadResponse, "Unable to upload image"));
+  }
+
+  const uploadedImage = (await uploadResponse.json()) as Partial<UploadedImage>;
+  if (!uploadedImage.publicUrl || !uploadedImage.objectKey) {
+    throw new Error("Upload response is invalid");
+  }
+
+  return {
+    objectKey: uploadedImage.objectKey,
+    publicUrl: uploadedImage.publicUrl,
+  };
 }
 
 function validateImageFile(file: File) {
