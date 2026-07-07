@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { AuthUser, createRandomAvatar, SexOption } from "../lib/authStore";
+import { ArrivalStatusOption, AuthUser, createRandomAvatar, SexOption } from "../lib/authStore";
 import {
   buildPasswordResetRedirectUrl,
   formatSupabaseAuthError,
@@ -20,12 +20,24 @@ interface AuthContextValue {
     password: string;
     dateOfBirth: string;
     sex: SexOption;
+    countryNationality: string;
+    currentLocation: string;
+    arrivalStatus: ArrivalStatusOption;
   }) => Promise<{ confirmationRequired: boolean }>;
   login: (input: { email: string; password: string }) => Promise<void>;
   requestPasswordReset: (input: { email: string }) => Promise<void>;
   resetRecoveredPassword: (input: { newPassword: string }) => Promise<void>;
   logout: () => Promise<void>;
-  updateAccount: (input: { name: string; avatarUrl: string }) => Promise<void>;
+  updateAccount: (input: {
+    name: string;
+    email: string;
+    avatarUrl: string;
+    dateOfBirth: string;
+    sex: SexOption;
+    countryNationality: string;
+    currentLocation: string;
+    arrivalStatus: ArrivalStatusOption;
+  }) => Promise<void>;
   updatePassword: (input: { currentPassword: string; newPassword: string }) => Promise<void>;
   saveGuide: (guideId: string) => Promise<void>;
   removeSavedGuide: (guideId: string) => Promise<void>;
@@ -100,6 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const email = input.email.trim().toLowerCase();
         const password = input.password.trim();
         const dateOfBirth = input.dateOfBirth.trim();
+        const countryNationality = input.countryNationality.trim();
+        const currentLocation = input.currentLocation.trim();
 
         if (!name) {
           throw new Error("Name is required");
@@ -116,6 +130,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (new Date(`${dateOfBirth}T00:00:00.000Z`) > new Date()) {
           throw new Error("Enter a valid date of birth");
         }
+        if (!countryNationality) {
+          throw new Error("Country / nationality is required");
+        }
+        if (!currentLocation) {
+          throw new Error("Current state/city is required");
+        }
 
         const avatarUrl = createRandomAvatar(name);
         const { data, error } = await supabase.auth.signUp({
@@ -127,6 +147,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               avatar_url: avatarUrl,
               date_of_birth: dateOfBirth,
               sex: input.sex,
+              country_nationality: countryNationality,
+              current_location: currentLocation,
+              arrival_status: input.arrivalStatus,
             },
           },
         });
@@ -207,18 +230,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const name = input.name.trim();
+        const email = input.email.trim().toLowerCase();
         const avatarUrl = input.avatarUrl.trim();
+        const dateOfBirth = input.dateOfBirth.trim();
+        const countryNationality = input.countryNationality.trim();
+        const currentLocation = input.currentLocation.trim();
 
         if (!name) {
           throw new Error("Name is required");
         }
+        if (!email.includes("@")) {
+          throw new Error("Enter a valid email");
+        }
         if (!avatarUrl) {
           throw new Error("Profile picture is required");
+        }
+        if (!dateOfBirth || Number.isNaN(new Date(`${dateOfBirth}T00:00:00.000Z`).getTime())) {
+          throw new Error("Enter a valid date of birth");
+        }
+        if (new Date(`${dateOfBirth}T00:00:00.000Z`) > new Date()) {
+          throw new Error("Enter a valid date of birth");
+        }
+        if (!countryNationality) {
+          throw new Error("Country / nationality is required");
+        }
+        if (!currentLocation) {
+          throw new Error("Current state/city is required");
         }
 
         const { error: profileError } = await supabase
           .from("profiles")
-          .update({ name, avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+          .update({
+            name,
+            avatar_url: avatarUrl,
+            date_of_birth: dateOfBirth,
+            sex: input.sex,
+            country_nationality: countryNationality,
+            current_location: currentLocation,
+            arrival_status: input.arrivalStatus,
+            updated_at: new Date().toISOString(),
+          })
           .eq("id", currentUser.id);
 
         if (profileError) {
@@ -226,7 +277,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const { data, error: userError } = await supabase.auth.updateUser({
-          data: { name, avatar_url: avatarUrl },
+          ...(email !== currentUser.email ? { email } : {}),
+          data: {
+            name,
+            avatar_url: avatarUrl,
+            date_of_birth: dateOfBirth,
+            sex: input.sex,
+            country_nationality: countryNationality,
+            current_location: currentLocation,
+            arrival_status: input.arrivalStatus,
+          },
         });
 
         if (userError) {
@@ -377,7 +437,7 @@ async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"])
   const [{ data: profile }, { data: savedGuides }, { data: savedPosts }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id,name,avatar_url,member_since,date_of_birth,sex")
+      .select("id,name,avatar_url,member_since,date_of_birth,sex,country_nationality,current_location,arrival_status")
       .eq("id", user.id)
       .maybeSingle<ProfileRow>(),
     supabase.from("saved_guides").select("guide_id").eq("user_id", user.id),

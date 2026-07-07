@@ -1,4 +1,5 @@
 export type SexOption = "male" | "female" | "prefer_not_to_say";
+export type ArrivalStatusOption = "planning" | "arrived" | "long_term_resident";
 
 export interface AuthUser {
   id: string;
@@ -8,6 +9,9 @@ export interface AuthUser {
   memberSince: string;
   dateOfBirth: string | null;
   sex: SexOption;
+  countryNationality: string;
+  currentLocation: string;
+  arrivalStatus: ArrivalStatusOption;
   savedGuideIds: string[];
   savedPostIds: string[];
 }
@@ -36,13 +40,25 @@ export function createAuthState(): AuthState {
 
 export function registerUser(
   state: AuthState,
-  input: { name: string; email: string; password: string; dateOfBirth?: string; sex?: SexOption },
+  input: {
+    name: string;
+    email: string;
+    password: string;
+    dateOfBirth?: string;
+    sex?: SexOption;
+    countryNationality?: string;
+    currentLocation?: string;
+    arrivalStatus?: ArrivalStatusOption;
+  },
 ): AuthState {
   const name = input.name.trim();
   const email = normalizeEmail(input.email);
   const password = input.password.trim();
   const dateOfBirth = normalizeDateOfBirth(input.dateOfBirth);
   const sex = normalizeSex(input.sex);
+  const countryNationality = normalizeOptionalText(input.countryNationality);
+  const currentLocation = normalizeOptionalText(input.currentLocation);
+  const arrivalStatus = normalizeArrivalStatus(input.arrivalStatus);
 
   if (!name) {
     throw new Error("Name is required");
@@ -69,6 +85,9 @@ export function registerUser(
     }),
     dateOfBirth,
     sex,
+    countryNationality,
+    currentLocation,
+    arrivalStatus,
     savedGuideIds: [],
     savedPostIds: [],
   };
@@ -107,21 +126,44 @@ export function signOutUser(state: AuthState): AuthState {
 
 export function updateProfile(
   state: AuthState,
-  input: { name: string; avatarUrl: string },
+  input: {
+    name: string;
+    avatarUrl: string;
+    email?: string;
+    dateOfBirth?: string;
+    sex?: SexOption;
+    countryNationality?: string;
+    currentLocation?: string;
+    arrivalStatus?: ArrivalStatusOption;
+  },
 ): AuthState {
   const currentUser = requireCurrentUser(state);
   const name = input.name.trim();
   const avatarUrl = input.avatarUrl.trim();
+  const email = input.email === undefined ? currentUser.email : normalizeEmail(input.email);
+  const dateOfBirth = input.dateOfBirth === undefined ? currentUser.dateOfBirth : normalizeDateOfBirth(input.dateOfBirth);
+  const sex = input.sex === undefined ? currentUser.sex : normalizeSex(input.sex);
+  const countryNationality =
+    input.countryNationality === undefined ? currentUser.countryNationality : normalizeOptionalText(input.countryNationality);
+  const currentLocation =
+    input.currentLocation === undefined ? currentUser.currentLocation : normalizeOptionalText(input.currentLocation);
+  const arrivalStatus =
+    input.arrivalStatus === undefined ? currentUser.arrivalStatus : normalizeArrivalStatus(input.arrivalStatus);
 
   if (!name) {
     throw new Error("Name is required");
+  }
+  if (!email.includes("@")) {
+    throw new Error("Enter a valid email");
   }
   if (!avatarUrl) {
     throw new Error("Profile picture is required");
   }
 
   const users = state.users.map((user) =>
-    user.id === currentUser.id ? { ...user, name, avatarUrl } : user,
+    user.id === currentUser.id
+      ? { ...user, name, email, avatarUrl, dateOfBirth, sex, countryNationality, currentLocation, arrivalStatus }
+      : user,
   );
   const updatedUser = users.find((user) => user.id === currentUser.id);
 
@@ -310,6 +352,16 @@ function normalizeSex(sex: SexOption | undefined): SexOption {
   return sex === "male" || sex === "female" || sex === "prefer_not_to_say" ? sex : "prefer_not_to_say";
 }
 
+function normalizeArrivalStatus(arrivalStatus: ArrivalStatusOption | undefined): ArrivalStatusOption {
+  return arrivalStatus === "planning" || arrivalStatus === "arrived" || arrivalStatus === "long_term_resident"
+    ? arrivalStatus
+    : "planning";
+}
+
+function normalizeOptionalText(value: string | undefined) {
+  return value?.trim() ?? "";
+}
+
 export function createRandomAvatar(name: string) {
   const background = randomItem(AVATAR_BACKGROUNDS);
   const shirt = randomItem(AVATAR_SHIRTS);
@@ -357,6 +409,9 @@ function publicUser(user: StoredUser): AuthUser {
     memberSince: user.memberSince,
     dateOfBirth: user.dateOfBirth ?? null,
     sex: normalizeSex(user.sex),
+    countryNationality: user.countryNationality ?? "",
+    currentLocation: user.currentLocation ?? "",
+    arrivalStatus: normalizeArrivalStatus(user.arrivalStatus),
     savedGuideIds: user.savedGuideIds ?? [],
     savedPostIds: user.savedPostIds ?? [],
   };
@@ -367,6 +422,9 @@ function hydrateStoredUser(user: StoredUser): StoredUser {
     ...user,
     dateOfBirth: user.dateOfBirth ?? null,
     sex: normalizeSex(user.sex),
+    countryNationality: user.countryNationality ?? "",
+    currentLocation: user.currentLocation ?? "",
+    arrivalStatus: normalizeArrivalStatus(user.arrivalStatus),
     savedGuideIds: Array.isArray(user.savedGuideIds) ? user.savedGuideIds : [],
     savedPostIds: Array.isArray(user.savedPostIds) ? user.savedPostIds : [],
   };

@@ -3,21 +3,28 @@ import {
   ArrowLeft,
   Bookmark,
   Camera,
+  CalendarDays,
   ChevronRight,
   FileCheck,
+  Flag,
   LockKeyhole,
   LogOut,
+  Mail,
+  MapPin,
   MessageSquare,
+  Plane,
   Save,
   Settings,
   ThumbsDown,
   ThumbsUp,
   UserRound,
+  UsersRound,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { uploadAvatarToR2 } from "../lib/avatarUpload";
 import { BlogArticle } from "../lib/blogContent";
+import { ArrivalStatusOption, SexOption } from "../lib/authStore";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -53,7 +60,13 @@ export default function Profile({
   const { t } = useLanguage();
   const [view, setView] = useState<ProfileView>("profile");
   const [name, setName] = useState(currentUser?.name ?? "");
+  const [email, setEmail] = useState(currentUser?.email ?? "");
   const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState(currentUser?.dateOfBirth ?? "");
+  const [sex, setSex] = useState<SexOption>(currentUser?.sex ?? "prefer_not_to_say");
+  const [countryNationality, setCountryNationality] = useState(currentUser?.countryNationality ?? "");
+  const [currentLocation, setCurrentLocation] = useState(currentUser?.currentLocation ?? "");
+  const [arrivalStatus, setArrivalStatus] = useState<ArrivalStatusOption>(currentUser?.arrivalStatus ?? "planning");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [profileMessage, setProfileMessage] = useState("");
@@ -75,7 +88,13 @@ export default function Profile({
 
   useEffect(() => {
     setName(currentUser?.name ?? "");
+    setEmail(currentUser?.email ?? "");
     setAvatarUrl(currentUser?.avatarUrl ?? "");
+    setDateOfBirth(currentUser?.dateOfBirth ?? "");
+    setSex(currentUser?.sex ?? "prefer_not_to_say");
+    setCountryNationality(currentUser?.countryNationality ?? "");
+    setCurrentLocation(currentUser?.currentLocation ?? "");
+    setArrivalStatus(currentUser?.arrivalStatus ?? "planning");
   }, [currentUser]);
 
   const menuItems = [
@@ -116,7 +135,13 @@ export default function Profile({
 
   const openSettings = () => {
     setName(currentUser.name);
+    setEmail(currentUser.email);
     setAvatarUrl(currentUser.avatarUrl);
+    setDateOfBirth(currentUser.dateOfBirth ?? "");
+    setSex(currentUser.sex);
+    setCountryNationality(currentUser.countryNationality);
+    setCurrentLocation(currentUser.currentLocation);
+    setArrivalStatus(currentUser.arrivalStatus);
     setCurrentPassword("");
     setNewPassword("");
     setProfileMessage("");
@@ -139,7 +164,13 @@ export default function Profile({
 
   const closeSettings = () => {
     setName(currentUser.name);
+    setEmail(currentUser.email);
     setAvatarUrl(currentUser.avatarUrl);
+    setDateOfBirth(currentUser.dateOfBirth ?? "");
+    setSex(currentUser.sex);
+    setCountryNationality(currentUser.countryNationality);
+    setCurrentLocation(currentUser.currentLocation);
+    setArrivalStatus(currentUser.arrivalStatus);
     setCurrentPassword("");
     setNewPassword("");
     setProfileMessage("");
@@ -153,7 +184,16 @@ export default function Profile({
     setIsSavingProfile(true);
 
     try {
-      await updateAccount({ name, avatarUrl });
+      await updateAccount({
+        name,
+        email,
+        avatarUrl,
+        dateOfBirth,
+        sex,
+        countryNationality,
+        currentLocation,
+        arrivalStatus,
+      });
       setProfileMessage(t("settings.profileUpdated"));
     } catch (error) {
       setProfileMessage(error instanceof Error ? error.message : "Unable to update profile");
@@ -251,11 +291,99 @@ export default function Profile({
 
           <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.name")}</span>
-            <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="mt-2 w-full border border-outline-variant rounded-xl px-3 py-3 text-sm outline-none focus:border-primary"
-            />
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <UserRound size={18} className="text-on-surface-variant" />
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              />
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.email")}</span>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <Mail size={18} className="text-on-surface-variant" />
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              />
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.dateOfBirth")}</span>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <CalendarDays size={18} className="text-on-surface-variant" />
+              <input
+                type="date"
+                value={dateOfBirth}
+                onChange={(event) => setDateOfBirth(event.target.value)}
+                max={new Date().toISOString().slice(0, 10)}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              />
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.sex")}</span>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <UsersRound size={18} className="text-on-surface-variant" />
+              <select
+                value={sex}
+                onChange={(event) => setSex(event.target.value as SexOption)}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              >
+                <option value="male">{t("auth.sexMale")}</option>
+                <option value="female">{t("auth.sexFemale")}</option>
+                <option value="prefer_not_to_say">{t("auth.sexPreferNotToSay")}</option>
+              </select>
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.countryNationality")}</span>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <Flag size={18} className="text-on-surface-variant" />
+              <input
+                value={countryNationality}
+                onChange={(event) => setCountryNationality(event.target.value)}
+                placeholder={t("auth.countryNationalityPlaceholder")}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              />
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.currentLocation")}</span>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <MapPin size={18} className="text-on-surface-variant" />
+              <input
+                value={currentLocation}
+                onChange={(event) => setCurrentLocation(event.target.value)}
+                placeholder={t("auth.currentLocationPlaceholder")}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              />
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.arrivalStatus")}</span>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <Plane size={18} className="text-on-surface-variant" />
+              <select
+                value={arrivalStatus}
+                onChange={(event) => setArrivalStatus(event.target.value as ArrivalStatusOption)}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              >
+                <option value="planning">{t("auth.arrivalPlanning")}</option>
+                <option value="arrived">{t("auth.arrivalArrived")}</option>
+                <option value="long_term_resident">{t("auth.arrivalLongTermResident")}</option>
+              </select>
+            </div>
           </label>
 
           {profileMessage && (

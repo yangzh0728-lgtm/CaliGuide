@@ -1,9 +1,9 @@
 import { FormEvent, useState } from "react";
-import { CalendarDays, KeyRound, LockKeyhole, LogIn, Mail, UserPlus, UsersRound } from "lucide-react";
+import { CalendarDays, Flag, KeyRound, LockKeyhole, LogIn, Mail, MapPin, Plane, UserPlus, UsersRound } from "lucide-react";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
-import { SexOption } from "../lib/authStore";
+import { ArrivalStatusOption, SexOption } from "../lib/authStore";
 
 export default function AuthPage() {
   const { isPasswordRecovery, login, register, requestPasswordReset, resetRecoveredPassword } = useAuth();
@@ -12,6 +12,9 @@ export default function AuthPage() {
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [sex, setSex] = useState<SexOption>("prefer_not_to_say");
+  const [countryNationality, setCountryNationality] = useState("");
+  const [currentLocation, setCurrentLocation] = useState("");
+  const [arrivalStatus, setArrivalStatus] = useState<ArrivalStatusOption>("planning");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,7 +40,16 @@ export default function AuthPage() {
         await requestPasswordReset({ email });
         setNotice(t("auth.resetEmailSentNotice"));
       } else if (isRegistering) {
-        const result = await register({ name, email, password, dateOfBirth, sex });
+        const result = await register({
+          name,
+          email,
+          password,
+          dateOfBirth,
+          sex,
+          countryNationality,
+          currentLocation,
+          arrivalStatus,
+        });
         if (result.confirmationRequired) {
           setNotice(t("auth.confirmEmailNotice"));
           setMode("login");
@@ -163,6 +175,50 @@ export default function AuthPage() {
                     <option value="male">{t("auth.sexMale")}</option>
                     <option value="female">{t("auth.sexFemale")}</option>
                     <option value="prefer_not_to_say">{t("auth.sexPreferNotToSay")}</option>
+                  </select>
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.countryNationality")}</span>
+                <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
+                  <Flag size={18} className="text-on-surface-variant" />
+                  <input
+                    value={countryNationality}
+                    onChange={(event) => setCountryNationality(event.target.value)}
+                    required={isRegistering}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                    placeholder={t("auth.countryNationalityPlaceholder")}
+                  />
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.currentLocation")}</span>
+                <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
+                  <MapPin size={18} className="text-on-surface-variant" />
+                  <input
+                    value={currentLocation}
+                    onChange={(event) => setCurrentLocation(event.target.value)}
+                    required={isRegistering}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                    placeholder={t("auth.currentLocationPlaceholder")}
+                  />
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.arrivalStatus")}</span>
+                <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
+                  <Plane size={18} className="text-on-surface-variant" />
+                  <select
+                    value={arrivalStatus}
+                    onChange={(event) => setArrivalStatus(event.target.value as ArrivalStatusOption)}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                  >
+                    <option value="planning">{t("auth.arrivalPlanning")}</option>
+                    <option value="arrived">{t("auth.arrivalArrived")}</option>
+                    <option value="long_term_resident">{t("auth.arrivalLongTermResident")}</option>
                   </select>
                 </div>
               </label>

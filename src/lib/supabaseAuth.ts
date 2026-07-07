@@ -1,4 +1,4 @@
-import { AuthUser, createRandomAvatar, SexOption } from "./authStore";
+import { ArrivalStatusOption, AuthUser, createRandomAvatar, SexOption } from "./authStore";
 
 export interface SupabaseUserLike {
   id: string;
@@ -14,6 +14,9 @@ export interface ProfileRow {
   member_since: string | null;
   date_of_birth: string | null;
   sex: SexOption | null;
+  country_nationality: string | null;
+  current_location: string | null;
+  arrival_status: ArrivalStatusOption | null;
 }
 
 export interface SignUpResultLike {
@@ -35,6 +38,13 @@ export function mapSupabaseUser(input: {
   const metadataDateOfBirth =
     typeof input.user.user_metadata?.date_of_birth === "string" ? input.user.user_metadata.date_of_birth : null;
   const metadataSex = normalizeSex(input.user.user_metadata?.sex);
+  const metadataCountryNationality =
+    typeof input.user.user_metadata?.country_nationality === "string"
+      ? input.user.user_metadata.country_nationality
+      : "";
+  const metadataCurrentLocation =
+    typeof input.user.user_metadata?.current_location === "string" ? input.user.user_metadata.current_location : "";
+  const metadataArrivalStatus = normalizeArrivalStatus(input.user.user_metadata?.arrival_status);
 
   return {
     id: input.user.id,
@@ -44,6 +54,9 @@ export function mapSupabaseUser(input: {
     memberSince: formatMemberSince(memberSinceDate),
     dateOfBirth: input.profile?.date_of_birth ?? metadataDateOfBirth,
     sex: normalizeSex(input.profile?.sex ?? metadataSex),
+    countryNationality: input.profile?.country_nationality ?? metadataCountryNationality,
+    currentLocation: input.profile?.current_location ?? metadataCurrentLocation,
+    arrivalStatus: normalizeArrivalStatus(input.profile?.arrival_status ?? metadataArrivalStatus),
     savedGuideIds: input.savedGuideIds,
     savedPostIds: input.savedPostIds,
   };
@@ -86,4 +99,8 @@ function formatMemberSince(dateValue: string) {
 
 function normalizeSex(value: unknown): SexOption {
   return value === "male" || value === "female" || value === "prefer_not_to_say" ? value : "prefer_not_to_say";
+}
+
+function normalizeArrivalStatus(value: unknown): ArrivalStatusOption {
+  return value === "planning" || value === "arrived" || value === "long_term_resident" ? value : "planning";
 }

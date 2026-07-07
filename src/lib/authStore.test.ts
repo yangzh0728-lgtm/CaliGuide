@@ -19,12 +19,18 @@ describe("authStore", () => {
       password: "secure123",
       dateOfBirth: "1993-04-12",
       sex: "female",
+      countryNationality: "China",
+      currentLocation: "San Jose, CA",
+      arrivalStatus: "arrived",
     });
 
     expect(registered.currentUser?.name).toBe("Maya Chen");
     expect(registered.currentUser?.email).toBe("maya@example.com");
     expect(registered.currentUser?.dateOfBirth).toBe("1993-04-12");
     expect(registered.currentUser?.sex).toBe("female");
+    expect(registered.currentUser?.countryNationality).toBe("China");
+    expect(registered.currentUser?.currentLocation).toBe("San Jose, CA");
+    expect(registered.currentUser?.arrivalStatus).toBe("arrived");
 
     const signedIn = signInUser(
       { ...registered, currentUser: null },
@@ -54,6 +60,9 @@ describe("authStore", () => {
 
     expect(registered.currentUser?.dateOfBirth).toBeNull();
     expect(registered.currentUser?.sex).toBe("prefer_not_to_say");
+    expect(registered.currentUser?.countryNationality).toBe("");
+    expect(registered.currentUser?.currentLocation).toBe("");
+    expect(registered.currentUser?.arrivalStatus).toBe("planning");
   });
 
   test("rejects future dates of birth", () => {

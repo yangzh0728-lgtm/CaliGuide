@@ -13,13 +13,25 @@ grant select, insert, delete on table public.saved_guides to authenticated;
 
 alter table public.profiles
   add column if not exists date_of_birth date,
-  add column if not exists sex text not null default 'prefer_not_to_say';
+  add column if not exists sex text not null default 'prefer_not_to_say',
+  add column if not exists country_nationality text not null default '',
+  add column if not exists current_location text not null default '',
+  add column if not exists arrival_status text not null default 'planning';
 
 do $$
 begin
   alter table public.profiles
     add constraint profiles_sex_check
     check (sex in ('male', 'female', 'prefer_not_to_say'));
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  alter table public.profiles
+    add constraint profiles_arrival_status_check
+    check (arrival_status in ('planning', 'arrived', 'long_term_resident'));
 exception
   when duplicate_object then null;
 end $$;
@@ -34,7 +46,16 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, name, avatar_url, date_of_birth, sex)
+  insert into public.profiles (
+    id,
+    name,
+    avatar_url,
+    date_of_birth,
+    sex,
+    country_nationality,
+    current_location,
+    arrival_status
+  )
   values (
     new.id,
     coalesce(
@@ -51,6 +72,13 @@ begin
       when new.raw_user_meta_data ->> 'sex' in ('male', 'female', 'prefer_not_to_say')
         then new.raw_user_meta_data ->> 'sex'
       else 'prefer_not_to_say'
+    end,
+    coalesce(nullif(new.raw_user_meta_data ->> 'country_nationality', ''), ''),
+    coalesce(nullif(new.raw_user_meta_data ->> 'current_location', ''), ''),
+    case
+      when new.raw_user_meta_data ->> 'arrival_status' in ('planning', 'arrived', 'long_term_resident')
+        then new.raw_user_meta_data ->> 'arrival_status'
+      else 'planning'
     end
   )
   on conflict (id) do update
@@ -58,7 +86,10 @@ begin
     name = excluded.name,
     avatar_url = excluded.avatar_url,
     date_of_birth = excluded.date_of_birth,
-    sex = excluded.sex;
+    sex = excluded.sex,
+    country_nationality = excluded.country_nationality,
+    current_location = excluded.current_location,
+    arrival_status = excluded.arrival_status;
 
   return new;
 end;
@@ -70,7 +101,16 @@ after insert on auth.users
 for each row
 execute function public.create_profile_for_new_auth_user();
 
-insert into public.profiles (id, name, avatar_url, date_of_birth, sex)
+insert into public.profiles (
+  id,
+  name,
+  avatar_url,
+  date_of_birth,
+  sex,
+  country_nationality,
+  current_location,
+  arrival_status
+)
 select
   users.id,
   coalesce(
@@ -87,7 +127,14 @@ select
     when users.raw_user_meta_data ->> 'sex' in ('male', 'female', 'prefer_not_to_say')
       then users.raw_user_meta_data ->> 'sex'
     else 'prefer_not_to_say'
-  end as sex
+  end as sex,
+  coalesce(nullif(users.raw_user_meta_data ->> 'country_nationality', ''), '') as country_nationality,
+  coalesce(nullif(users.raw_user_meta_data ->> 'current_location', ''), '') as current_location,
+  case
+    when users.raw_user_meta_data ->> 'arrival_status' in ('planning', 'arrived', 'long_term_resident')
+      then users.raw_user_meta_data ->> 'arrival_status'
+    else 'planning'
+  end as arrival_status
 from auth.users
 where not exists (
   select 1
