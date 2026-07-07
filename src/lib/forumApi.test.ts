@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { createForumPostViaApi, deleteForumCommentViaApi, deleteForumPostViaApi } from "./forumApi";
+import {
+  createForumPostViaApi,
+  deleteForumCommentViaApi,
+  deleteForumPostViaApi,
+  setForumVoteViaApi,
+} from "./forumApi";
 
 const originalFetch = globalThis.fetch;
 
@@ -232,5 +237,33 @@ describe("forumApi", () => {
     await expect(deleteForumPostViaApi(client as any, "post-1")).rejects.toThrow(
       "Forum post was not deleted. Please refresh and try again.",
     );
+  });
+
+  it("keeps votes on local mock forum items out of Supabase", async () => {
+    let requestCount = 0;
+    globalThis.fetch = (async () => {
+      requestCount += 1;
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    await setForumVoteViaApi(
+      {
+        auth: {
+          getSession: async () => ({
+            data: { session: { access_token: "access-token" } },
+            error: null,
+          }),
+        },
+      },
+      "post",
+      "post-1",
+      "user-1",
+      "useful",
+    );
+
+    expect(requestCount).toBe(0);
   });
 });

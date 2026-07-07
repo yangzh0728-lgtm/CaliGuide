@@ -41,6 +41,13 @@ create table if not exists public.forum_votes (
   unique (target_type, target_id, user_id)
 );
 
+create table if not exists public.saved_forum_posts (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  post_id uuid not null references public.forum_posts(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, post_id)
+);
+
 create table if not exists public.chat_sessions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -113,6 +120,13 @@ alter table public.forum_votes
   add column if not exists author_id uuid references auth.users(id) on delete set null,
   add column if not exists vote_type text,
   add column if not exists created_at timestamptz default now();
+
+create table if not exists public.saved_forum_posts (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  post_id uuid not null references public.forum_posts(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, post_id)
+);
 
 alter table public.chat_sessions
   add column if not exists id uuid default gen_random_uuid(),
@@ -257,6 +271,7 @@ create index if not exists forum_posts_created_at_idx on public.forum_posts(crea
 create index if not exists forum_posts_category_idx on public.forum_posts(category);
 create index if not exists forum_comments_post_id_idx on public.forum_comments(post_id, created_at);
 create index if not exists forum_votes_target_idx on public.forum_votes(target_type, target_id);
+create index if not exists saved_forum_posts_user_created_idx on public.saved_forum_posts(user_id, created_at desc);
 create index if not exists chat_sessions_user_updated_idx on public.chat_sessions(user_id, updated_at desc);
 create index if not exists chat_messages_session_created_idx on public.chat_messages(session_id, created_at);
 create index if not exists media_assets_owner_idx on public.media_assets(owner_user_id, created_at desc);
@@ -265,6 +280,7 @@ grant usage on schema public to authenticated, service_role;
 grant select, insert, update, delete on public.forum_posts to authenticated, service_role;
 grant select, insert, update, delete on public.forum_comments to authenticated, service_role;
 grant select, insert, update, delete on public.forum_votes to authenticated, service_role;
+grant select, insert, delete on public.saved_forum_posts to authenticated, service_role;
 grant select, insert, update, delete on public.chat_sessions to authenticated, service_role;
 grant select, insert, update, delete on public.chat_messages to authenticated, service_role;
 grant select, insert, update, delete on public.media_assets to authenticated, service_role;
@@ -272,6 +288,7 @@ grant select, insert, update, delete on public.media_assets to authenticated, se
 alter table public.forum_posts enable row level security;
 alter table public.forum_comments enable row level security;
 alter table public.forum_votes enable row level security;
+alter table public.saved_forum_posts enable row level security;
 alter table public.chat_sessions enable row level security;
 alter table public.chat_messages enable row level security;
 alter table public.media_assets enable row level security;
@@ -331,6 +348,24 @@ on public.forum_votes for all
 to authenticated
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
+
+drop policy if exists "Users read their own saved forum posts" on public.saved_forum_posts;
+create policy "Users read their own saved forum posts"
+on public.saved_forum_posts for select
+to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists "Users save their own forum posts" on public.saved_forum_posts;
+create policy "Users save their own forum posts"
+on public.saved_forum_posts for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+drop policy if exists "Users remove their own saved forum posts" on public.saved_forum_posts;
+create policy "Users remove their own saved forum posts"
+on public.saved_forum_posts for delete
+to authenticated
+using (auth.uid() = user_id);
 
 drop policy if exists "Users read their own chat sessions" on public.chat_sessions;
 create policy "Users read their own chat sessions"

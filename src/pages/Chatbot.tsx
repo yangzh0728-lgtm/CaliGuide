@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Bot, User, Send, PlusCircle, MessageSquare, X, ImagePlus } from 'lucide-react';
+import { Bot, User, Send, PlusCircle, MessageSquare, X, ImagePlus, CheckCircle2, LoaderCircle } from 'lucide-react';
 import { ChatMessage } from '../types';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -42,7 +42,7 @@ export default function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [uploadError, setUploadError] = useState('');
-  const [isBotPopoverOpen, setIsBotPopoverOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0, fileName: '' });
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const userMemory = getChatUserMemory(chatMemory, userId, introMessage);
@@ -69,6 +69,14 @@ export default function Chatbot() {
 
     void fetchChatUserMemoryFromSupabase(supabase, userId, introMessage)
       .then((remoteMemory) => {
+        const hasRemoteMessages = remoteMemory.sessions.some((session) =>
+          session.messages.some((message) => message.role === 'user'),
+        );
+
+        if (!hasRemoteMessages) {
+          return;
+        }
+
         setChatMemory((currentMemory) => ({
           sessionsByUserId: {
             ...currentMemory.sessionsByUserId,
@@ -99,6 +107,11 @@ export default function Chatbot() {
     const imagesToUpload = [...selectedImages];
     setIsLoading(true);
     setUploadError('');
+    setUploadProgress({
+      completed: 0,
+      total: imagesToUpload.length,
+      fileName: imagesToUpload[0]?.name ?? '',
+    });
 
     let imageUrls: string[] = [];
     try {
@@ -111,6 +124,7 @@ export default function Chatbot() {
         const uploads = await uploadImagesToR2(imagesToUpload, data.session?.access_token ?? '', {
           folder: 'chat',
           attachedToType: 'chat',
+          onProgress: (progress) => setUploadProgress(progress),
         });
         imageUrls = uploads.map((upload) => upload.publicUrl);
       }
@@ -141,6 +155,7 @@ export default function Chatbot() {
     );
     setInput('');
     setSelectedImages([]);
+    setUploadProgress({ completed: 0, total: 0, fileName: '' });
 
     try {
       const requestStartedAt = performance.now();
@@ -243,6 +258,7 @@ export default function Chatbot() {
     }
 
     setUploadError('');
+    setUploadProgress({ completed: 0, total: 0, fileName: '' });
     setSelectedImages((currentImages) => [...currentImages, ...Array.from(files)].slice(0, 6));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -250,6 +266,7 @@ export default function Chatbot() {
   };
 
   const handleRemoveSelectedImage = (index: number) => {
+    setUploadProgress({ completed: 0, total: 0, fileName: '' });
     setSelectedImages((currentImages) => currentImages.filter((_, currentIndex) => currentIndex !== index));
   };
 
@@ -257,12 +274,14 @@ export default function Chatbot() {
     setChatMemory((currentMemory) => startChatMemorySession(currentMemory, userId, introMessage));
     setInput('');
     setIsLoading(false);
+    setUploadProgress({ completed: 0, total: 0, fileName: '' });
   };
 
   const handleOpenSession = (sessionId: string) => {
     setChatMemory((currentMemory) => setActiveChatMemorySession(currentMemory, userId, sessionId));
     setInput('');
     setIsLoading(false);
+    setUploadProgress({ completed: 0, total: 0, fileName: '' });
   };
 
   const handleDeleteSession = (sessionId: string) => {
@@ -299,34 +318,15 @@ export default function Chatbot() {
     t('chatbot.suggestion.wait'),
     t('chatbot.suggestion.realId'),
   ];
+  const uploadPercent =
+    uploadProgress.total > 0 ? Math.round((uploadProgress.completed / uploadProgress.total) * 100) : 0;
 
   return (
     <div className="pt-20 pb-40 max-w-lg mx-auto flex flex-col h-[100dvh]">
       {/* Bot Intro */}
       <div className="flex flex-col items-center justify-center mb-8 shrink-0">
         <div className="relative mb-3">
-          <button
-            type="button"
-            aria-label="CaliBot status"
-            aria-expanded={isBotPopoverOpen}
-            onClick={() => setIsBotPopoverOpen((isOpen) => !isOpen)}
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-container shadow-md transition-transform hover:scale-105 active:scale-95"
-          >
-            <Bot size={32} className="text-white" fill="currentColor" />
-          </button>
-          <AnimatePresence>
-            {isBotPopoverOpen && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.96, x: -4 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.96, x: -4 }}
-                transition={{ duration: 0.16 }}
-                className="absolute left-[calc(100%+0.75rem)] top-1/2 z-20 w-40 -translate-y-1/2 rounded-xl border border-outline-variant bg-white px-3 py-2 text-xs font-bold text-on-surface shadow-lg"
-              >
-                currently unabvliable
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <BotAvatar size="large" />
         </div>
         <h1 className="text-2xl font-bold text-on-surface">CaliBot</h1>
         <p className="text-sm text-on-surface-variant text-center max-w-xs mt-2 px-4 leading-relaxed">
@@ -398,9 +398,13 @@ export default function Chatbot() {
               key={i} 
               className={`flex items-start gap-3 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-surface-container-high text-primary'}`}>
-                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
-              </div>
+              {msg.role === 'user' ? (
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm">
+                  <User size={16} />
+                </div>
+              ) : (
+                <BotAvatar size="small" />
+              )}
               <div className={`p-4 rounded-2xl shadow-sm border ${
                 msg.role === 'user' 
                 ? 'bg-primary text-white rounded-tr-none border-primary' 
@@ -409,12 +413,29 @@ export default function Chatbot() {
                 {!!msg.imageUrls?.length && (
                   <div className="mb-3 grid grid-cols-2 gap-2">
                     {msg.imageUrls.map((imageUrl, imageIndex) => (
-                      <img
+                      <div
                         key={`${imageUrl}-${imageIndex}`}
-                        src={imageUrl}
-                        alt={`Uploaded chat image ${imageIndex + 1}`}
-                        className="h-24 w-full rounded-xl border border-white/20 object-cover"
-                      />
+                        className="overflow-hidden rounded-xl border border-white/20 bg-white/10"
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`Uploaded chat image ${imageIndex + 1}`}
+                          className="h-24 w-full object-cover"
+                          onError={(event) => {
+                            event.currentTarget.style.display = 'none';
+                            const fallback = event.currentTarget.nextElementSibling;
+                            fallback?.classList.remove('hidden');
+                          }}
+                        />
+                        <a
+                          href={imageUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hidden h-24 items-center justify-center px-2 text-center text-[10px] font-bold underline"
+                        >
+                          Image uploaded, but cannot display.
+                        </a>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -466,24 +487,73 @@ export default function Chatbot() {
             </div>
           )}
           {!!selectedImagePreviews.length && (
-            <div className="mb-2 flex gap-2 overflow-x-auto rounded-2xl border border-outline-variant bg-white p-2 shadow-sm no-scrollbar">
-              {selectedImagePreviews.map((preview, index) => (
-                <div key={`${preview.name}-${preview.url}`} className="relative h-16 w-16 shrink-0">
-                  <img
-                    src={preview.url}
-                    alt={preview.name}
-                    className="h-full w-full rounded-xl object-cover"
-                  />
-                  <button
-                    type="button"
-                    aria-label={`Remove ${preview.name}`}
-                    onClick={() => handleRemoveSelectedImage(index)}
-                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              ))}
+            <div className="mb-2 rounded-2xl border border-outline-variant bg-white p-2 shadow-sm">
+              <div className="mb-2 flex items-center justify-between px-1 text-[11px] font-semibold text-on-surface-variant">
+                <span>{selectedImagePreviews.length} image{selectedImagePreviews.length === 1 ? '' : 's'} selected</span>
+                <span>Max 8 MB each</span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                {selectedImagePreviews.map((preview, index) => {
+                  const isUploaded = isLoading && uploadProgress.completed > index;
+                  const isUploading =
+                    isLoading &&
+                    uploadProgress.completed === index &&
+                    uploadProgress.total === selectedImagePreviews.length;
+
+                  return (
+                    <div key={`${preview.name}-${preview.url}`} className="relative h-16 w-16 shrink-0">
+                      <img
+                        src={preview.url}
+                        alt={preview.name}
+                        className="h-full w-full rounded-xl object-cover"
+                      />
+                      <div className="absolute inset-x-1 bottom-1 truncate rounded bg-black/55 px-1 py-0.5 text-[8px] font-bold text-white">
+                        {isUploaded ? 'Uploaded' : isUploading ? 'Uploading' : preview.name}
+                      </div>
+                      {isUploaded && (
+                        <div className="absolute left-1 top-1 rounded-full bg-green-600 text-white">
+                          <CheckCircle2 size={15} />
+                        </div>
+                      )}
+                      {isUploading && (
+                        <div className="absolute left-1 top-1 rounded-full bg-primary p-0.5 text-white">
+                          <LoaderCircle size={13} className="animate-spin" />
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        aria-label={`Remove ${preview.name}`}
+                        disabled={isLoading}
+                        onClick={() => handleRemoveSelectedImage(index)}
+                        className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm disabled:cursor-not-allowed disabled:bg-outline"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {isLoading && uploadProgress.total > 0 && (
+            <div className="mb-2 rounded-2xl border border-primary/20 bg-white p-3 shadow-sm">
+              <div className="mb-2 flex items-center justify-between text-xs font-bold text-primary">
+                <span>
+                  Uploading {uploadProgress.completed} of {uploadProgress.total}
+                </span>
+                <span>{uploadPercent}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-surface-container-high">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${uploadPercent}%` }}
+                />
+              </div>
+              <p className="mt-2 truncate text-xs text-on-surface-variant">
+                {uploadProgress.completed === uploadProgress.total
+                  ? 'Images uploaded. Asking CaliBot...'
+                  : `Uploading ${uploadProgress.fileName || 'image'}...`}
+              </p>
             </div>
           )}
           <div className="bg-white border border-outline-variant rounded-2xl p-2.5 flex items-center gap-2 shadow-xl mb-2">
@@ -531,6 +601,22 @@ function createIntroMessage(content: string): ChatMessage {
     content,
     timestamp: '10:02 AM',
   };
+}
+
+function BotAvatar({ size }: { size: 'large' | 'small' }) {
+  const isLarge = size === 'large';
+
+  return (
+    <div
+      className={`flex flex-shrink-0 items-center justify-center rounded-full shadow-sm ${
+        isLarge
+          ? 'h-16 w-16 bg-primary-container shadow-md'
+          : 'h-8 w-8 bg-surface-container-high text-primary'
+      }`}
+    >
+      <Bot size={isLarge ? 32 : 16} className={isLarge ? 'text-white' : 'text-primary'} fill="currentColor" />
+    </div>
+  );
 }
 
 function getErrorMessage(error: unknown) {

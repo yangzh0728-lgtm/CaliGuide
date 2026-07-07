@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Briefcase,
   Car,
+  CheckCircle2,
   Compass,
   Eye,
   GraduationCap,
@@ -10,6 +11,7 @@ import {
   HomeIcon,
   ImagePlus,
   Landmark,
+  LoaderCircle,
   MessageSquare,
   Plus,
   Scale,
@@ -86,6 +88,7 @@ export default function Forum({
   const [newPostImages, setNewPostImages] = useState<File[]>([]);
   const [composerError, setComposerError] = useState('');
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0, fileName: '' });
   const newPostImagePreviews = useMemo(
     () => newPostImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
     [newPostImages],
@@ -128,6 +131,11 @@ export default function Forum({
 
     setComposerError('');
     setIsSubmittingPost(true);
+    setUploadProgress({
+      completed: 0,
+      total: newPostImages.length,
+      fileName: newPostImages[0]?.name ?? '',
+    });
     const postId = crypto.randomUUID();
 
     try {
@@ -141,6 +149,7 @@ export default function Forum({
         resourceId: postId,
         attachedToType: 'forum_post',
         attachedToId: postId,
+        onProgress: (progress) => setUploadProgress(progress),
       });
 
       const discussion = createForumDiscussion({
@@ -158,6 +167,7 @@ export default function Forum({
       setNewPostCategory('Housing');
       setNewPostBody('');
       setNewPostImages([]);
+      setUploadProgress({ completed: 0, total: 0, fileName: '' });
       setIsComposerOpen(false);
     } catch (error) {
       setComposerError(getErrorMessage(error));
@@ -172,12 +182,17 @@ export default function Forum({
     }
 
     setComposerError('');
+    setUploadProgress({ completed: 0, total: 0, fileName: '' });
     setNewPostImages((currentImages) => [...currentImages, ...Array.from(files)].slice(0, 8));
   };
 
   const handleRemovePostImage = (index: number) => {
+    setUploadProgress({ completed: 0, total: 0, fileName: '' });
     setNewPostImages((currentImages) => currentImages.filter((_, currentIndex) => currentIndex !== index));
   };
+
+  const uploadPercent =
+    uploadProgress.total > 0 ? Math.round((uploadProgress.completed / uploadProgress.total) * 100) : 0;
 
   return (
     <div className="pt-20 pb-24 max-w-lg mx-auto">
@@ -484,24 +499,73 @@ export default function Forum({
                 Add photos
               </label>
               {!!newPostImagePreviews.length && (
-                <div className="mt-3 grid grid-cols-4 gap-2">
-                  {newPostImagePreviews.map((preview, index) => (
-                    <div key={`${preview.name}-${preview.url}`} className="relative aspect-square">
-                      <img
-                        src={preview.url}
-                        alt={preview.name}
-                        className="h-full w-full rounded-xl object-cover"
-                      />
-                      <button
-                        type="button"
-                        aria-label={`Remove ${preview.name}`}
-                        onClick={() => handleRemovePostImage(index)}
-                        className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
+                <>
+                  <div className="mt-3 flex items-center justify-between rounded-xl bg-surface-container-low px-3 py-2 text-xs font-semibold text-on-surface-variant">
+                    <span>{newPostImagePreviews.length} photo{newPostImagePreviews.length === 1 ? '' : 's'} selected</span>
+                    <span>Max 8 MB each</span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-4 gap-2">
+                    {newPostImagePreviews.map((preview, index) => {
+                      const isUploaded = isSubmittingPost && uploadProgress.completed > index;
+                      const isUploading =
+                        isSubmittingPost &&
+                        uploadProgress.completed === index &&
+                        uploadProgress.total === newPostImagePreviews.length;
+
+                      return (
+                        <div key={`${preview.name}-${preview.url}`} className="relative aspect-square">
+                          <img
+                            src={preview.url}
+                            alt={preview.name}
+                            className="h-full w-full rounded-xl object-cover"
+                          />
+                          <div className="absolute inset-x-1 bottom-1 truncate rounded-md bg-black/55 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                            {isUploaded ? 'Uploaded' : isUploading ? 'Uploading' : preview.name}
+                          </div>
+                          {isUploaded && (
+                            <div className="absolute left-1 top-1 rounded-full bg-green-600 text-white">
+                              <CheckCircle2 size={16} />
+                            </div>
+                          )}
+                          {isUploading && (
+                            <div className="absolute left-1 top-1 rounded-full bg-primary p-0.5 text-white">
+                              <LoaderCircle size={14} className="animate-spin" />
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            aria-label={`Remove ${preview.name}`}
+                            disabled={isSubmittingPost}
+                            onClick={() => handleRemovePostImage(index)}
+                            className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm disabled:cursor-not-allowed disabled:bg-outline"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+              {isSubmittingPost && uploadProgress.total > 0 && (
+                <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
+                  <div className="mb-2 flex items-center justify-between text-xs font-bold text-primary">
+                    <span>
+                      Uploading {uploadProgress.completed} of {uploadProgress.total}
+                    </span>
+                    <span>{uploadPercent}%</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-surface-container-high">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${uploadPercent}%` }}
+                    />
+                  </div>
+                  <p className="mt-2 truncate text-xs text-on-surface-variant">
+                    {uploadProgress.completed === uploadProgress.total
+                      ? 'Images uploaded. Creating your post...'
+                      : `Uploading ${uploadProgress.fileName || 'image'}...`}
+                  </p>
                 </div>
               )}
             </div>
@@ -540,7 +604,22 @@ function ForumImageGrid({ imageUrls, compact = false }: { imageUrls?: string[]; 
             src={imageUrl}
             alt={`Forum upload ${index + 1}`}
             className={compact ? 'h-20 w-full object-cover' : 'h-40 w-full object-cover'}
+            onError={(event) => {
+              event.currentTarget.style.display = 'none';
+              const fallback = event.currentTarget.nextElementSibling;
+              fallback?.classList.remove('hidden');
+            }}
           />
+          <a
+            href={imageUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={`hidden items-center justify-center text-center text-[11px] font-bold text-primary underline ${
+              compact ? 'h-20 px-2' : 'h-40 px-4'
+            }`}
+          >
+            Image uploaded, but cannot display. Check Cloudflare public access.
+          </a>
           {compact && index === 2 && imageUrls.length > 3 && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-sm font-bold text-white">
               +{imageUrls.length - 3}

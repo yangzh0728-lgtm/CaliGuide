@@ -319,7 +319,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .upsert({ user_id: currentUser.id, post_id: normalizedPostId }, { onConflict: "user_id,post_id" });
 
         if (error) {
-          throw new Error(error.message);
+          throw new Error(formatSavedForumPostError(error.message));
         }
 
         setCurrentUser({
@@ -341,7 +341,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .eq("post_id", postId);
 
         if (error) {
-          throw new Error(error.message);
+          throw new Error(formatSavedForumPostError(error.message));
         }
 
         setCurrentUser({
@@ -374,6 +374,17 @@ async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"])
     savedGuideIds: savedGuides?.map((savedGuide) => savedGuide.guide_id) ?? [],
     savedPostIds: savedPosts?.map((savedPost) => savedPost.post_id) ?? [],
   });
+}
+
+function formatSavedForumPostError(message: string) {
+  if (
+    message.includes("saved_forum_posts") &&
+    (message.includes("schema cache") || message.includes("does not exist"))
+  ) {
+    return "Saved posts table is not installed. Run supabase/saved-forum-posts.sql in Supabase SQL Editor.";
+  }
+
+  return message;
 }
 
 export function useAuth() {

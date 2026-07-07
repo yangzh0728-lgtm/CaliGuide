@@ -10,6 +10,7 @@ import {
   mapForumPostRows,
   type ForumPostRow,
 } from "./forumSupabase";
+import { isSupabaseUuid } from "./uuid";
 
 type SupabaseSessionClient = SupabaseClient | {
   auth: {
@@ -121,6 +122,10 @@ export async function setForumVoteViaApi(
   userId: string,
   voteType: ForumVoteType | null,
 ) {
+  if (!isSupabaseUuid(targetId)) {
+    return;
+  }
+
   await postForumJson<{ ok: true }>(client, "/api/forum/votes", {
     ...buildForumVoteUpsert(targetType, targetId, userId, voteType ?? "useful"),
     vote_type: voteType,

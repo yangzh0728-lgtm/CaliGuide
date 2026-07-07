@@ -23,6 +23,7 @@ import {
   buildForumPostInsert,
   buildForumVoteUpsert,
 } from "./src/lib/forumSupabase";
+import { isSupabaseUuid } from "./src/lib/uuid";
 
 dotenv.config();
 
@@ -36,7 +37,7 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json({ limit: "12mb" }));
+  app.use(express.json({ limit: "16mb" }));
 
   const apiKey = process.env.API_KEY;
   const appId = process.env.APP_ID;
@@ -269,7 +270,9 @@ async function startServer() {
       );
     } catch (error) {
       console.warn(`[upload:${authResult.user.id}] image upload failed`, error);
-      return res.status(502).json({ error: "Unable to upload image" });
+      return res.status(502).json({
+        error: "Unable to upload image to Cloudflare R2. Check R2 credentials, bucket name, and public URL.",
+      });
     }
 
     void supabaseAdmin
@@ -560,6 +563,9 @@ async function startServer() {
     if (targetId instanceof Error) return res.status(400).json({ error: targetId.message });
     if (voteType !== null && voteType !== "useful" && voteType !== "unuseful") {
       return res.status(400).json({ error: "Vote type is invalid" });
+    }
+    if (!isSupabaseUuid(targetId)) {
+      return res.json({ ok: true });
     }
 
     const deleteResult = await supabaseAdmin

@@ -8,6 +8,7 @@ describe("imageUpload", () => {
       new File(["second"], "second.webp", { type: "image/webp" }),
     ];
     const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const progressEvents: Array<{ completed: number; total: number; fileName: string }> = [];
     const fetcher = async (url: string, init?: RequestInit) => {
       requests.push({ url, init });
       const body = JSON.parse(String(init?.body));
@@ -27,6 +28,7 @@ describe("imageUpload", () => {
       attachedToType: "forum_post",
       attachedToId: "11111111-1111-4111-8111-111111111111",
       fetcher,
+      onProgress: (progress) => progressEvents.push(progress),
     });
 
     expect(uploads.map((upload) => upload.publicUrl)).toEqual([
@@ -35,6 +37,10 @@ describe("imageUpload", () => {
     ]);
     expect(requests).toHaveLength(2);
     expect(requests[0].url).toBe("/api/uploads/image");
+    expect(progressEvents).toEqual([
+      { completed: 1, total: 2, fileName: "first.png" },
+      { completed: 2, total: 2, fileName: "second.webp" },
+    ]);
     expect(requests[0].init?.headers).toEqual({
       Authorization: "Bearer access-token",
       "Content-Type": "application/json",

@@ -117,12 +117,29 @@ export default function ForumDetail({
         {!!discussion.imageUrls?.length && (
           <div className="mt-5 grid grid-cols-2 gap-2">
             {discussion.imageUrls.map((imageUrl, index) => (
-              <img
+              <div
                 key={`${imageUrl}-${index}`}
-                src={imageUrl}
-                alt={`Forum upload ${index + 1}`}
-                className="h-44 w-full rounded-2xl border border-outline-variant object-cover"
-              />
+                className="overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low"
+              >
+                <img
+                  src={imageUrl}
+                  alt={`Forum upload ${index + 1}`}
+                  className="h-44 w-full object-cover"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                    const fallback = event.currentTarget.nextElementSibling;
+                    fallback?.classList.remove("hidden");
+                  }}
+                />
+                <a
+                  href={imageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hidden h-44 items-center justify-center px-4 text-center text-xs font-bold text-primary underline"
+                >
+                  Image uploaded, but cannot display. Check Cloudflare public access.
+                </a>
+              </div>
             ))}
           </div>
         )}

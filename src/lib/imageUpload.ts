@@ -1,4 +1,4 @@
-const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -13,6 +13,7 @@ export interface UploadImagesOptions {
   attachedToType?: "chat" | "forum_post" | "forum_comment";
   attachedToId?: string;
   fetcher?: Fetcher;
+  onProgress?: (progress: { completed: number; total: number; fileName: string }) => void;
 }
 
 export async function uploadImagesToR2(
@@ -63,6 +64,11 @@ export async function uploadImagesToR2(
       objectKey: uploadedImage.objectKey,
       publicUrl: uploadedImage.publicUrl,
     });
+    options.onProgress?.({
+      completed: uploads.length,
+      total: files.length,
+      fileName: file.name,
+    });
   }
 
   return uploads;
@@ -74,7 +80,7 @@ function validateImageFile(file: File) {
   }
 
   if (file.size > MAX_IMAGE_BYTES) {
-    throw new Error("Choose images under 2 MB");
+    throw new Error("Choose images under 8 MB");
   }
 }
 
