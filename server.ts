@@ -219,6 +219,41 @@ async function startServer() {
     });
   });
 
+  app.post("/api/uploads/user-structure", async (req, res) => {
+    if (!supabaseAdmin || !r2Config || !r2Client) {
+      return res.status(500).json({ error: "Supabase and Cloudflare R2 must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const structureObjects = buildUserMediaStructureObjects(authResult.user.id);
+
+    try {
+      await Promise.all(
+        structureObjects.map((item) =>
+          r2Client.send(
+            new PutObjectCommand({
+              Bucket: r2Config.bucketName,
+              Key: item.key,
+              Body: item.body,
+              ContentType: "application/json",
+            }),
+          ),
+        ),
+      );
+    } catch (error) {
+      console.warn(`[upload:${authResult.user.id}] user media structure failed`, error);
+      return res.status(502).json({ error: "Unable to prepare Cloudflare R2 user folders" });
+    }
+
+    res.json({
+      objectKeys: structureObjects.map((item) => item.key),
+    });
+  });
+
   app.post("/api/uploads/file", imageUploadBodyParser, async (req, res) => {
     if (!supabaseAdmin || !r2Config || !r2Client) {
       return res.status(500).json({ error: "Supabase and Cloudflare R2 must be configured" });
@@ -863,6 +898,44 @@ function normalizeAttachedToType(value: unknown, folder: string) {
   }
 
   return "profile";
+}
+
+function buildUserMediaStructureObjects(userId: string) {
+  const safeUserId = sanitizeR2PathPart(userId) || "user";
+  const createdAt = new Date().toISOString();
+
+  return [
+    {
+      key: `assets/users/${safeUserId}/profile/_structure.json`,
+      body: buildStructureBody("profile", "Profile photos for this user.", createdAt),
+    },
+    {
+      key: `assets/users/${safeUserId}/forum/_structure.json`,
+      body: buildStructureBody("forum", "Forum post image folders for this user. Real uploads live under forum/{post_id}/.", createdAt),
+    },
+    {
+      key: `assets/users/${safeUserId}/chat/_structure.json`,
+      body: buildStructureBody("chat", "Images uploaded to CaliBot conversations by this user.", createdAt),
+    },
+  ];
+}
+
+function buildStructureBody(folder: string, purpose: string, createdAt: string) {
+  return JSON.stringify(
+    {
+      system: true,
+      folder,
+      purpose,
+      createdAt,
+      generatedBy: "/api/uploads/user-structure",
+    },
+    null,
+    2,
+  );
+}
+
+function sanitizeR2PathPart(value: string) {
+  return value.replace(/[^a-z0-9-]/gi, "").toLowerCase();
 }
 
 function getHeaderString(value: string | string[] | undefined) {

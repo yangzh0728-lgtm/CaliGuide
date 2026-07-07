@@ -8,6 +8,7 @@ import {
   requiresEmailConfirmationAfterSignUp,
 } from "../lib/supabaseAuth";
 import { supabase } from "../lib/supabaseClient";
+import { ensureUserMediaStructure } from "../lib/userMediaStructure";
 
 interface AuthContextValue {
   currentUser: AuthUser | null;
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.session?.user) {
-        setCurrentUser(await loadAuthUser(data.session.user));
+        setCurrentUser(await loadAuthUserAndEnsureMediaStructure(data.session.user, data.session.access_token));
       } else {
         setCurrentUser(null);
       }
@@ -73,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      void loadAuthUser(session.user).then((user) => {
+      void loadAuthUserAndEnsureMediaStructure(session.user, session.access_token).then((user) => {
         if (isMounted) {
           setCurrentUser(user);
           setIsLoading(false);
@@ -142,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { confirmationRequired: true };
         }
 
-        setCurrentUser(await loadAuthUser(data.user));
+        setCurrentUser(await loadAuthUserAndEnsureMediaStructure(data.user, data.session?.access_token));
         return { confirmationRequired: false };
       },
       login: async (input) => {
@@ -158,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("Unable to sign in");
         }
 
-        setCurrentUser(await loadAuthUser(data.user));
+        setCurrentUser(await loadAuthUserAndEnsureMediaStructure(data.user, data.session?.access_token));
       },
       requestPasswordReset: async (input) => {
         const email = input.email.trim().toLowerCase();
@@ -355,6 +356,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+async function loadAuthUserAndEnsureMediaStructure(
+  user: Parameters<typeof mapSupabaseUser>[0]["user"],
+  accessToken?: string,
+): Promise<AuthUser> {
+  const authUser = await loadAuthUser(user);
+
+  if (accessToken) {
+    void ensureUserMediaStructure(accessToken).catch((error) => {
+      console.warn("Unable to prepare user media folders:", error);
+    });
+  }
+
+  return authUser;
 }
 
 async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"]): Promise<AuthUser> {

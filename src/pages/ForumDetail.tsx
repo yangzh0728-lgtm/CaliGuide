@@ -1,5 +1,17 @@
 import { FormEvent, useState } from "react";
-import { Bookmark, CalendarDays, Eye, MessageSquare, Send, Tag, ThumbsDown, ThumbsUp, Trash2, X } from "lucide-react";
+import {
+  Bookmark,
+  CalendarDays,
+  Eye,
+  Image as ImageIcon,
+  MessageSquare,
+  Send,
+  Tag,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import {
   ForumDiscussion,
@@ -115,33 +127,42 @@ export default function ForumDetail({
         <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{discussion.excerpt}</p>
 
         {!!discussion.imageUrls?.length && (
-          <div className="mt-5 grid grid-cols-2 gap-2">
-            {discussion.imageUrls.map((imageUrl, index) => (
-              <div
-                key={`${imageUrl}-${index}`}
-                className="overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low"
-              >
-                <img
-                  src={imageUrl}
-                  alt={`Forum upload ${index + 1}`}
-                  className="h-44 w-full object-cover"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                    const fallback = event.currentTarget.nextElementSibling;
-                    fallback?.classList.remove("hidden");
-                  }}
-                />
+          <section className="mt-5 rounded-2xl border border-outline-variant bg-white p-3 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-3 px-1">
+              <h2 className="inline-flex items-center gap-2 text-sm font-bold text-on-surface">
+                <ImageIcon size={16} />
+                Attached photos
+              </h2>
+              <span className="rounded-full bg-surface-container-high px-2 py-1 text-[11px] font-bold text-on-surface-variant">
+                {discussion.imageUrls.length}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {discussion.imageUrls.map((imageUrl, index) => (
                 <a
+                  key={`${imageUrl}-${index}`}
                   href={imageUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="hidden h-44 items-center justify-center px-4 text-center text-xs font-bold text-primary underline"
+                  className="group overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low"
                 >
-                  Image uploaded, but cannot display. Check Cloudflare public access.
+                  <img
+                    src={imageUrl}
+                    alt={`Forum upload ${index + 1}`}
+                    className="h-44 w-full object-cover transition-transform group-hover:scale-[1.02]"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                      const fallback = event.currentTarget.nextElementSibling;
+                      fallback?.classList.remove("hidden");
+                    }}
+                  />
+                  <span className="hidden h-44 items-center justify-center px-4 text-center text-xs font-bold text-primary underline">
+                    Image uploaded, but cannot display. Check Cloudflare public access.
+                  </span>
                 </a>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
         )}
 
         <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-on-surface-variant">

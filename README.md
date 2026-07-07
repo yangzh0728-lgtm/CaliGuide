@@ -86,6 +86,12 @@ assets/platform/guide/{guide_id}/{file}
 assets/platform/public/{file}
 ```
 
+When a user signs in, the app also creates lightweight `_structure.json`
+placeholder objects at `assets/users/{user_id}/profile/`,
+`assets/users/{user_id}/forum/`, and `assets/users/{user_id}/chat/` so the
+planned user folders are visible in Cloudflare R2 before that user has uploaded
+media in every area.
+
 The upload signing API accepts these folder values:
 
 - `profile` for user profile photos.
