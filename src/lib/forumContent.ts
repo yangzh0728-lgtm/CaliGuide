@@ -359,6 +359,10 @@ export function filterForumDiscussions(
       discussion.author,
       discussion.category,
       discussion.tags.join(" "),
+      discussion.body.join(" "),
+      discussion.replies
+        .map((reply) => [reply.author, reply.body].join(" "))
+        .join(" "),
     ]
       .join(" ")
       .toLowerCase();

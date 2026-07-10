@@ -1,3 +1,5 @@
+import { resolveApiUrl } from "./apiUrl";
+
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
@@ -16,6 +18,7 @@ export interface UploadImagesOptions {
   resourceId?: string;
   attachedToType?: "chat" | "forum_post" | "forum_comment";
   attachedToId?: string;
+  apiBaseUrl?: string;
   fetcher?: Fetcher;
   onProgress?: (progress: { completed: number; total: number; fileName: string }) => void;
 }
@@ -78,7 +81,7 @@ async function uploadImageThroughBinaryServer(
     headers["X-Attached-To-Id"] = options.attachedToId;
   }
 
-  const uploadResponse = await fetcher("/api/uploads/file", {
+  const uploadResponse = await fetcher(resolveApiUrl("/api/uploads/file", options.apiBaseUrl), {
     method: "POST",
     headers,
     body: file,
@@ -105,7 +108,7 @@ async function uploadImageWithSignedUrl(
   options: UploadImagesOptions,
   fetcher: Fetcher,
 ) {
-  const signResponse = await fetcher("/api/uploads/sign", {
+  const signResponse = await fetcher(resolveApiUrl("/api/uploads/sign", options.apiBaseUrl), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -154,7 +157,7 @@ async function uploadImageThroughServer(
   options: UploadImagesOptions,
   fetcher: Fetcher,
 ) {
-  const uploadResponse = await fetcher("/api/uploads/image", {
+  const uploadResponse = await fetcher(resolveApiUrl("/api/uploads/image", options.apiBaseUrl), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -197,6 +200,10 @@ function validateImageFile(file: File) {
 }
 
 async function readUploadError(response: Response, fallback: string) {
+  if (response.status === 404) {
+    return "Image upload API is not available on this domain. Deploy the Express API or set VITE_API_BASE_URL to the deployed API server.";
+  }
+
   try {
     const body = (await response.json()) as { error?: string };
     return body.error || fallback;

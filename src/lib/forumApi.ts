@@ -10,6 +10,7 @@ import {
   mapForumPostRows,
   type ForumPostRow,
 } from "./forumSupabase";
+import { resolveApiUrl } from "./apiUrl";
 import { isSupabaseUuid } from "./uuid";
 
 type SupabaseSessionClient = SupabaseClient | {
@@ -37,7 +38,7 @@ async function postForumJson<TResponse>(
   body: Record<string, unknown>,
 ): Promise<TResponse> {
   const accessToken = await getAccessToken(client);
-  const response = await fetch(path, {
+  const response = await fetch(resolveApiUrl(path), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,

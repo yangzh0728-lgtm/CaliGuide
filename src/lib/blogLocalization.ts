@@ -471,6 +471,29 @@ export function getRecommendedBlogArticles(language: LanguageCode) {
     .filter((article): article is BlogArticle => Boolean(article));
 }
 
+export function searchLocalizedBlogArticles(language: LanguageCode, searchText: string) {
+  const normalizedSearch = normalizeSearchText(searchText);
+
+  if (!normalizedSearch) {
+    return [];
+  }
+
+  return getLocalizedBlogArticles(language).filter((article) => {
+    const searchableText = normalizeSearchText(
+      [
+        article.title,
+        article.category,
+        article.excerpt,
+        article.tags.join(" "),
+        article.body.join(" "),
+        article.officialLinks?.map((link) => `${link.title} ${link.purpose} ${link.url}`).join(" ") ?? "",
+      ].join(" "),
+    );
+
+    return searchableText.includes(normalizedSearch);
+  });
+}
+
 export function normalizeOfficialContentLanguage(language: LanguageCode): OfficialContentLanguage {
   if (language === "zh-TW" || language === "yue") {
     return "zh-TW";
@@ -494,6 +517,15 @@ function localizeBlogArticle(article: BlogArticle, language: OfficialContentLang
     ...translation,
     officialLinks: localizeOfficialLinks(mergedLinks, language),
   };
+}
+
+function normalizeSearchText(text: string) {
+  return text
+    .trim()
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function withDefaultBody(

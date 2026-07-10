@@ -19,6 +19,10 @@ export async function ensureUserMediaStructure(
     },
   });
 
+  if (response.status === 404) {
+    return { objectKeys: [] };
+  }
+
   if (!response.ok) {
     throw new Error(await readUserMediaStructureError(response));
   }

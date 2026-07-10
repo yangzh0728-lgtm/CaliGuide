@@ -25,6 +25,7 @@ import {
 } from '../lib/chatSupabase';
 import { supabase } from '../lib/supabaseClient';
 import { uploadImagesToR2 } from '../lib/imageUpload';
+import { resolveApiUrl } from '../lib/apiUrl';
 
 export default function Chatbot() {
   const { t } = useLanguage();
@@ -160,7 +161,7 @@ export default function Chatbot() {
     try {
       const requestStartedAt = performance.now();
       let loggedFirstChunk = false;
-      const response = await fetch('/api/chat', {
+      const response = await fetch(resolveApiUrl('/api/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageText, history, userId, imageUrls })

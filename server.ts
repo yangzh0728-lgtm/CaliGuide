@@ -36,11 +36,20 @@ const pendingMemoryByUserId = new Map<string, Array<{ content: string; createdAt
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  const corsAllowedOrigins = buildCorsAllowedOrigins(process.env);
   const imageUploadBodyParser = express.raw({
     type: ["image/png", "image/jpeg", "image/webp", "image/gif"],
     limit: "10mb",
   });
 
+  app.use((req, res, next) => {
+    applyCorsHeaders(req, res, corsAllowedOrigins);
+    if (req.method === "OPTIONS") {
+      res.status(204).end();
+      return;
+    }
+    next();
+  });
   app.use(express.json({ limit: "16mb" }));
 
   const apiKey = process.env.API_KEY;
@@ -843,6 +852,46 @@ async function startServer() {
 }
 
 startServer();
+
+function buildCorsAllowedOrigins(env: NodeJS.ProcessEnv) {
+  const configuredOrigins = (env.CORS_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const appUrl = env.APP_URL?.trim();
+
+  return new Set([
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://caliguide.org",
+    "https://www.caliguide.org",
+    ...(appUrl ? [appUrl.replace(/\/+$/, "")] : []),
+    ...configuredOrigins.map((origin) => origin.replace(/\/+$/, "")),
+  ]);
+}
+
+function applyCorsHeaders(req: express.Request, res: express.Response, allowedOrigins: Set<string>) {
+  const origin = req.headers.origin?.replace(/\/+$/, "");
+  if (!origin || !allowedOrigins.has(origin)) {
+    return;
+  }
+
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    [
+      "Authorization",
+      "Content-Type",
+      "X-Upload-Folder",
+      "X-Resource-Id",
+      "X-Attached-To-Type",
+      "X-Attached-To-Id",
+      "X-Size-Bytes",
+    ].join(", "),
+  );
+}
 
 function rememberPendingUserMemory(userId: string, message: string) {
   const cleanMessage = message.trim();

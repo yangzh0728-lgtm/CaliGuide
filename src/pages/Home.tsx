@@ -1,7 +1,8 @@
+import { useMemo, useState } from 'react';
 import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { getVisibleRecommendedGuides } from '../lib/homeRecommendations';
-import { getLocalizedBlogArticle, getRecommendedBlogArticles } from '../lib/blogLocalization';
+import { getLocalizedBlogArticle, getRecommendedBlogArticles, searchLocalizedBlogArticles } from '../lib/blogLocalization';
 
 interface HomeProps {
   onOpenBlog: (articleId: string) => void;
@@ -10,6 +11,7 @@ interface HomeProps {
 
 export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
   const { language, t } = useLanguage();
+  const [searchText, setSearchText] = useState('');
   const categories = [
     { id: 'category-dmv', icon: Car, label: t('home.dmv'), color: 'bg-blue-100 text-blue-700' },
     { id: 'category-banking', icon: Landmark, label: t('home.banking'), color: 'bg-amber-100 text-amber-700' },
@@ -18,6 +20,11 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
   ];
 
   const recommendedGuides = getVisibleRecommendedGuides(getRecommendedBlogArticles(language), false);
+  const searchResults = useMemo(
+    () => searchLocalizedBlogArticles(language, searchText).slice(0, 6),
+    [language, searchText],
+  );
+  const showSearchResults = searchText.trim().length > 0;
 
   const trendingQuestions = [
     {
@@ -41,11 +48,51 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
         <div className="relative">
           <input 
             type="text" 
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && searchResults[0]) {
+                onOpenBlog(searchResults[0].id);
+              }
+            }}
             placeholder={t('home.search')}
             className="w-full h-14 pl-12 pr-4 bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm"
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
         </div>
+        {showSearchResults && (
+          <div className="mt-3 overflow-hidden rounded-xl border border-outline-variant bg-white shadow-sm">
+            {searchResults.length > 0 ? (
+              searchResults.map((article) => (
+                <button
+                  key={article.id}
+                  type="button"
+                  onClick={() => onOpenBlog(article.id)}
+                  className="flex w-full items-start gap-3 border-b border-outline-variant px-4 py-3 text-left last:border-b-0 hover:bg-surface-container-low"
+                >
+                  <img
+                    src={article.image}
+                    alt={article.title}
+                    className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {article.category}
+                    </span>
+                    <span className="mt-0.5 block text-sm font-bold leading-snug text-on-surface">
+                      {article.title}
+                    </span>
+                    <span className="mt-1 block line-clamp-1 text-xs text-on-surface-variant">
+                      {article.excerpt}
+                    </span>
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="px-4 py-3 text-sm text-on-surface-variant">{t('home.noSearchResults')}</div>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Categories */}

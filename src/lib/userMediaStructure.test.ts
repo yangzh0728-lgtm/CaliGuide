@@ -40,4 +40,12 @@ describe("userMediaStructure", () => {
   it("requires a signed-in user", async () => {
     await expect(ensureUserMediaStructure("")).rejects.toThrow("Sign in required");
   });
+
+  it("treats a missing optional setup route as a no-op", async () => {
+    const result = await ensureUserMediaStructure("access-token", async () => {
+      return new Response("Not Found", { status: 404 });
+    });
+
+    expect(result.objectKeys).toEqual([]);
+  });
 });

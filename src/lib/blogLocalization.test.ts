@@ -5,6 +5,7 @@ import {
   getLocalizedBlogArticles,
   getRecommendedBlogArticles,
   normalizeOfficialContentLanguage,
+  searchLocalizedBlogArticles,
 } from "./blogLocalization";
 import { formatBlogBodyBlock } from "./blogBodyFormat";
 
@@ -93,5 +94,12 @@ describe("blogLocalization", () => {
         expect(blocks.find((block) => block.tone === "checklist")?.listItems.length).toBeGreaterThan(3);
       }
     }
+  });
+
+  it("searches localized guide content across titles, tags, body text, and official links", () => {
+    expect(searchLocalizedBlogArticles("en", "deposit").map((article) => article.id)).toContain("category-housing");
+    expect(searchLocalizedBlogArticles("zh-CN", "押金").map((article) => article.id)).toContain("category-housing");
+    expect(searchLocalizedBlogArticles("es", "licencia").map((article) => article.id)).toContain("guide-1");
+    expect(searchLocalizedBlogArticles("en", "driver handbook").map((article) => article.id)).toContain("guide-1");
   });
 });

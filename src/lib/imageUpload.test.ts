@@ -52,6 +52,33 @@ describe("imageUpload", () => {
     expect(requests[0].init?.body).toBe(files[0]);
   });
 
+  test("uploads through a configured backend API base URL", async () => {
+    const file = new File(["first"], "first.png", { type: "image/png" });
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const fetcher = async (url: string, init?: RequestInit) => {
+      requests.push({ url, init });
+
+      return new Response(
+        JSON.stringify({
+          publicUrl: "https://media.example.com/assets/users/user-1/forum/post-1/first.png",
+          objectKey: "assets/users/user-1/forum/post-1/first.png",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    };
+
+    await uploadImagesToR2([file], "access-token", {
+      folder: "forum",
+      resourceId: "11111111-1111-4111-8111-111111111111",
+      attachedToType: "forum_post",
+      attachedToId: "11111111-1111-4111-8111-111111111111",
+      apiBaseUrl: "https://api.caliguide.org/",
+      fetcher,
+    });
+
+    expect(requests[0].url).toBe("https://api.caliguide.org/api/uploads/file");
+  });
+
   test("falls back to signed R2 upload when binary upload fails", async () => {
     const file = new File(["first"], "first.png", { type: "image/png" });
     const requests: Array<{ url: string; init?: RequestInit }> = [];
@@ -150,6 +177,25 @@ describe("imageUpload", () => {
       resourceId: "11111111-1111-4111-8111-111111111111",
       base64: "Zmlyc3Q=",
     });
+  });
+
+  test("explains when the upload API is not deployed", async () => {
+    const file = new File(["first"], "first.png", { type: "image/png" });
+    const fetcher = async () =>
+      new Response("<!DOCTYPE html><pre>Cannot POST /api/uploads/file</pre>", {
+        status: 404,
+        headers: { "Content-Type": "text/html" },
+      });
+
+    await expect(
+      uploadImagesToR2([file], "access-token", {
+        folder: "forum",
+        resourceId: "11111111-1111-4111-8111-111111111111",
+        attachedToType: "forum_post",
+        attachedToId: "11111111-1111-4111-8111-111111111111",
+        fetcher,
+      }),
+    ).rejects.toThrow("Image upload API is not available");
   });
 
   test("rejects non-image files before uploading", async () => {

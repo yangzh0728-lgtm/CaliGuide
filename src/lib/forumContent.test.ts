@@ -32,6 +32,14 @@ describe("forumContent", () => {
     expect(filterForumDiscussions(FORUM_DISCUSSIONS, "visa", "All Topics").map((post) => post.id)).toEqual([
       "post-4",
     ]);
+
+    expect(filterForumDiscussions(FORUM_DISCUSSIONS, "district boundary lookup", "All Topics").map((post) => post.id)).toEqual([
+      "post-1",
+    ]);
+
+    expect(filterForumDiscussions(FORUM_DISCUSSIONS, "printed copies", "All Topics").map((post) => post.id)).toEqual([
+      "post-2",
+    ]);
   });
 
   it("creates a user discussion with forum detail fields", () => {
