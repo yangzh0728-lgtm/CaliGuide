@@ -86,6 +86,9 @@ describe("supabaseAuth", () => {
     expect(formatSupabaseAuthError({ message: "User already registered" })).toBe(
       "An account with this email already exists",
     );
+    expect(formatSupabaseAuthError({ message: "Database error saving new user" })).toBe(
+      "Account setup is not ready. Run the latest Supabase profile SQL, then try again.",
+    );
   });
 
   it("builds a stable password reset redirect URL for the current app origin", () => {

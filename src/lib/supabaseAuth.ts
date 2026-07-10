@@ -73,9 +73,12 @@ export function mapSupabaseUser(input: {
 }
 
 export function formatSupabaseAuthError(error: { message?: string } | null | undefined) {
-  const message = error?.message ?? "Something went wrong";
+  const message = error?.message?.trim() || "Something went wrong";
   const normalized = message.toLowerCase();
 
+  if (normalized.includes("database error saving new user")) {
+    return "Account setup is not ready. Run the latest Supabase profile SQL, then try again.";
+  }
   if (normalized.includes("invalid login credentials")) {
     return "Email or password is incorrect";
   }

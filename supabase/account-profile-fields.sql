@@ -2,10 +2,21 @@
 -- Run this in Supabase SQL Editor after pulling this update.
 
 alter table public.profiles
+  add column if not exists date_of_birth date,
+  add column if not exists sex text not null default 'prefer_not_to_say',
   add column if not exists nationalities jsonb not null default '[]'::jsonb,
   add column if not exists country_nationality text not null default '',
   add column if not exists current_location text not null default '',
   add column if not exists arrival_status text not null default 'planning';
+
+do $$
+begin
+  alter table public.profiles
+    add constraint profiles_sex_check
+    check (sex in ('male', 'female', 'prefer_not_to_say'));
+exception
+  when duplicate_object then null;
+end $$;
 
 do $$
 begin
