@@ -14,6 +14,7 @@ grant select, insert, delete on table public.saved_guides to authenticated;
 alter table public.profiles
   add column if not exists date_of_birth date,
   add column if not exists sex text not null default 'prefer_not_to_say',
+  add column if not exists nationalities jsonb not null default '[]'::jsonb,
   add column if not exists country_nationality text not null default '',
   add column if not exists current_location text not null default '',
   add column if not exists arrival_status text not null default 'planning';
@@ -52,6 +53,7 @@ begin
     avatar_url,
     date_of_birth,
     sex,
+    nationalities,
     country_nationality,
     current_location,
     arrival_status
@@ -73,6 +75,13 @@ begin
         then new.raw_user_meta_data ->> 'sex'
       else 'prefer_not_to_say'
     end,
+    case
+      when jsonb_typeof(new.raw_user_meta_data -> 'nationalities') = 'array'
+        then new.raw_user_meta_data -> 'nationalities'
+      when nullif(new.raw_user_meta_data ->> 'country_nationality', '') is not null
+        then jsonb_build_array(new.raw_user_meta_data ->> 'country_nationality')
+      else '[]'::jsonb
+    end,
     coalesce(nullif(new.raw_user_meta_data ->> 'country_nationality', ''), ''),
     coalesce(nullif(new.raw_user_meta_data ->> 'current_location', ''), ''),
     case
@@ -87,6 +96,7 @@ begin
     avatar_url = excluded.avatar_url,
     date_of_birth = excluded.date_of_birth,
     sex = excluded.sex,
+    nationalities = excluded.nationalities,
     country_nationality = excluded.country_nationality,
     current_location = excluded.current_location,
     arrival_status = excluded.arrival_status;
@@ -107,6 +117,7 @@ insert into public.profiles (
   avatar_url,
   date_of_birth,
   sex,
+  nationalities,
   country_nationality,
   current_location,
   arrival_status
@@ -128,6 +139,13 @@ select
       then users.raw_user_meta_data ->> 'sex'
     else 'prefer_not_to_say'
   end as sex,
+  case
+    when jsonb_typeof(users.raw_user_meta_data -> 'nationalities') = 'array'
+      then users.raw_user_meta_data -> 'nationalities'
+    when nullif(users.raw_user_meta_data ->> 'country_nationality', '') is not null
+      then jsonb_build_array(users.raw_user_meta_data ->> 'country_nationality')
+    else '[]'::jsonb
+  end as nationalities,
   coalesce(nullif(users.raw_user_meta_data ->> 'country_nationality', ''), '') as country_nationality,
   coalesce(nullif(users.raw_user_meta_data ->> 'current_location', ''), '') as current_location,
   case
@@ -141,6 +159,21 @@ where not exists (
   from public.profiles
   where profiles.id = users.id
 );
+
+update public.profiles
+set nationalities = case
+  when jsonb_typeof(auth_users.raw_user_meta_data -> 'nationalities') = 'array'
+    then auth_users.raw_user_meta_data -> 'nationalities'
+  when jsonb_typeof(profiles.nationalities) = 'array' and jsonb_array_length(profiles.nationalities) > 0
+    then profiles.nationalities
+  when nullif(auth_users.raw_user_meta_data ->> 'country_nationality', '') is not null
+    then jsonb_build_array(auth_users.raw_user_meta_data ->> 'country_nationality')
+  when nullif(profiles.country_nationality, '') is not null
+    then jsonb_build_array(profiles.country_nationality)
+  else '[]'::jsonb
+end
+from auth.users as auth_users
+where profiles.id = auth_users.id;
 
 drop policy if exists "Users read their own profile" on public.profiles;
 create policy "Users read their own profile"

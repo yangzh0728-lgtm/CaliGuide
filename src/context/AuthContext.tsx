@@ -9,6 +9,7 @@ import {
 } from "../lib/supabaseAuth";
 import { supabase } from "../lib/supabaseClient";
 import { ensureUserMediaStructure } from "../lib/userMediaStructure";
+import { formatNationalities, normalizeNationalities } from "../lib/nationalities";
 
 interface AuthContextValue {
   currentUser: AuthUser | null;
@@ -20,7 +21,7 @@ interface AuthContextValue {
     password: string;
     dateOfBirth: string;
     sex: SexOption;
-    countryNationality: string;
+    nationalities: string[];
     currentLocation: string;
     arrivalStatus: ArrivalStatusOption;
   }) => Promise<{ confirmationRequired: boolean }>;
@@ -34,7 +35,7 @@ interface AuthContextValue {
     avatarUrl: string;
     dateOfBirth: string;
     sex: SexOption;
-    countryNationality: string;
+    nationalities: string[];
     currentLocation: string;
     arrivalStatus: ArrivalStatusOption;
   }) => Promise<void>;
@@ -112,7 +113,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const email = input.email.trim().toLowerCase();
         const password = input.password.trim();
         const dateOfBirth = input.dateOfBirth.trim();
-        const countryNationality = input.countryNationality.trim();
+        const nationalities = normalizeNationalities(input.nationalities);
+        const countryNationality = formatNationalities(nationalities);
         const currentLocation = input.currentLocation.trim();
 
         if (!name) {
@@ -130,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (new Date(`${dateOfBirth}T00:00:00.000Z`) > new Date()) {
           throw new Error("Enter a valid date of birth");
         }
-        if (!countryNationality) {
+        if (!nationalities.length) {
           throw new Error("Country / nationality is required");
         }
         if (!currentLocation) {
@@ -147,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               avatar_url: avatarUrl,
               date_of_birth: dateOfBirth,
               sex: input.sex,
+              nationalities,
               country_nationality: countryNationality,
               current_location: currentLocation,
               arrival_status: input.arrivalStatus,
@@ -233,7 +236,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const email = input.email.trim().toLowerCase();
         const avatarUrl = input.avatarUrl.trim();
         const dateOfBirth = input.dateOfBirth.trim();
-        const countryNationality = input.countryNationality.trim();
+        const nationalities = normalizeNationalities(input.nationalities);
+        const countryNationality = formatNationalities(nationalities);
         const currentLocation = input.currentLocation.trim();
 
         if (!name) {
@@ -251,7 +255,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (new Date(`${dateOfBirth}T00:00:00.000Z`) > new Date()) {
           throw new Error("Enter a valid date of birth");
         }
-        if (!countryNationality) {
+        if (!nationalities.length) {
           throw new Error("Country / nationality is required");
         }
         if (!currentLocation) {
@@ -265,6 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             avatar_url: avatarUrl,
             date_of_birth: dateOfBirth,
             sex: input.sex,
+            nationalities,
             country_nationality: countryNationality,
             current_location: currentLocation,
             arrival_status: input.arrivalStatus,
@@ -283,6 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             avatar_url: avatarUrl,
             date_of_birth: dateOfBirth,
             sex: input.sex,
+            nationalities,
             country_nationality: countryNationality,
             current_location: currentLocation,
             arrival_status: input.arrivalStatus,
@@ -437,7 +443,7 @@ async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"])
   const [{ data: profile }, { data: savedGuides }, { data: savedPosts }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id,name,avatar_url,member_since,date_of_birth,sex,country_nationality,current_location,arrival_status")
+      .select("id,name,avatar_url,member_since,date_of_birth,sex,nationalities,country_nationality,current_location,arrival_status")
       .eq("id", user.id)
       .maybeSingle<ProfileRow>(),
     supabase.from("saved_guides").select("guide_id").eq("user_id", user.id),

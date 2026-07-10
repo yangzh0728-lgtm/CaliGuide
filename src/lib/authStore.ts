@@ -1,3 +1,5 @@
+import { formatNationalities, normalizeNationalities } from "./nationalities";
+
 export type SexOption = "male" | "female" | "prefer_not_to_say";
 export type ArrivalStatusOption = "planning" | "arrived" | "long_term_resident";
 
@@ -9,6 +11,7 @@ export interface AuthUser {
   memberSince: string;
   dateOfBirth: string | null;
   sex: SexOption;
+  nationalities: string[];
   countryNationality: string;
   currentLocation: string;
   arrivalStatus: ArrivalStatusOption;
@@ -46,6 +49,7 @@ export function registerUser(
     password: string;
     dateOfBirth?: string;
     sex?: SexOption;
+    nationalities?: string[];
     countryNationality?: string;
     currentLocation?: string;
     arrivalStatus?: ArrivalStatusOption;
@@ -56,7 +60,8 @@ export function registerUser(
   const password = input.password.trim();
   const dateOfBirth = normalizeDateOfBirth(input.dateOfBirth);
   const sex = normalizeSex(input.sex);
-  const countryNationality = normalizeOptionalText(input.countryNationality);
+  const nationalities = normalizeNationalities(input.nationalities, input.countryNationality);
+  const countryNationality = formatNationalities(nationalities);
   const currentLocation = normalizeOptionalText(input.currentLocation);
   const arrivalStatus = normalizeArrivalStatus(input.arrivalStatus);
 
@@ -85,6 +90,7 @@ export function registerUser(
     }),
     dateOfBirth,
     sex,
+    nationalities,
     countryNationality,
     currentLocation,
     arrivalStatus,
@@ -132,6 +138,7 @@ export function updateProfile(
     email?: string;
     dateOfBirth?: string;
     sex?: SexOption;
+    nationalities?: string[];
     countryNationality?: string;
     currentLocation?: string;
     arrivalStatus?: ArrivalStatusOption;
@@ -143,8 +150,11 @@ export function updateProfile(
   const email = input.email === undefined ? currentUser.email : normalizeEmail(input.email);
   const dateOfBirth = input.dateOfBirth === undefined ? currentUser.dateOfBirth : normalizeDateOfBirth(input.dateOfBirth);
   const sex = input.sex === undefined ? currentUser.sex : normalizeSex(input.sex);
-  const countryNationality =
-    input.countryNationality === undefined ? currentUser.countryNationality : normalizeOptionalText(input.countryNationality);
+  const nationalities =
+    input.nationalities === undefined
+      ? normalizeNationalities(currentUser.nationalities, currentUser.countryNationality)
+      : normalizeNationalities(input.nationalities, input.countryNationality);
+  const countryNationality = formatNationalities(nationalities);
   const currentLocation =
     input.currentLocation === undefined ? currentUser.currentLocation : normalizeOptionalText(input.currentLocation);
   const arrivalStatus =
@@ -162,7 +172,7 @@ export function updateProfile(
 
   const users = state.users.map((user) =>
     user.id === currentUser.id
-      ? { ...user, name, email, avatarUrl, dateOfBirth, sex, countryNationality, currentLocation, arrivalStatus }
+      ? { ...user, name, email, avatarUrl, dateOfBirth, sex, nationalities, countryNationality, currentLocation, arrivalStatus }
       : user,
   );
   const updatedUser = users.find((user) => user.id === currentUser.id);
@@ -409,7 +419,8 @@ function publicUser(user: StoredUser): AuthUser {
     memberSince: user.memberSince,
     dateOfBirth: user.dateOfBirth ?? null,
     sex: normalizeSex(user.sex),
-    countryNationality: user.countryNationality ?? "",
+    nationalities: normalizeNationalities(user.nationalities, user.countryNationality),
+    countryNationality: formatNationalities(normalizeNationalities(user.nationalities, user.countryNationality)),
     currentLocation: user.currentLocation ?? "",
     arrivalStatus: normalizeArrivalStatus(user.arrivalStatus),
     savedGuideIds: user.savedGuideIds ?? [],
@@ -422,7 +433,8 @@ function hydrateStoredUser(user: StoredUser): StoredUser {
     ...user,
     dateOfBirth: user.dateOfBirth ?? null,
     sex: normalizeSex(user.sex),
-    countryNationality: user.countryNationality ?? "",
+    nationalities: normalizeNationalities(user.nationalities, user.countryNationality),
+    countryNationality: formatNationalities(normalizeNationalities(user.nationalities, user.countryNationality)),
     currentLocation: user.currentLocation ?? "",
     arrivalStatus: normalizeArrivalStatus(user.arrivalStatus),
     savedGuideIds: Array.isArray(user.savedGuideIds) ? user.savedGuideIds : [],

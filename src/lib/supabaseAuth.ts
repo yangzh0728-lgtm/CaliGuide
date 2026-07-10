@@ -1,4 +1,5 @@
 import { ArrivalStatusOption, AuthUser, createRandomAvatar, SexOption } from "./authStore";
+import { formatNationalities, normalizeNationalities } from "./nationalities";
 
 export interface SupabaseUserLike {
   id: string;
@@ -14,6 +15,7 @@ export interface ProfileRow {
   member_since: string | null;
   date_of_birth: string | null;
   sex: SexOption | null;
+  nationalities?: string[] | null;
   country_nationality: string | null;
   current_location: string | null;
   arrival_status: ArrivalStatusOption | null;
@@ -42,9 +44,16 @@ export function mapSupabaseUser(input: {
     typeof input.user.user_metadata?.country_nationality === "string"
       ? input.user.user_metadata.country_nationality
       : "";
+  const metadataNationalities = normalizeNationalities(
+    input.user.user_metadata?.nationalities,
+    metadataCountryNationality,
+  );
   const metadataCurrentLocation =
     typeof input.user.user_metadata?.current_location === "string" ? input.user.user_metadata.current_location : "";
   const metadataArrivalStatus = normalizeArrivalStatus(input.user.user_metadata?.arrival_status);
+
+  const profileNationalities = normalizeNationalities(input.profile?.nationalities, input.profile?.country_nationality);
+  const nationalities = profileNationalities.length ? profileNationalities : metadataNationalities;
 
   return {
     id: input.user.id,
@@ -54,7 +63,8 @@ export function mapSupabaseUser(input: {
     memberSince: formatMemberSince(memberSinceDate),
     dateOfBirth: input.profile?.date_of_birth ?? metadataDateOfBirth,
     sex: normalizeSex(input.profile?.sex ?? metadataSex),
-    countryNationality: input.profile?.country_nationality ?? metadataCountryNationality,
+    nationalities,
+    countryNationality: formatNationalities(nationalities),
     currentLocation: input.profile?.current_location ?? metadataCurrentLocation,
     arrivalStatus: normalizeArrivalStatus(input.profile?.arrival_status ?? metadataArrivalStatus),
     savedGuideIds: input.savedGuideIds,

@@ -19,7 +19,7 @@ describe("authStore", () => {
       password: "secure123",
       dateOfBirth: "1993-04-12",
       sex: "female",
-      countryNationality: "China",
+      nationalities: ["China", "Canada"],
       currentLocation: "San Jose, CA",
       arrivalStatus: "arrived",
     });
@@ -28,7 +28,8 @@ describe("authStore", () => {
     expect(registered.currentUser?.email).toBe("maya@example.com");
     expect(registered.currentUser?.dateOfBirth).toBe("1993-04-12");
     expect(registered.currentUser?.sex).toBe("female");
-    expect(registered.currentUser?.countryNationality).toBe("China");
+    expect(registered.currentUser?.nationalities).toEqual(["China", "Canada"]);
+    expect(registered.currentUser?.countryNationality).toBe("China, Canada");
     expect(registered.currentUser?.currentLocation).toBe("San Jose, CA");
     expect(registered.currentUser?.arrivalStatus).toBe("arrived");
 
@@ -60,6 +61,7 @@ describe("authStore", () => {
 
     expect(registered.currentUser?.dateOfBirth).toBeNull();
     expect(registered.currentUser?.sex).toBe("prefer_not_to_say");
+    expect(registered.currentUser?.nationalities).toEqual([]);
     expect(registered.currentUser?.countryNationality).toBe("");
     expect(registered.currentUser?.currentLocation).toBe("");
     expect(registered.currentUser?.arrivalStatus).toBe("planning");
@@ -106,6 +108,24 @@ describe("authStore", () => {
 
     expect(updated.currentUser?.name).toBe("Maya C.");
     expect(updated.currentUser?.avatarUrl).toBe("https://example.com/avatar.png");
+  });
+
+  test("updates multiple nationalities from selected country values", () => {
+    const state = registerUser(createAuthState(), {
+      name: "Maya Chen",
+      email: "maya@example.com",
+      password: "secure123",
+      countryNationality: "China",
+    });
+
+    const updated = updateProfile(state, {
+      name: "Maya Chen",
+      avatarUrl: state.currentUser?.avatarUrl ?? "",
+      nationalities: ["China", "Singapore", "China", ""],
+    });
+
+    expect(updated.currentUser?.nationalities).toEqual(["China", "Singapore"]);
+    expect(updated.currentUser?.countryNationality).toBe("China, Singapore");
   });
 
   test("changes password only when the current password matches", () => {

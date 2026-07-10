@@ -13,10 +13,12 @@ import {
   MapPin,
   MessageSquare,
   Plane,
+  Plus,
   Save,
   Settings,
   ThumbsDown,
   ThumbsUp,
+  Trash2,
   UserRound,
   UsersRound,
 } from "lucide-react";
@@ -25,6 +27,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { uploadAvatarToR2 } from "../lib/avatarUpload";
 import { BlogArticle } from "../lib/blogContent";
 import { ArrivalStatusOption, SexOption } from "../lib/authStore";
+import { COUNTRY_OPTIONS } from "../lib/nationalities";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -64,7 +67,7 @@ export default function Profile({
   const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl ?? "");
   const [dateOfBirth, setDateOfBirth] = useState(currentUser?.dateOfBirth ?? "");
   const [sex, setSex] = useState<SexOption>(currentUser?.sex ?? "prefer_not_to_say");
-  const [countryNationality, setCountryNationality] = useState(currentUser?.countryNationality ?? "");
+  const [nationalities, setNationalities] = useState(currentUser?.nationalities?.length ? currentUser.nationalities : [""]);
   const [currentLocation, setCurrentLocation] = useState(currentUser?.currentLocation ?? "");
   const [arrivalStatus, setArrivalStatus] = useState<ArrivalStatusOption>(currentUser?.arrivalStatus ?? "planning");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -92,7 +95,7 @@ export default function Profile({
     setAvatarUrl(currentUser?.avatarUrl ?? "");
     setDateOfBirth(currentUser?.dateOfBirth ?? "");
     setSex(currentUser?.sex ?? "prefer_not_to_say");
-    setCountryNationality(currentUser?.countryNationality ?? "");
+    setNationalities(currentUser?.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser?.currentLocation ?? "");
     setArrivalStatus(currentUser?.arrivalStatus ?? "planning");
   }, [currentUser]);
@@ -139,7 +142,7 @@ export default function Profile({
     setAvatarUrl(currentUser.avatarUrl);
     setDateOfBirth(currentUser.dateOfBirth ?? "");
     setSex(currentUser.sex);
-    setCountryNationality(currentUser.countryNationality);
+    setNationalities(currentUser.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser.currentLocation);
     setArrivalStatus(currentUser.arrivalStatus);
     setCurrentPassword("");
@@ -168,7 +171,7 @@ export default function Profile({
     setAvatarUrl(currentUser.avatarUrl);
     setDateOfBirth(currentUser.dateOfBirth ?? "");
     setSex(currentUser.sex);
-    setCountryNationality(currentUser.countryNationality);
+    setNationalities(currentUser.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser.currentLocation);
     setArrivalStatus(currentUser.arrivalStatus);
     setCurrentPassword("");
@@ -190,7 +193,7 @@ export default function Profile({
         avatarUrl,
         dateOfBirth,
         sex,
-        countryNationality,
+        nationalities,
         currentLocation,
         arrivalStatus,
       });
@@ -346,14 +349,50 @@ export default function Profile({
 
           <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.countryNationality")}</span>
-            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
-              <Flag size={18} className="text-on-surface-variant" />
-              <input
-                value={countryNationality}
-                onChange={(event) => setCountryNationality(event.target.value)}
-                placeholder={t("auth.countryNationalityPlaceholder")}
-                className="w-full bg-transparent py-3 text-sm outline-none"
-              />
+            <div className="mt-2 space-y-2">
+              {nationalities.map((nationality, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary"
+                >
+                  <Flag size={18} className="text-on-surface-variant" />
+                  <select
+                    value={nationality}
+                    onChange={(event) =>
+                      setNationalities((current) =>
+                        current.map((item, itemIndex) => (itemIndex === index ? event.target.value : item)),
+                      )
+                    }
+                    required={index === 0}
+                    className="w-full bg-transparent py-3 text-sm outline-none"
+                  >
+                    <option value="">{t("auth.countryNationalityPlaceholder")}</option>
+                    {COUNTRY_OPTIONS.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                  {nationalities.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setNationalities((current) => current.filter((_, itemIndex) => itemIndex !== index))}
+                      className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container-high"
+                      aria-label={t("auth.removeNationality")}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setNationalities((current) => [...current, ""])}
+                className="inline-flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-2 text-sm font-bold text-primary hover:bg-surface-container-high"
+              >
+                <Plus size={16} />
+                {t("auth.addNationality")}
+              </button>
             </div>
           </label>
 

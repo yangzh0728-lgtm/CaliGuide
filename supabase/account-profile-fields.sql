@@ -2,6 +2,7 @@
 -- Run this in Supabase SQL Editor after pulling this update.
 
 alter table public.profiles
+  add column if not exists nationalities jsonb not null default '[]'::jsonb,
   add column if not exists country_nationality text not null default '',
   add column if not exists current_location text not null default '',
   add column if not exists arrival_status text not null default 'planning';
@@ -28,6 +29,7 @@ begin
     avatar_url,
     date_of_birth,
     sex,
+    nationalities,
     country_nationality,
     current_location,
     arrival_status
@@ -49,6 +51,13 @@ begin
         then new.raw_user_meta_data ->> 'sex'
       else 'prefer_not_to_say'
     end,
+    case
+      when jsonb_typeof(new.raw_user_meta_data -> 'nationalities') = 'array'
+        then new.raw_user_meta_data -> 'nationalities'
+      when nullif(new.raw_user_meta_data ->> 'country_nationality', '') is not null
+        then jsonb_build_array(new.raw_user_meta_data ->> 'country_nationality')
+      else '[]'::jsonb
+    end,
     coalesce(nullif(new.raw_user_meta_data ->> 'country_nationality', ''), ''),
     coalesce(nullif(new.raw_user_meta_data ->> 'current_location', ''), ''),
     case
@@ -63,6 +72,7 @@ begin
     avatar_url = excluded.avatar_url,
     date_of_birth = excluded.date_of_birth,
     sex = excluded.sex,
+    nationalities = excluded.nationalities,
     country_nationality = excluded.country_nationality,
     current_location = excluded.current_location,
     arrival_status = excluded.arrival_status;
@@ -73,6 +83,17 @@ $$;
 
 update public.profiles
 set
+  nationalities = case
+    when jsonb_typeof(auth_users.raw_user_meta_data -> 'nationalities') = 'array'
+      then auth_users.raw_user_meta_data -> 'nationalities'
+    when jsonb_typeof(profiles.nationalities) = 'array' and jsonb_array_length(profiles.nationalities) > 0
+      then profiles.nationalities
+    when nullif(auth_users.raw_user_meta_data ->> 'country_nationality', '') is not null
+      then jsonb_build_array(auth_users.raw_user_meta_data ->> 'country_nationality')
+    when nullif(profiles.country_nationality, '') is not null
+      then jsonb_build_array(profiles.country_nationality)
+    else '[]'::jsonb
+  end,
   country_nationality = coalesce(nullif(auth_users.raw_user_meta_data ->> 'country_nationality', ''), profiles.country_nationality, ''),
   current_location = coalesce(nullif(auth_users.raw_user_meta_data ->> 'current_location', ''), profiles.current_location, ''),
   arrival_status = case

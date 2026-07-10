@@ -23,6 +23,7 @@ describe("supabaseAuth", () => {
         date_of_birth: "1993-04-12",
         sex: "female",
         country_nationality: "China",
+        nationalities: ["China", "Canada"],
         current_location: "San Jose, CA",
         arrival_status: "arrived",
       },
@@ -38,7 +39,8 @@ describe("supabaseAuth", () => {
       memberSince: "July 2026",
       dateOfBirth: "1993-04-12",
       sex: "female",
-      countryNationality: "China",
+      nationalities: ["China", "Canada"],
+      countryNationality: "China, Canada",
       currentLocation: "San Jose, CA",
       arrivalStatus: "arrived",
       savedGuideIds: ["guide-1"],
@@ -57,6 +59,7 @@ describe("supabaseAuth", () => {
           date_of_birth: "1990-01-01",
           sex: "male",
           country_nationality: "Mexico",
+          nationalities: ["Mexico", "Spain"],
           current_location: "Los Angeles, CA",
           arrival_status: "planning",
         },
@@ -69,7 +72,8 @@ describe("supabaseAuth", () => {
     expect(user.name).toBe("No Profile");
     expect(user.dateOfBirth).toBe("1990-01-01");
     expect(user.sex).toBe("male");
-    expect(user.countryNationality).toBe("Mexico");
+    expect(user.nationalities).toEqual(["Mexico", "Spain"]);
+    expect(user.countryNationality).toBe("Mexico, Spain");
     expect(user.currentLocation).toBe("Los Angeles, CA");
     expect(user.arrivalStatus).toBe("planning");
     expect(user.avatarUrl).toStartWith("data:image/svg+xml");

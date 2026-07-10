@@ -1,9 +1,10 @@
 import { FormEvent, useState } from "react";
-import { CalendarDays, Flag, KeyRound, LockKeyhole, LogIn, Mail, MapPin, Plane, UserPlus, UsersRound } from "lucide-react";
+import { CalendarDays, Flag, KeyRound, LockKeyhole, LogIn, Mail, MapPin, Plane, Plus, Trash2, UserPlus, UsersRound } from "lucide-react";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { ArrivalStatusOption, SexOption } from "../lib/authStore";
+import { COUNTRY_OPTIONS } from "../lib/nationalities";
 
 export default function AuthPage() {
   const { isPasswordRecovery, login, register, requestPasswordReset, resetRecoveredPassword } = useAuth();
@@ -12,7 +13,7 @@ export default function AuthPage() {
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [sex, setSex] = useState<SexOption>("prefer_not_to_say");
-  const [countryNationality, setCountryNationality] = useState("");
+  const [nationalities, setNationalities] = useState([""]);
   const [currentLocation, setCurrentLocation] = useState("");
   const [arrivalStatus, setArrivalStatus] = useState<ArrivalStatusOption>("planning");
   const [email, setEmail] = useState("");
@@ -46,7 +47,7 @@ export default function AuthPage() {
           password,
           dateOfBirth,
           sex,
-          countryNationality,
+          nationalities,
           currentLocation,
           arrivalStatus,
         });
@@ -181,15 +182,50 @@ export default function AuthPage() {
 
               <label className="block">
                 <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.countryNationality")}</span>
-                <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
-                  <Flag size={18} className="text-on-surface-variant" />
-                  <input
-                    value={countryNationality}
-                    onChange={(event) => setCountryNationality(event.target.value)}
-                    required={isRegistering}
-                    className="w-full py-3 bg-transparent outline-none text-sm"
-                    placeholder={t("auth.countryNationalityPlaceholder")}
-                  />
+                <div className="mt-2 space-y-2">
+                  {nationalities.map((nationality, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary"
+                    >
+                      <Flag size={18} className="text-on-surface-variant" />
+                      <select
+                        value={nationality}
+                        onChange={(event) =>
+                          setNationalities((current) =>
+                            current.map((item, itemIndex) => (itemIndex === index ? event.target.value : item)),
+                          )
+                        }
+                        required={isRegistering && index === 0}
+                        className="w-full py-3 bg-transparent outline-none text-sm"
+                      >
+                        <option value="">{t("auth.countryNationalityPlaceholder")}</option>
+                        {COUNTRY_OPTIONS.map((country) => (
+                          <option key={country} value={country}>
+                            {country}
+                          </option>
+                        ))}
+                      </select>
+                      {nationalities.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setNationalities((current) => current.filter((_, itemIndex) => itemIndex !== index))}
+                          className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container-high"
+                          aria-label={t("auth.removeNationality")}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setNationalities((current) => [...current, ""])}
+                    className="inline-flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-2 text-sm font-bold text-primary hover:bg-surface-container-high"
+                  >
+                    <Plus size={16} />
+                    {t("auth.addNationality")}
+                  </button>
                 </div>
               </label>
 
