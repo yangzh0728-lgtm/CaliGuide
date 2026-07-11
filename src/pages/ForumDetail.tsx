@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   Bookmark,
   CalendarDays,
@@ -55,8 +55,24 @@ export default function ForumDetail({
 }: ForumDetailProps) {
   const { t } = useLanguage();
   const [commentBody, setCommentBody] = useState("");
+  const [previewImage, setPreviewImage] = useState<{ url: string; index: number } | null>(null);
   const commentCount = getForumReplyCount(discussion);
   const canSubmitComment = commentBody.trim().length > 0;
+
+  useEffect(() => {
+    if (!previewImage) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setPreviewImage(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [previewImage]);
 
   const handleCommentSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -139,12 +155,12 @@ export default function ForumDetail({
             </div>
             <div className="grid grid-cols-2 gap-2">
               {discussion.imageUrls.map((imageUrl, index) => (
-                <a
+                <button
                   key={`${imageUrl}-${index}`}
-                  href={imageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low"
+                  type="button"
+                  aria-label={`Preview forum upload ${index + 1}`}
+                  onClick={() => setPreviewImage({ url: imageUrl, index })}
+                  className="group overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low text-left"
                 >
                   <img
                     src={imageUrl}
@@ -159,7 +175,7 @@ export default function ForumDetail({
                   <span className="hidden h-44 items-center justify-center px-4 text-center text-xs font-bold text-primary underline">
                     Image uploaded, but cannot display. Check Cloudflare public access.
                   </span>
-                </a>
+                </button>
               ))}
             </div>
           </section>
@@ -276,6 +292,31 @@ export default function ForumDetail({
           ))}
         </div>
       </section>
+      {previewImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Forum upload ${previewImage.index + 1} preview`}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-h-full w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              aria-label="Close image preview"
+              onClick={() => setPreviewImage(null)}
+              className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-on-surface shadow-lg transition-colors hover:bg-white"
+            >
+              <X size={20} />
+            </button>
+            <img
+              src={previewImage.url}
+              alt={`Forum upload ${previewImage.index + 1} enlarged preview`}
+              className="mx-auto max-h-[82vh] w-full rounded-2xl object-contain shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </article>
   );
 }
