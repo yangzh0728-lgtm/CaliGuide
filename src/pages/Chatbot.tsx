@@ -26,6 +26,7 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { uploadImagesWithInlineFallback } from '../lib/imageUpload';
 import { resolveApiUrl } from '../lib/apiUrl';
+import { readChatResponseError } from '../lib/chatClient';
 
 export default function Chatbot() {
   const { t } = useLanguage();
@@ -168,8 +169,7 @@ export default function Chatbot() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || t('chatbot.error'));
+        throw new Error(await readChatResponseError(response, t('chatbot.error')));
       }
 
       if (!response.body) {
@@ -240,6 +240,7 @@ export default function Chatbot() {
       }
     } catch (error) {
       console.error("Chat Error:", error);
+      setUploadError(getErrorMessage(error));
       const finalBotMessage = {
         ...botMessage,
         content: t('chatbot.error'),
@@ -489,8 +490,11 @@ export default function Chatbot() {
           )}
           {!!selectedImagePreviews.length && (
             <div className="mb-2 rounded-2xl border border-outline-variant bg-white p-2 shadow-sm">
-              <div className="mb-2 flex items-center justify-between px-1 text-[11px] font-semibold text-on-surface-variant">
-                <span>{selectedImagePreviews.length} image{selectedImagePreviews.length === 1 ? '' : 's'} selected</span>
+              <div
+                aria-live="polite"
+                className="mb-2 flex items-center justify-between px-1 text-[11px] font-semibold text-on-surface-variant"
+              >
+                <span>{selectedImagePreviews.length} image{selectedImagePreviews.length === 1 ? '' : 's'} ready to send</span>
                 <span>Max 8 MB each</span>
               </div>
               <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -570,15 +574,21 @@ export default function Chatbot() {
               type="button"
               aria-label="Upload images"
               onClick={() => fileInputRef.current?.click()}
-              className="text-on-surface-variant p-2 hover:bg-surface-container-high rounded-full transition-colors"
+              className="relative inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-2 text-on-surface-variant transition-colors hover:bg-surface-container-high"
             >
-              <ImagePlus size={24} />
+              <ImagePlus size={22} />
+              <span className="hidden text-[11px] font-bold min-[380px]:inline">Photos</span>
+              {!!selectedImages.length && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary-container px-1 text-[10px] font-bold text-on-secondary-container shadow-sm">
+                  {selectedImages.length}
+                </span>
+              )}
             </button>
             <input 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-grow bg-transparent border-none focus:ring-0 text-sm py-2 px-1" 
+              className="min-w-0 flex-grow bg-transparent border-none focus:ring-0 text-sm py-2 px-1"
               placeholder={t('chatbot.placeholder')} 
               type="text"
             />

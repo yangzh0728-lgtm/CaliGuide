@@ -1,5 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { CHAT_MAX_TOKENS, SYSTEM_PROMPT, buildChatCompletionRequest } from "./chatServer";
+import {
+  CHAT_MAX_TOKENS,
+  DEFAULT_CHAT_VISION_MODEL,
+  SYSTEM_PROMPT,
+  buildChatCompletionRequest,
+} from "./chatServer";
 
 describe("chatServer", () => {
   it("builds a bounded streaming request for fast default replies", () => {
@@ -67,7 +72,6 @@ describe("chatServer", () => {
     expect(request.messages.at(-1)).toEqual({
       role: "user",
       content: [
-        { type: "text", text: "Can you read these documents?" },
         {
           type: "image_url",
           image_url: { url: "https://cdn.example.com/assets/users/user-1/chat/a.png" },
@@ -76,7 +80,18 @@ describe("chatServer", () => {
           type: "image_url",
           image_url: { url: "https://cdn.example.com/assets/users/user-1/chat/b.png" },
         },
+        { type: "text", text: "Can you read these documents?" },
       ],
     });
+  });
+
+  it("uses the supported default vision model when an image message has no override", () => {
+    const request = buildChatCompletionRequest({
+      model: "deepseek-v4-flash",
+      message: "What is in this image?",
+      imageUrls: ["data:image/png;base64,aGVsbG8="],
+    });
+
+    expect(request.model).toBe(DEFAULT_CHAT_VISION_MODEL);
   });
 });

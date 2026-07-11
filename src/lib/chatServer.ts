@@ -1,4 +1,5 @@
 export const CHAT_MAX_TOKENS = 360;
+export const DEFAULT_CHAT_VISION_MODEL = "ernie-4.5-turbo-vl";
 
 export const SYSTEM_PROMPT =
   "You are CaliBot, a professional immigration assistant for California. You help users with visa status, document preparation, and legal guidance. Be helpful, concise, and professional. Default to answers under 180 words unless the user asks for more detail. Remind users to consult a qualified immigration attorney for legal decisions.";
@@ -54,9 +55,10 @@ export function buildChatCompletionRequest({
   imageUrls?: string[];
 }) {
   const cleanImageUrls = imageUrls?.filter((url) => typeof url === "string" && url.trim()) ?? [];
+  const activeVisionModel = visionModel?.trim() || DEFAULT_CHAT_VISION_MODEL;
 
   return {
-    model: cleanImageUrls.length && visionModel?.trim() ? visionModel.trim() : model,
+    model: cleanImageUrls.length ? activeVisionModel : model,
     messages: toChatMessages(message, history, memoryContext, cleanImageUrls),
     stream: true as const,
     max_tokens: CHAT_MAX_TOKENS,
@@ -80,10 +82,10 @@ function buildMessageContent(content: string, imageUrls: string[] = []): string 
   }
 
   return [
-    { type: "text", text: content },
     ...cleanImageUrls.map((url) => ({
       type: "image_url" as const,
       image_url: { url },
     })),
+    { type: "text", text: content },
   ];
 }
