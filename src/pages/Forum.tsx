@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   ArrowRight,
   Briefcase,
@@ -89,7 +89,6 @@ export default function Forum({
   const [composerError, setComposerError] = useState('');
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0, fileName: '' });
-  const postImagesInputRef = useRef<HTMLInputElement | null>(null);
   const newPostImagePreviews = useMemo(
     () => newPostImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
     [newPostImages],
@@ -481,26 +480,27 @@ export default function Forum({
 
             <div className="mb-5">
               <span className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-primary">Images</span>
-              <input
-                id="forum-post-images"
-                ref={postImagesInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                multiple
-                className="hidden"
-                onChange={(event) => {
-                  handleSelectPostImages(event.target.files);
-                  event.currentTarget.value = '';
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => postImagesInputRef.current?.click()}
-                className="flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
+              <label
+                htmlFor="forum-post-images"
+                className="relative flex h-16 w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
               >
-                <ImagePlus size={17} />
-                Upload photos
-              </button>
+                <input
+                  id="forum-post-images"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  multiple
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                  aria-label="Upload forum post photos"
+                  onChange={(event) => {
+                    handleSelectPostImages(event.target.files);
+                    event.currentTarget.value = '';
+                  }}
+                />
+                <span className="pointer-events-none flex items-center gap-2">
+                  <ImagePlus size={18} />
+                  Choose photos
+                </span>
+              </label>
               <p className="mt-2 text-xs leading-5 text-on-surface-variant">
                 Add up to 8 photos. Previews appear here before you post.
               </p>
