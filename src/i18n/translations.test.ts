@@ -10,6 +10,13 @@ describe("translations", () => {
     expect(translate("es", "home.noSearchResults")).toBe("No se encontraron guías");
   });
 
+  it("translates sign-out confirmation copy", () => {
+    expect(translate("en", "profile.signOutConfirmTitle")).toBe("Sign out?");
+    expect(translate("zh-CN", "profile.confirmSignOut")).toBe("确认退出");
+    expect(translate("zh-TW", "profile.cancelSignOut")).toBe("取消");
+    expect(translate("es", "profile.signOutConfirmBody")).toBe("Tendrás que iniciar sesión de nuevo para acceder a guías, publicaciones y configuración guardadas.");
+  });
+
   it("recognizes supported language codes", () => {
     expect(isLanguageCode("en")).toBe(true);
     expect(isLanguageCode("zh-CN")).toBe(true);

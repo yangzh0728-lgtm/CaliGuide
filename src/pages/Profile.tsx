@@ -76,6 +76,7 @@ export default function Profile({
   const [passwordMessage, setPasswordMessage] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [isSignOutConfirmOpen, setIsSignOutConfirmOpen] = useState(false);
   const savedArticles = useMemo(
     () => articles.filter((article) => currentUser?.savedGuideIds.includes(article.id)),
     [articles, currentUser?.savedGuideIds],
@@ -243,6 +244,23 @@ export default function Profile({
       setPasswordMessage(error instanceof Error ? error.message : "Unable to change password");
     } finally {
       setIsSavingPassword(false);
+    }
+  };
+
+  const requestSignOut = () => {
+    setProfileMessage("");
+    setIsSignOutConfirmOpen(true);
+  };
+
+  const confirmSignOut = async () => {
+    setProfileMessage("");
+
+    try {
+      await logout();
+      setIsSignOutConfirmOpen(false);
+    } catch (error) {
+      setProfileMessage(error instanceof Error ? error.message : "Unable to sign out");
+      setIsSignOutConfirmOpen(false);
     }
   };
 
@@ -613,53 +631,99 @@ export default function Profile({
   }
 
   return (
-    <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
-      <section className="flex flex-col items-center mb-8 pt-4">
-        <div className="mb-4">
-          <img
-            alt={currentUser.name}
-            className="w-28 h-28 rounded-full border-4 border-white shadow-xl object-cover bg-surface-container-high"
-            src={currentUser.avatarUrl}
-          />
-        </div>
-        <h2 className="text-2xl font-bold text-on-surface">{currentUser.name}</h2>
-        <p className="text-sm font-medium text-on-surface-variant mt-1">{currentUser.email}</p>
-        <p className="text-xs font-medium text-on-surface-variant mt-1">
-          {t("profile.memberSince")} {currentUser.memberSince}
-        </p>
-      </section>
+    <>
+      <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
+        <section className="flex flex-col items-center mb-8 pt-4">
+          <div className="mb-4">
+            <img
+              alt={currentUser.name}
+              className="w-28 h-28 rounded-full border-4 border-white shadow-xl object-cover bg-surface-container-high"
+              src={currentUser.avatarUrl}
+            />
+          </div>
+          <h2 className="text-2xl font-bold text-on-surface">{currentUser.name}</h2>
+          <p className="text-sm font-medium text-on-surface-variant mt-1">{currentUser.email}</p>
+          <p className="text-xs font-medium text-on-surface-variant mt-1">
+            {t("profile.memberSince")} {currentUser.memberSince}
+          </p>
+        </section>
 
-      <div className="space-y-3">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => openProfilePanel(item.id as ProfileView)}
-            className="w-full bg-white border border-outline-variant rounded-2xl p-4 flex items-center justify-between hover:bg-surface-container-low transition-all cursor-pointer shadow-sm group text-left"
-          >
-            <div className="flex items-center gap-4">
-              <div className={`${item.color} p-3 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110`}>
-                <item.icon size={22} fill={item.filled ? "currentColor" : "none"} />
+        <div className="space-y-3">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => openProfilePanel(item.id as ProfileView)}
+              className="w-full bg-white border border-outline-variant rounded-2xl p-4 flex items-center justify-between hover:bg-surface-container-low transition-all cursor-pointer shadow-sm group text-left"
+            >
+              <div className="flex items-center gap-4">
+                <div className={`${item.color} p-3 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110`}>
+                  <item.icon size={22} fill={item.filled ? "currentColor" : "none"} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">{item.title}</h3>
+                  <p className="text-xs text-on-surface-variant">{item.desc}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">{item.title}</h3>
-                <p className="text-xs text-on-surface-variant">{item.desc}</p>
-              </div>
-            </div>
-            <ChevronRight size={20} className="text-outline group-hover:translate-x-1 transition-transform" />
-          </button>
-        ))}
+              <ChevronRight size={20} className="text-outline group-hover:translate-x-1 transition-transform" />
+            </button>
+          ))}
 
-        <div className="mt-8 pt-8 border-t border-outline-variant">
-          <button
-            onClick={logout}
-            className="w-full flex items-center justify-center gap-3 p-4 text-error font-bold rounded-2xl border border-error/20 bg-error/5 hover:bg-error/10 transition-colors"
-          >
-            <LogOut size={20} />
-            {t("profile.signOut")}
-          </button>
+          <div className="mt-8 pt-8 border-t border-outline-variant">
+            <button
+              onClick={requestSignOut}
+              className="w-full flex items-center justify-center gap-3 p-4 text-error font-bold rounded-2xl border border-error/20 bg-error/5 hover:bg-error/10 transition-colors"
+            >
+              <LogOut size={20} />
+              {t("profile.signOut")}
+            </button>
+            {profileMessage && (
+              <p className="mt-3 rounded-xl bg-error/10 px-4 py-3 text-sm font-bold text-error">{profileMessage}</p>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {isSignOutConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" role="presentation">
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sign-out-confirm-title"
+            className="w-full max-w-sm rounded-2xl border border-outline-variant bg-white p-5 shadow-2xl"
+          >
+            <div className="mb-4 flex items-start gap-3">
+              <div className="rounded-xl bg-error/10 p-3 text-error">
+                <LogOut size={22} />
+              </div>
+              <div>
+                <h3 id="sign-out-confirm-title" className="text-xl font-bold text-on-surface">
+                  {t("profile.signOutConfirmTitle")}
+                </h3>
+                <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                  {t("profile.signOutConfirmBody")}
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsSignOutConfirmOpen(false)}
+                className="rounded-xl border border-outline-variant px-4 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-surface-container-low"
+              >
+                {t("profile.cancelSignOut")}
+              </button>
+              <button
+                type="button"
+                onClick={confirmSignOut}
+                className="rounded-xl bg-error px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+              >
+                {t("profile.confirmSignOut")}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </>
   );
 }
 
