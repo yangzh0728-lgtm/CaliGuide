@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { CalendarDays, Flag, KeyRound, LockKeyhole, LogIn, Mail, MapPin, Plane, Plus, Trash2, UserPlus, UsersRound } from "lucide-react";
+import { CalendarDays, Chrome, Flag, KeyRound, LockKeyhole, LogIn, Mail, MapPin, Plane, Plus, Trash2, UserPlus, UsersRound } from "lucide-react";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -7,9 +7,10 @@ import { ArrivalStatusOption, SexOption } from "../lib/authStore";
 import { COUNTRY_OPTIONS } from "../lib/nationalities";
 
 export default function AuthPage() {
-  const { isPasswordRecovery, login, register, requestPasswordReset, resetRecoveredPassword } = useAuth();
+  const { isPasswordRecovery, login, loginWithGoogle, register, requestPasswordReset, resetRecoveredPassword } = useAuth();
   const { t } = useLanguage();
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const [registerMethod, setRegisterMethod] = useState<"email" | "google" | null>(null);
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [sex, setSex] = useState<SexOption>("prefer_not_to_say");
@@ -25,6 +26,11 @@ export default function AuthPage() {
   const isRegistering = mode === "register";
   const isForgotPassword = mode === "forgot";
   const isResettingPassword = isPasswordRecovery;
+  const isChoosingRegisterMethod = isRegistering && !registerMethod;
+  const showRegistrationProfile = isRegistering && !!registerMethod && !isResettingPassword;
+  const showEmailField =
+    !isResettingPassword && (!isRegistering || registerMethod === "email" || isForgotPassword);
+  const showPasswordField = !isForgotPassword && (!isRegistering || registerMethod === "email" || isResettingPassword);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,6 +47,20 @@ export default function AuthPage() {
         await requestPasswordReset({ email });
         setNotice(t("auth.resetEmailSentNotice"));
       } else if (isRegistering) {
+        if (registerMethod === "google") {
+          await loginWithGoogle({
+            name,
+            dateOfBirth,
+            sex,
+            nationalities,
+            currentLocation,
+            arrivalStatus,
+          });
+          return;
+        }
+        if (registerMethod !== "email") {
+          throw new Error(t("auth.chooseSignUpMethod"));
+        }
         const result = await register({
           name,
           email,
@@ -64,6 +84,24 @@ export default function AuthPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    setNotice("");
+    setIsSubmitting(true);
+
+    try {
+      await loginWithGoogle();
+    } catch (authError) {
+      setError(authError instanceof Error ? authError.message : t("auth.genericError"));
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetFeedback = () => {
+    setError("");
+    setNotice("");
   };
 
   return (
@@ -109,8 +147,8 @@ export default function AuthPage() {
                 type="button"
                 onClick={() => {
                   setMode("login");
-                  setError("");
-                  setNotice("");
+                  setRegisterMethod(null);
+                  resetFeedback();
                 }}
                 className={`py-2.5 rounded-lg text-sm font-bold transition-colors ${
                   !isRegistering && !isForgotPassword ? "bg-white text-primary shadow-sm" : "text-on-surface-variant"
@@ -122,8 +160,8 @@ export default function AuthPage() {
                 type="button"
                 onClick={() => {
                   setMode("register");
-                  setError("");
-                  setNotice("");
+                  setRegisterMethod(null);
+                  resetFeedback();
                 }}
                 className={`py-2.5 rounded-lg text-sm font-bold transition-colors ${
                   isRegistering ? "bg-white text-primary shadow-sm" : "text-on-surface-variant"
@@ -134,8 +172,65 @@ export default function AuthPage() {
             </div>
           )}
 
-          {isRegistering && !isResettingPassword && (
+          {isChoosingRegisterMethod && (
+            <section className="space-y-3">
+              <p className="text-sm font-semibold text-on-surface-variant">{t("auth.chooseSignUpMethod")}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setRegisterMethod("email");
+                  resetFeedback();
+                }}
+                className="flex w-full items-center gap-3 rounded-2xl border border-outline-variant bg-white p-4 text-left transition-colors hover:border-primary hover:bg-surface-container-low"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-container-low text-primary">
+                  <Mail size={22} />
+                </span>
+                <span>
+                  <span className="block text-sm font-bold text-on-surface">{t("auth.signUpWithEmail")}</span>
+                  <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                    {t("auth.emailRegisterNotice")}
+                  </span>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRegisterMethod("google");
+                  resetFeedback();
+                }}
+                className="flex w-full items-center gap-3 rounded-2xl border border-outline-variant bg-white p-4 text-left transition-colors hover:border-primary hover:bg-surface-container-low"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-container-low text-primary">
+                  <Chrome size={22} />
+                </span>
+                <span>
+                  <span className="block text-sm font-bold text-on-surface">{t("auth.signUpWithGoogle")}</span>
+                  <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                    {t("auth.googleRegisterNotice")}
+                  </span>
+                </span>
+              </button>
+            </section>
+          )}
+
+          {showRegistrationProfile && (
             <>
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-surface-container-low px-3 py-2">
+                <p className="text-xs font-bold text-on-surface-variant">
+                  {registerMethod === "google" ? t("auth.signUpWithGoogle") : t("auth.signUpWithEmail")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRegisterMethod(null);
+                    resetFeedback();
+                  }}
+                  className="text-xs font-bold text-primary hover:underline"
+                >
+                  {t("auth.backToSignUpOptions")}
+                </button>
+              </div>
               <label className="block">
                 <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.name")}</span>
                 <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
@@ -261,7 +356,19 @@ export default function AuthPage() {
             </>
           )}
 
-          {!isResettingPassword && (
+          {!isRegistering && !isForgotPassword && !isResettingPassword && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleGoogleLogin}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-outline-variant bg-white py-3 text-sm font-bold text-on-surface transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Chrome size={18} />
+              {t("auth.continueWithGoogle")}
+            </button>
+          )}
+
+          {showEmailField && (
             <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.email")}</span>
             <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
@@ -277,7 +384,7 @@ export default function AuthPage() {
             </label>
           )}
 
-          {!isForgotPassword && (
+          {showPasswordField && (
             <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">
               {isResettingPassword ? t("auth.newPassword") : t("auth.password")}
@@ -309,6 +416,7 @@ export default function AuthPage() {
 
           <button
             disabled={isSubmitting}
+            hidden={isChoosingRegisterMethod}
             className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting
@@ -318,7 +426,9 @@ export default function AuthPage() {
                 : isForgotPassword
                   ? t("auth.sendResetEmail")
                   : isRegistering
-                    ? t("auth.submitRegister")
+                    ? registerMethod === "google"
+                      ? t("auth.continueWithGoogle")
+                      : t("auth.submitRegister")
                     : t("auth.login")}
           </button>
 

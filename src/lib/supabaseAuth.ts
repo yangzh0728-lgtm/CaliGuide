@@ -97,6 +97,24 @@ export function buildPasswordResetRedirectUrl(currentUrl: string) {
   return `${url.origin}/?password-recovery=1`;
 }
 
+export function buildOAuthRedirectUrl(currentUrl: string) {
+  const url = new URL(currentUrl);
+  return url.origin;
+}
+
+export function hasCompleteCaliGuideProfile(user: AuthUser) {
+  return Boolean(
+    user.name.trim() &&
+      user.email.trim() &&
+      user.dateOfBirth &&
+      user.nationalities.length &&
+      user.currentLocation.trim() &&
+      (user.arrivalStatus === "planning" ||
+        user.arrivalStatus === "arrived" ||
+        user.arrivalStatus === "long_term_resident"),
+  );
+}
+
 export function requiresEmailConfirmationAfterSignUp(data: SignUpResultLike) {
   return !data.session;
 }

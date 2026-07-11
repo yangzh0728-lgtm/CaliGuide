@@ -1,7 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import {
+  buildOAuthRedirectUrl,
   buildPasswordResetRedirectUrl,
   formatSupabaseAuthError,
+  hasCompleteCaliGuideProfile,
   mapSupabaseUser,
   requiresEmailConfirmationAfterSignUp,
 } from "./supabaseAuth";
@@ -95,6 +97,50 @@ describe("supabaseAuth", () => {
     expect(buildPasswordResetRedirectUrl("http://localhost:3000/profile?tab=settings")).toBe(
       "http://localhost:3000/?password-recovery=1",
     );
+  });
+
+  it("builds a stable OAuth redirect URL for the current app origin", () => {
+    expect(buildOAuthRedirectUrl("https://www.caliguide.org/forum?post=1")).toBe(
+      "https://www.caliguide.org",
+    );
+  });
+
+  it("detects when CaliGuide profile fields are complete", () => {
+    expect(
+      hasCompleteCaliGuideProfile({
+        id: "user-1",
+        name: "Maya Chen",
+        email: "maya@example.com",
+        avatarUrl: "data:image/svg+xml",
+        memberSince: "July 2026",
+        dateOfBirth: "1993-04-12",
+        sex: "female",
+        nationalities: ["China", "Canada"],
+        countryNationality: "China, Canada",
+        currentLocation: "San Jose, CA",
+        arrivalStatus: "arrived",
+        savedGuideIds: [],
+        savedPostIds: [],
+      }),
+    ).toBe(true);
+
+    expect(
+      hasCompleteCaliGuideProfile({
+        id: "user-1",
+        name: "Google User",
+        email: "google@example.com",
+        avatarUrl: "https://example.com/avatar.png",
+        memberSince: "July 2026",
+        dateOfBirth: null,
+        sex: "prefer_not_to_say",
+        nationalities: [],
+        countryNationality: "",
+        currentLocation: "",
+        arrivalStatus: "planning",
+        savedGuideIds: [],
+        savedPostIds: [],
+      }),
+    ).toBe(false);
   });
 
   it("detects when sign up requires email confirmation before profile writes", () => {

@@ -1,8 +1,10 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { ArrivalStatusOption, AuthUser, createRandomAvatar, SexOption } from "../lib/authStore";
 import {
+  buildOAuthRedirectUrl,
   buildPasswordResetRedirectUrl,
   formatSupabaseAuthError,
+  hasCompleteCaliGuideProfile,
   mapSupabaseUser,
   ProfileRow,
   requiresEmailConfirmationAfterSignUp,
@@ -11,21 +13,25 @@ import { supabase } from "../lib/supabaseClient";
 import { ensureUserMediaStructure } from "../lib/userMediaStructure";
 import { formatNationalities, normalizeNationalities } from "../lib/nationalities";
 
+type RegistrationProfileInput = {
+  name: string;
+  dateOfBirth: string;
+  sex: SexOption;
+  nationalities: string[];
+  currentLocation: string;
+  arrivalStatus: ArrivalStatusOption;
+};
+
 interface AuthContextValue {
   currentUser: AuthUser | null;
   isLoading: boolean;
   isPasswordRecovery: boolean;
-  register: (input: {
-    name: string;
+  register: (input: RegistrationProfileInput & {
     email: string;
     password: string;
-    dateOfBirth: string;
-    sex: SexOption;
-    nationalities: string[];
-    currentLocation: string;
-    arrivalStatus: ArrivalStatusOption;
   }) => Promise<{ confirmationRequired: boolean }>;
   login: (input: { email: string; password: string }) => Promise<void>;
+  loginWithGoogle: (input?: RegistrationProfileInput) => Promise<void>;
   requestPasswordReset: (input: { email: string }) => Promise<void>;
   resetRecoveredPassword: (input: { newPassword: string }) => Promise<void>;
   logout: () => Promise<void>;
@@ -49,6 +55,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const GOOGLE_PROFILE_DRAFT_STORAGE_KEY = "caliguide-google-profile-draft";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -186,6 +193,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         setCurrentUser(await loadAuthUserAndEnsureMediaStructure(data.user, data.session?.access_token));
+      },
+      loginWithGoogle: async (input) => {
+        if (input) {
+          const profileDraft = validateRegistrationProfileInput(input);
+          saveGoogleProfileDraft(profileDraft);
+        }
+
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: buildOAuthRedirectUrl(window.location.href),
+            queryParams: {
+              prompt: "select_account",
+            },
+          },
+        });
+
+        if (error) {
+          throw new Error(formatSupabaseAuthError(error));
+        }
       },
       requestPasswordReset: async (input) => {
         const email = input.email.trim().toLowerCase();
@@ -428,7 +455,20 @@ async function loadAuthUserAndEnsureMediaStructure(
   user: Parameters<typeof mapSupabaseUser>[0]["user"],
   accessToken?: string,
 ): Promise<AuthUser> {
-  const authUser = await loadAuthUser(user);
+  let authUser = await loadAuthUser(user);
+  const pendingGoogleProfile = readGoogleProfileDraft();
+
+  if (pendingGoogleProfile && !hasCompleteCaliGuideProfile(authUser)) {
+    try {
+      await applyGoogleProfileDraft(user, pendingGoogleProfile);
+      clearGoogleProfileDraft();
+      authUser = await loadAuthUser(user);
+    } catch (error) {
+      console.warn("Unable to apply Google profile draft:", error);
+    }
+  } else if (pendingGoogleProfile) {
+    clearGoogleProfileDraft();
+  }
 
   if (accessToken) {
     void ensureUserMediaStructure(accessToken).catch((error) => {
@@ -437,6 +477,153 @@ async function loadAuthUserAndEnsureMediaStructure(
   }
 
   return authUser;
+}
+
+function validateRegistrationProfileInput(input: RegistrationProfileInput): RegistrationProfileInput {
+  const name = input.name.trim();
+  const dateOfBirth = input.dateOfBirth.trim();
+  const nationalities = normalizeNationalities(input.nationalities);
+  const currentLocation = input.currentLocation.trim();
+
+  if (!name) {
+    throw new Error("Name is required");
+  }
+  if (!dateOfBirth || Number.isNaN(new Date(`${dateOfBirth}T00:00:00.000Z`).getTime())) {
+    throw new Error("Enter a valid date of birth");
+  }
+  if (new Date(`${dateOfBirth}T00:00:00.000Z`) > new Date()) {
+    throw new Error("Enter a valid date of birth");
+  }
+  if (!nationalities.length) {
+    throw new Error("Country / nationality is required");
+  }
+  if (!currentLocation) {
+    throw new Error("Current state/city is required");
+  }
+
+  return {
+    name,
+    dateOfBirth,
+    sex: input.sex,
+    nationalities,
+    currentLocation,
+    arrivalStatus: input.arrivalStatus,
+  };
+}
+
+function saveGoogleProfileDraft(input: RegistrationProfileInput) {
+  window.localStorage.setItem(
+    GOOGLE_PROFILE_DRAFT_STORAGE_KEY,
+    JSON.stringify({ ...input, savedAt: new Date().toISOString() }),
+  );
+}
+
+function readGoogleProfileDraft(): RegistrationProfileInput | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawDraft = window.localStorage.getItem(GOOGLE_PROFILE_DRAFT_STORAGE_KEY);
+  if (!rawDraft) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(rawDraft) as Partial<RegistrationProfileInput> & { savedAt?: string };
+    const savedAt = parsed.savedAt ? new Date(parsed.savedAt).getTime() : 0;
+    const isFresh = savedAt > Date.now() - 30 * 60 * 1000;
+
+    if (!isFresh) {
+      clearGoogleProfileDraft();
+      return null;
+    }
+
+    return validateRegistrationProfileInput({
+      name: String(parsed.name ?? ""),
+      dateOfBirth: String(parsed.dateOfBirth ?? ""),
+      sex: parsed.sex === "male" || parsed.sex === "female" ? parsed.sex : "prefer_not_to_say",
+      nationalities: Array.isArray(parsed.nationalities) ? parsed.nationalities.map(String) : [],
+      currentLocation: String(parsed.currentLocation ?? ""),
+      arrivalStatus:
+        parsed.arrivalStatus === "arrived" || parsed.arrivalStatus === "long_term_resident"
+          ? parsed.arrivalStatus
+          : "planning",
+    });
+  } catch {
+    clearGoogleProfileDraft();
+    return null;
+  }
+}
+
+function clearGoogleProfileDraft() {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(GOOGLE_PROFILE_DRAFT_STORAGE_KEY);
+  }
+}
+
+async function applyGoogleProfileDraft(
+  user: Parameters<typeof mapSupabaseUser>[0]["user"],
+  input: RegistrationProfileInput,
+) {
+  const nationalities = normalizeNationalities(input.nationalities);
+  const countryNationality = formatNationalities(nationalities);
+  const metadataAvatar =
+    typeof user.user_metadata?.avatar_url === "string"
+      ? user.user_metadata.avatar_url
+      : typeof user.user_metadata?.picture === "string"
+        ? user.user_metadata.picture
+        : createRandomAvatar(input.name);
+
+  const profileValues = {
+    name: input.name,
+    avatar_url: metadataAvatar,
+    date_of_birth: input.dateOfBirth,
+    sex: input.sex,
+    nationalities,
+    country_nationality: countryNationality,
+    current_location: input.currentLocation,
+    arrival_status: input.arrivalStatus,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: updatedProfile, error: profileError } = await supabase
+    .from("profiles")
+    .update(profileValues)
+    .eq("id", user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
+  if (!updatedProfile) {
+    const { error: insertError } = await supabase.from("profiles").insert({
+      id: user.id,
+      ...profileValues,
+    });
+
+    if (insertError) {
+      throw new Error(insertError.message);
+    }
+  }
+
+  const { error: userError } = await supabase.auth.updateUser({
+    data: {
+      name: input.name,
+      avatar_url: metadataAvatar,
+      date_of_birth: input.dateOfBirth,
+      sex: input.sex,
+      nationalities,
+      country_nationality: countryNationality,
+      current_location: input.currentLocation,
+      arrival_status: input.arrivalStatus,
+    },
+  });
+
+  if (userError) {
+    throw new Error(formatSupabaseAuthError(userError));
+  }
 }
 
 async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"]): Promise<AuthUser> {
