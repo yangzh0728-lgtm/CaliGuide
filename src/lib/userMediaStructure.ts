@@ -1,18 +1,34 @@
+import { getConfiguredApiBaseUrl, isProductionBuild, resolveApiUrl } from "./apiUrl";
+
 type Fetcher = (url: string, init?: RequestInit) => Promise<Response>;
 
 export interface UserMediaStructureResult {
   objectKeys: string[];
 }
 
+export interface UserMediaStructureOptions {
+  apiBaseUrl?: string;
+  fetcher?: Fetcher;
+  isProduction?: boolean;
+}
+
 export async function ensureUserMediaStructure(
   accessToken: string,
-  fetcher: Fetcher = fetch,
+  options: Fetcher | UserMediaStructureOptions = fetch,
 ): Promise<UserMediaStructureResult> {
   if (!accessToken) {
     throw new Error("Sign in required");
   }
 
-  const response = await fetcher("/api/uploads/user-structure", {
+  const fetcher = typeof options === "function" ? options : options.fetcher ?? fetch;
+  const apiBaseUrl = typeof options === "function" ? getConfiguredApiBaseUrl() : options.apiBaseUrl ?? getConfiguredApiBaseUrl();
+  const isProduction = typeof options === "function" ? isProductionBuild() : options.isProduction ?? isProductionBuild();
+
+  if (isProduction && !apiBaseUrl) {
+    return { objectKeys: [] };
+  }
+
+  const response = await fetcher(resolveApiUrl("/api/uploads/user-structure", apiBaseUrl), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,

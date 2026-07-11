@@ -1,6 +1,7 @@
 type ViteImportMeta = ImportMeta & {
   env?: {
     VITE_API_BASE_URL?: string;
+    PROD?: boolean;
   };
 };
 
@@ -17,4 +18,8 @@ export function resolveApiUrl(path: string, apiBaseUrl = getConfiguredApiBaseUrl
   }
 
   return `${normalizedBaseUrl}${normalizedPath}`;
+}
+
+export function isProductionBuild() {
+  return Boolean((import.meta as ViteImportMeta).env?.PROD);
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   ArrowRight,
   Briefcase,
@@ -89,6 +89,7 @@ export default function Forum({
   const [composerError, setComposerError] = useState('');
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0, fileName: '' });
+  const postImagesInputRef = useRef<HTMLInputElement | null>(null);
   const newPostImagePreviews = useMemo(
     () => newPostImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
     [newPostImages],
@@ -422,10 +423,10 @@ export default function Forum({
       </button>
 
       {isComposerOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-4 sm:items-center sm:pb-0">
+        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-black/40 px-4 py-4 sm:items-center">
           <form
             onSubmit={handleCreatePost}
-            className="w-full max-w-lg rounded-2xl border border-outline-variant bg-white p-5 shadow-2xl"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-outline-variant bg-white p-5 shadow-2xl"
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
@@ -482,6 +483,7 @@ export default function Forum({
               <span className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-primary">Images</span>
               <input
                 id="forum-post-images"
+                ref={postImagesInputRef}
                 type="file"
                 accept="image/png,image/jpeg,image/webp,image/gif"
                 multiple
@@ -491,13 +493,22 @@ export default function Forum({
                   event.currentTarget.value = '';
                 }}
               />
-              <label
-                htmlFor="forum-post-images"
-                className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-outline-variant bg-surface-container-low text-sm font-bold text-primary transition-colors hover:bg-surface-container-high"
+              <button
+                type="button"
+                onClick={() => postImagesInputRef.current?.click()}
+                className="flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
               >
                 <ImagePlus size={17} />
-                Add photos
-              </label>
+                Upload photos
+              </button>
+              <p className="mt-2 text-xs leading-5 text-on-surface-variant">
+                Add up to 8 photos. Previews appear here before you post.
+              </p>
+              {!newPostImagePreviews.length && (
+                <div className="mt-3 rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2 text-xs font-semibold text-on-surface-variant">
+                  No photos selected yet.
+                </div>
+              )}
               {!!newPostImagePreviews.length && (
                 <>
                   <div className="mt-3 flex items-center justify-between rounded-xl bg-surface-container-low px-3 py-2 text-xs font-semibold text-on-surface-variant">

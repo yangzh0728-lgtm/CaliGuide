@@ -48,4 +48,38 @@ describe("userMediaStructure", () => {
 
     expect(result.objectKeys).toEqual([]);
   });
+
+  it("skips optional folder setup for static production frontends without an API base URL", async () => {
+    let calls = 0;
+
+    const result = await ensureUserMediaStructure("access-token", {
+      apiBaseUrl: "",
+      isProduction: true,
+      fetcher: async () => {
+        calls += 1;
+        return new Response(null, { status: 200 });
+      },
+    });
+
+    expect(calls).toBe(0);
+    expect(result.objectKeys).toEqual([]);
+  });
+
+  it("uses the configured backend API base URL for folder setup", async () => {
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+
+    await ensureUserMediaStructure("access-token", {
+      apiBaseUrl: "https://api.caliguide.org/",
+      isProduction: true,
+      fetcher: async (url, init) => {
+        requests.push({ url, init });
+        return new Response(JSON.stringify({ objectKeys: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      },
+    });
+
+    expect(requests[0]?.url).toBe("https://api.caliguide.org/api/uploads/user-structure");
+  });
 });
