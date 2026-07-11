@@ -37,7 +37,8 @@ import {
   isUnusefulByUser,
   isUsefulByUser,
 } from '../lib/forumContent';
-import { uploadImagesToR2 } from '../lib/imageUpload';
+import { mergeForumPostImageSelection } from '../lib/forumImageSelection';
+import { filesToInlineImageUploads, isMissingUploadApiError, uploadImagesToR2 } from '../lib/imageUpload';
 import { supabase } from '../lib/supabaseClient';
 
 interface ForumProps {
@@ -150,6 +151,18 @@ export default function Forum({
         attachedToType: 'forum_post',
         attachedToId: postId,
         onProgress: (progress) => setUploadProgress(progress),
+      }).catch(async (error) => {
+        if (!isMissingUploadApiError(error)) {
+          throw error;
+        }
+
+        const inlineUploads = await filesToInlineImageUploads(newPostImages);
+        setUploadProgress({
+          completed: inlineUploads.length,
+          total: inlineUploads.length,
+          fileName: inlineUploads.at(-1)?.objectKey.replace(/^inline:/, '') ?? '',
+        });
+        return inlineUploads;
       });
 
       const discussion = createForumDiscussion({
@@ -183,7 +196,7 @@ export default function Forum({
 
     setComposerError('');
     setUploadProgress({ completed: 0, total: 0, fileName: '' });
-    setNewPostImages((currentImages) => [...currentImages, ...Array.from(files)].slice(0, 8));
+    setNewPostImages((currentImages) => mergeForumPostImageSelection(currentImages, files));
   };
 
   const handleRemovePostImage = (index: number) => {
@@ -480,8 +493,7 @@ export default function Forum({
 
             <div className="mb-5">
               <span className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-primary">Images</span>
-              <label
-                htmlFor="forum-post-images"
+              <div
                 className="relative flex h-16 w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
               >
                 <input
@@ -489,18 +501,20 @@ export default function Forum({
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif"
                   multiple
-                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
                   aria-label="Upload forum post photos"
+                  onClick={(event) => {
+                    event.currentTarget.value = '';
+                  }}
                   onChange={(event) => {
                     handleSelectPostImages(event.target.files);
-                    event.currentTarget.value = '';
                   }}
                 />
                 <span className="pointer-events-none flex items-center gap-2">
                   <ImagePlus size={18} />
                   Choose photos
                 </span>
-              </label>
+              </div>
               <p className="mt-2 text-xs leading-5 text-on-surface-variant">
                 Add up to 8 photos. Previews appear here before you post.
               </p>

@@ -58,6 +58,21 @@ export async function uploadImagesToR2(
   return uploads;
 }
 
+export async function filesToInlineImageUploads(files: File[]): Promise<UploadedImage[]> {
+  files.forEach(validateImageFile);
+
+  return Promise.all(
+    files.map(async (file) => ({
+      objectKey: `inline:${file.name}`,
+      publicUrl: await fileToDataUrl(file),
+    })),
+  );
+}
+
+export function isMissingUploadApiError(error: unknown) {
+  return error instanceof Error && error.message.includes("Image upload API is not available on this domain");
+}
+
 async function uploadImageThroughBinaryServer(
   file: File,
   accessToken: string,
@@ -222,4 +237,8 @@ async function fileToBase64(file: File) {
   }
 
   return btoa(binary);
+}
+
+async function fileToDataUrl(file: File) {
+  return `data:${file.type};base64,${await fileToBase64(file)}`;
 }

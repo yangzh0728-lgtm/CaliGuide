@@ -2,6 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import {
   buildForumCommentInsert,
   buildForumPostInsert,
+  createForumPostInSupabase,
   buildForumVoteUpsert,
   deleteForumCommentInSupabase,
   deleteForumPostInSupabase,
@@ -79,8 +80,16 @@ export async function createForumPostViaApi(
   client: SupabaseSessionClient,
   input: Parameters<typeof buildForumPostInsert>[0],
 ) {
-  const payload = await postForumJson<{ post: ForumPostRow }>(client, "/api/forum/posts", input);
-  return mapForumPostRows([{ ...payload.post, comments: [], votes: [], comment_votes: [] }])[0];
+  try {
+    const payload = await postForumJson<{ post: ForumPostRow }>(client, "/api/forum/posts", input);
+    return mapForumPostRows([{ ...payload.post, comments: [], votes: [], comment_votes: [] }])[0];
+  } catch (error) {
+    if (isMissingForumPostRoute(error) && hasSupabaseTableClient(client)) {
+      return createForumPostInSupabase(client, input);
+    }
+
+    throw error;
+  }
 }
 
 export async function createForumCommentViaApi(
@@ -142,6 +151,17 @@ function isMissingForumDeleteRoute(error: unknown) {
     error.message.includes("Forum sync failed with HTTP 404") &&
     (error.message.includes("Cannot POST /api/forum/posts/delete") ||
       error.message.includes("Cannot POST /api/forum/comments/delete"))
+  );
+}
+
+function isMissingForumPostRoute(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return (
+    error.message.includes("Forum sync failed with HTTP 404") &&
+    error.message.includes("Cannot POST /api/forum/posts")
   );
 }
 

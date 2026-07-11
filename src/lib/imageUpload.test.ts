@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { uploadImagesToR2 } from "./imageUpload";
+import { filesToInlineImageUploads, isMissingUploadApiError, uploadImagesToR2 } from "./imageUpload";
 
 describe("imageUpload", () => {
   test("uploads multiple images through the same-origin binary upload API", async () => {
@@ -196,6 +196,24 @@ describe("imageUpload", () => {
         fetcher,
       }),
     ).rejects.toThrow("Image upload API is not available");
+  });
+
+  test("converts images to inline URLs for static deployments without upload APIs", async () => {
+    const uploads = await filesToInlineImageUploads([
+      new File(["first"], "first.png", { type: "image/png" }),
+    ]);
+
+    expect(uploads).toEqual([
+      {
+        objectKey: "inline:first.png",
+        publicUrl: "data:image/png;base64,Zmlyc3Q=",
+      },
+    ]);
+  });
+
+  test("detects the missing upload API fallback error", () => {
+    expect(isMissingUploadApiError(new Error("Image upload API is not available on this domain."))).toBe(true);
+    expect(isMissingUploadApiError(new Error("Choose image files only"))).toBe(false);
   });
 
   test("rejects non-image files before uploading", async () => {

@@ -68,6 +68,60 @@ describe("forumApi", () => {
     });
   });
 
+  it("creates forum posts directly in Supabase when the server API route is missing", async () => {
+    let insertedRow: Record<string, unknown> | null = null;
+    globalThis.fetch = (async () =>
+      new Response("<!DOCTYPE html><pre>Cannot POST /api/forum/posts</pre>", {
+        status: 404,
+        headers: { "Content-Type": "text/html" },
+      })) as typeof fetch;
+
+    const discussion = await createForumPostViaApi(
+      {
+        auth: {
+          getSession: async () => ({
+            data: { session: { access_token: "access-token" } },
+            error: null,
+          }),
+        },
+        from: (table: string) => {
+          expect(table).toBe("forum_posts");
+          return {
+            insert: (row: Record<string, unknown>) => {
+              insertedRow = row;
+              return {
+                select: () => ({
+                  single: async () => ({
+                    data: {
+                      ...row,
+                      id: "11111111-1111-4111-8111-111111111111",
+                      view_count: 0,
+                      created_at: "2026-07-04T09:00:00.000Z",
+                    },
+                    error: null,
+                  }),
+                }),
+              };
+            },
+          };
+        },
+      } as any,
+      {
+        id: "11111111-1111-4111-8111-111111111111",
+        userId: "user-1",
+        author: "Sam Y",
+        avatar: "SY",
+        category: "Housing",
+        title: "test",
+        body: "test",
+        imageUrls: ["data:image/png;base64,Zmlyc3Q="],
+      },
+    );
+
+    expect(insertedRow?.image_urls).toEqual(["data:image/png;base64,Zmlyc3Q="]);
+    expect(discussion.imageUrls).toEqual(["data:image/png;base64,Zmlyc3Q="]);
+  });
+
   it("surfaces server API errors", async () => {
     globalThis.fetch = (async () =>
       new Response(JSON.stringify({ error: "forum_posts schema is missing user_id" }), {
