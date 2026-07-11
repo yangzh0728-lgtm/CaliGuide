@@ -29,6 +29,7 @@ dotenv.config();
 
 const QIANFAN_BASE_URL = "https://qianfan.baidubce.com/v2";
 const CHAT_MODEL = process.env.CHAT_MODEL?.trim() || "deepseek-v4-flash";
+const CHAT_VISION_MODEL = process.env.CHAT_VISION_MODEL?.trim() || "";
 const PENDING_MEMORY_TTL_MS = 10 * 60 * 1000;
 
 const pendingMemoryByUserId = new Map<string, Array<{ content: string; createdAt: number }>>();
@@ -764,14 +765,18 @@ async function startServer() {
         .join("\n\n");
       const chatRequest = buildChatCompletionRequest({
         model: CHAT_MODEL,
+        visionModel: CHAT_VISION_MODEL,
         message,
         history: Array.isArray(history) ? history : [],
         memoryContext,
         imageUrls,
       });
+      const activeChatModel = chatRequest.model;
       console.log(
-        `[chat:${requestId}] start model=${CHAT_MODEL} user=${memoryUserId} messageChars=${message.length} images=${imageUrls.length} history=${chatRequest.messages.length - 2} memories=${memories.length} pending=${pendingMemoryContext ? 1 : 0}`,
+        `[chat:${requestId}] start model=${activeChatModel} user=${memoryUserId} messageChars=${message.length} images=${imageUrls.length} history=${chatRequest.messages.length - 2} memories=${memories.length} pending=${pendingMemoryContext ? 1 : 0}`,
       );
+
+      const stream = await aiClient.chat.completions.create(chatRequest);
 
       res.writeHead(200, {
         "Content-Type": "text/plain; charset=utf-8",
@@ -780,8 +785,6 @@ async function startServer() {
         "X-Accel-Buffering": "no",
       });
       res.flushHeaders?.();
-
-      const stream = await aiClient.chat.completions.create(chatRequest);
 
       let firstTokenAt: number | null = null;
       let chunks = 0;

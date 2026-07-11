@@ -69,6 +69,31 @@ export async function filesToInlineImageUploads(files: File[]): Promise<Uploaded
   );
 }
 
+export async function uploadImagesWithInlineFallback(
+  files: File[],
+  accessToken: string,
+  options: UploadImagesOptions,
+): Promise<UploadedImage[]> {
+  try {
+    return await uploadImagesToR2(files, accessToken, options);
+  } catch (error) {
+    if (!isRecoverableImageUploadError(error)) {
+      throw error;
+    }
+
+    const inlineUploads = await filesToInlineImageUploads(files);
+    if (inlineUploads.length) {
+      options.onProgress?.({
+        completed: inlineUploads.length,
+        total: inlineUploads.length,
+        fileName: inlineUploads.at(-1)?.objectKey.replace(/^inline:/, "") ?? "",
+      });
+    }
+
+    return inlineUploads;
+  }
+}
+
 export function isMissingUploadApiError(error: unknown) {
   return error instanceof Error && error.message.includes("Image upload API is not available on this domain");
 }

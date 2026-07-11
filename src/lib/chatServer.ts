@@ -40,20 +40,24 @@ export function toChatMessages(
 
 export function buildChatCompletionRequest({
   model,
+  visionModel,
   message,
   history,
   memoryContext,
   imageUrls,
 }: {
   model: string;
+  visionModel?: string;
   message: string;
   history?: ChatHistoryMessage[];
   memoryContext?: string;
   imageUrls?: string[];
 }) {
+  const cleanImageUrls = imageUrls?.filter((url) => typeof url === "string" && url.trim()) ?? [];
+
   return {
-    model,
-    messages: toChatMessages(message, history, memoryContext, imageUrls),
+    model: cleanImageUrls.length && visionModel?.trim() ? visionModel.trim() : model,
+    messages: toChatMessages(message, history, memoryContext, cleanImageUrls),
     stream: true as const,
     max_tokens: CHAT_MAX_TOKENS,
     temperature: 0.2,

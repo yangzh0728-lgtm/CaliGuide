@@ -55,6 +55,7 @@ describe("chatServer", () => {
   it("sends uploaded image URLs as multimodal user content", () => {
     const request = buildChatCompletionRequest({
       model: "deepseek-v4-flash",
+      visionModel: "qwen-vl-plus",
       message: "Can you read these documents?",
       imageUrls: [
         "https://cdn.example.com/assets/users/user-1/chat/a.png",
@@ -62,6 +63,7 @@ describe("chatServer", () => {
       ],
     });
 
+    expect(request.model).toBe("qwen-vl-plus");
     expect(request.messages.at(-1)).toEqual({
       role: "user",
       content: [

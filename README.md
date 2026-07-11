@@ -39,6 +39,8 @@ View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c
 
    `CHAT_MODEL` is optional. Leave it blank to use the server default, or set it to a model such as `deepseek-v4-flash`.
 
+   `CHAT_VISION_MODEL` is used only when a chatbot message includes images. Set it to a vision-capable model from the same OpenAI-compatible provider, for example `qwen-vl-plus`. If it is blank, image messages use `CHAT_MODEL`, which may fail when the text model does not support image input.
+
    `MEM0_API_KEY` is optional. Add it to enable user-level long-term memory through mem0. Without it, CaliBot still streams replies, but it will not remember user facts across sessions.
 
    The app will still start without a key, but `/api/chat` returns an error until the key is configured.

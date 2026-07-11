@@ -24,7 +24,7 @@ import {
   fetchChatUserMemoryFromSupabase,
 } from '../lib/chatSupabase';
 import { supabase } from '../lib/supabaseClient';
-import { uploadImagesToR2 } from '../lib/imageUpload';
+import { uploadImagesWithInlineFallback } from '../lib/imageUpload';
 import { resolveApiUrl } from '../lib/apiUrl';
 
 export default function Chatbot() {
@@ -122,7 +122,7 @@ export default function Chatbot() {
           throw new Error(error.message);
         }
 
-        const uploads = await uploadImagesToR2(imagesToUpload, data.session?.access_token ?? '', {
+        const uploads = await uploadImagesWithInlineFallback(imagesToUpload, data.session?.access_token ?? '', {
           folder: 'chat',
           attachedToType: 'chat',
           onProgress: (progress) => setUploadProgress(progress),

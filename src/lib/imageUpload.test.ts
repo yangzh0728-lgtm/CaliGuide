@@ -3,6 +3,7 @@ import {
   filesToInlineImageUploads,
   isMissingUploadApiError,
   isRecoverableImageUploadError,
+  uploadImagesWithInlineFallback,
   uploadImagesToR2,
 } from "./imageUpload";
 
@@ -214,6 +215,37 @@ describe("imageUpload", () => {
         publicUrl: "data:image/png;base64,Zmlyc3Q=",
       },
     ]);
+  });
+
+  test("falls back to inline image URLs for recoverable upload infrastructure failures", async () => {
+    const file = new File(["chat image"], "chat.png", { type: "image/png" });
+    const uploads = await uploadImagesWithInlineFallback([file], "access-token", {
+      folder: "chat",
+      attachedToType: "chat",
+      fetcher: async () =>
+        new Response("<!DOCTYPE html><pre>Cannot POST /api/uploads/file</pre>", {
+          status: 404,
+          headers: { "Content-Type": "text/html" },
+        }),
+    });
+
+    expect(uploads).toEqual([
+      {
+        objectKey: "inline:chat.png",
+        publicUrl: "data:image/png;base64,Y2hhdCBpbWFnZQ==",
+      },
+    ]);
+  });
+
+  test("does not fall back to inline image URLs for auth or validation errors", async () => {
+    const file = new File(["chat image"], "chat.png", { type: "image/png" });
+
+    await expect(
+      uploadImagesWithInlineFallback([file], "", {
+        folder: "chat",
+        attachedToType: "chat",
+      }),
+    ).rejects.toThrow("Sign in required");
   });
 
   test("detects the missing upload API fallback error", () => {
