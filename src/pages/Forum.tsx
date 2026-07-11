@@ -38,7 +38,7 @@ import {
   isUsefulByUser,
 } from '../lib/forumContent';
 import { mergeForumPostImageSelection } from '../lib/forumImageSelection';
-import { filesToInlineImageUploads, isMissingUploadApiError, uploadImagesToR2 } from '../lib/imageUpload';
+import { filesToInlineImageUploads, isRecoverableImageUploadError, uploadImagesToR2 } from '../lib/imageUpload';
 import { supabase } from '../lib/supabaseClient';
 
 interface ForumProps {
@@ -152,7 +152,7 @@ export default function Forum({
         attachedToId: postId,
         onProgress: (progress) => setUploadProgress(progress),
       }).catch(async (error) => {
-        if (!isMissingUploadApiError(error)) {
+        if (!isRecoverableImageUploadError(error)) {
           throw error;
         }
 

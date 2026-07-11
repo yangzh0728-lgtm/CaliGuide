@@ -73,6 +73,22 @@ export function isMissingUploadApiError(error: unknown) {
   return error instanceof Error && error.message.includes("Image upload API is not available on this domain");
 }
 
+export function isRecoverableImageUploadError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return (
+    isMissingUploadApiError(error) ||
+    error.message.includes("Unable to upload image") ||
+    error.message.includes("Unable to prepare image upload") ||
+    error.message.includes("Unable to upload image to Cloudflare R2") ||
+    error.message.includes("Failed to fetch") ||
+    error.message.includes("NetworkError") ||
+    error.message.includes("Load failed")
+  );
+}
+
 async function uploadImageThroughBinaryServer(
   file: File,
   accessToken: string,

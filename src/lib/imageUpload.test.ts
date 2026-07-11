@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { filesToInlineImageUploads, isMissingUploadApiError, uploadImagesToR2 } from "./imageUpload";
+import {
+  filesToInlineImageUploads,
+  isMissingUploadApiError,
+  isRecoverableImageUploadError,
+  uploadImagesToR2,
+} from "./imageUpload";
 
 describe("imageUpload", () => {
   test("uploads multiple images through the same-origin binary upload API", async () => {
@@ -214,6 +219,15 @@ describe("imageUpload", () => {
   test("detects the missing upload API fallback error", () => {
     expect(isMissingUploadApiError(new Error("Image upload API is not available on this domain."))).toBe(true);
     expect(isMissingUploadApiError(new Error("Choose image files only"))).toBe(false);
+  });
+
+  test("detects recoverable upload infrastructure errors without hiding validation or auth problems", () => {
+    expect(isRecoverableImageUploadError(new Error("Unable to upload image"))).toBe(true);
+    expect(isRecoverableImageUploadError(new Error("Unable to upload image to Cloudflare R2"))).toBe(true);
+    expect(isRecoverableImageUploadError(new TypeError("Failed to fetch"))).toBe(true);
+    expect(isRecoverableImageUploadError(new Error("Sign in required"))).toBe(false);
+    expect(isRecoverableImageUploadError(new Error("Choose image files only"))).toBe(false);
+    expect(isRecoverableImageUploadError(new Error("Choose images under 8 MB"))).toBe(false);
   });
 
   test("rejects non-image files before uploading", async () => {
