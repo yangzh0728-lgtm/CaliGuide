@@ -80,11 +80,15 @@ export async function createForumPostViaApi(
   client: SupabaseSessionClient,
   input: Parameters<typeof buildForumPostInsert>[0],
 ) {
+  if (hasInlineImageUrls(input.imageUrls) && hasSupabaseTableClient(client)) {
+    return createForumPostInSupabase(client, input);
+  }
+
   try {
     const payload = await postForumJson<{ post: ForumPostRow }>(client, "/api/forum/posts", input);
     return mapForumPostRows([{ ...payload.post, comments: [], votes: [], comment_votes: [] }])[0];
   } catch (error) {
-    if (isMissingForumPostRoute(error) && hasSupabaseTableClient(client)) {
+    if (canCreateForumPostDirectly(error) && hasSupabaseTableClient(client)) {
       return createForumPostInSupabase(client, input);
     }
 
@@ -163,6 +167,22 @@ function isMissingForumPostRoute(error: unknown) {
     error.message.includes("Forum sync failed with HTTP 404") &&
     error.message.includes("Cannot POST /api/forum/posts")
   );
+}
+
+function canCreateForumPostDirectly(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return (
+    isMissingForumPostRoute(error) ||
+    error.message.includes("Forum sync failed with HTTP 413") ||
+    error.message.includes("Payload Too Large")
+  );
+}
+
+function hasInlineImageUrls(imageUrls: string[] = []) {
+  return imageUrls.some((imageUrl) => imageUrl.startsWith("data:"));
 }
 
 function hasSupabaseTableClient(client: SupabaseSessionClient): client is SupabaseClient {

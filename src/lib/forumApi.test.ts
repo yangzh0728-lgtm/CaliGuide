@@ -122,6 +122,115 @@ describe("forumApi", () => {
     expect(discussion.imageUrls).toEqual(["data:image/png;base64,Zmlyc3Q="]);
   });
 
+  it("bypasses the server API for inline forum post images", async () => {
+    let insertedRow: Record<string, unknown> | null = null;
+    let requestCount = 0;
+    globalThis.fetch = (async () => {
+      requestCount += 1;
+      throw new Error("The server API should not receive inline image payloads");
+    }) as typeof fetch;
+
+    const discussion = await createForumPostViaApi(
+      {
+        auth: {
+          getSession: async () => ({
+            data: { session: { access_token: "access-token" } },
+            error: null,
+          }),
+        },
+        from: (table: string) => {
+          expect(table).toBe("forum_posts");
+          return {
+            insert: (row: Record<string, unknown>) => {
+              insertedRow = row;
+              return {
+                select: () => ({
+                  single: async () => ({
+                    data: {
+                      ...row,
+                      id: "11111111-1111-4111-8111-111111111111",
+                      view_count: 0,
+                      created_at: "2026-07-04T09:00:00.000Z",
+                    },
+                    error: null,
+                  }),
+                }),
+              };
+            },
+          };
+        },
+      } as any,
+      {
+        id: "11111111-1111-4111-8111-111111111111",
+        userId: "user-1",
+        author: "Sam Y",
+        avatar: "SY",
+        category: "Housing",
+        title: "test",
+        body: "test",
+        imageUrls: ["data:image/png;base64,cHJldmlldw=="],
+      },
+    );
+
+    expect(requestCount).toBe(0);
+    expect(insertedRow?.image_urls).toEqual(["data:image/png;base64,cHJldmlldw=="]);
+    expect(discussion.imageUrls).toEqual(["data:image/png;base64,cHJldmlldw=="]);
+  });
+
+  it("falls back to direct Supabase insert when the server rejects a large post payload", async () => {
+    let insertedRow: Record<string, unknown> | null = null;
+    globalThis.fetch = (async () =>
+      new Response("<!DOCTYPE html><pre>Payload Too Large</pre>", {
+        status: 413,
+        headers: { "Content-Type": "text/html" },
+      })) as typeof fetch;
+
+    const discussion = await createForumPostViaApi(
+      {
+        auth: {
+          getSession: async () => ({
+            data: { session: { access_token: "access-token" } },
+            error: null,
+          }),
+        },
+        from: (table: string) => {
+          expect(table).toBe("forum_posts");
+          return {
+            insert: (row: Record<string, unknown>) => {
+              insertedRow = row;
+              return {
+                select: () => ({
+                  single: async () => ({
+                    data: {
+                      ...row,
+                      id: "11111111-1111-4111-8111-111111111111",
+                      view_count: 0,
+                      created_at: "2026-07-04T09:00:00.000Z",
+                    },
+                    error: null,
+                  }),
+                }),
+              };
+            },
+          };
+        },
+      } as any,
+      {
+        id: "11111111-1111-4111-8111-111111111111",
+        userId: "user-1",
+        author: "Sam Y",
+        avatar: "SY",
+        category: "Housing",
+        title: "test",
+        body: "test",
+        imageUrls: ["https://cdn.example.com/forum/photo.png"],
+      },
+    );
+
+    expect(insertedRow?.image_urls).toEqual(["https://cdn.example.com/forum/photo.png"]);
+    expect(discussion.imageUrls).toEqual(["https://cdn.example.com/forum/photo.png"]);
+  });
+
   it("surfaces server API errors", async () => {
     globalThis.fetch = (async () =>
       new Response(JSON.stringify({ error: "forum_posts schema is missing user_id" }), {
