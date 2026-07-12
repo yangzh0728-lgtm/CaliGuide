@@ -12,6 +12,7 @@ import {
 import { supabase } from "../lib/supabaseClient";
 import { ensureUserMediaStructure } from "../lib/userMediaStructure";
 import { formatNationalities, normalizeNationalities } from "../lib/nationalities";
+import type { ForumTranslationLanguage } from "../lib/forumTranslation";
 
 type RegistrationProfileInput = {
   name: string;
@@ -44,6 +45,7 @@ interface AuthContextValue {
     nationalities: string[];
     currentLocation: string;
     arrivalStatus: ArrivalStatusOption;
+    forumTranslationLanguage: ForumTranslationLanguage;
   }) => Promise<void>;
   updatePassword: (input: { currentPassword: string; newPassword: string }) => Promise<void>;
   saveGuide: (guideId: string) => Promise<void>;
@@ -300,6 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             country_nationality: countryNationality,
             current_location: currentLocation,
             arrival_status: input.arrivalStatus,
+            forum_translation_language: input.forumTranslationLanguage,
             updated_at: new Date().toISOString(),
           })
           .eq("id", currentUser.id);
@@ -319,6 +322,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             country_nationality: countryNationality,
             current_location: currentLocation,
             arrival_status: input.arrivalStatus,
+            forum_translation_language: input.forumTranslationLanguage,
           },
         });
 
@@ -630,7 +634,7 @@ async function loadAuthUser(user: Parameters<typeof mapSupabaseUser>[0]["user"])
   const [{ data: profile }, { data: savedGuides }, { data: savedPosts }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id,name,avatar_url,member_since,date_of_birth,sex,nationalities,country_nationality,current_location,arrival_status")
+      .select("id,name,avatar_url,member_since,date_of_birth,sex,nationalities,country_nationality,current_location,arrival_status,forum_translation_language")
       .eq("id", user.id)
       .maybeSingle<ProfileRow>(),
     supabase.from("saved_guides").select("guide_id").eq("user_id", user.id),

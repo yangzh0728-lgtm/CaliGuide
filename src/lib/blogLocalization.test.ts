@@ -96,6 +96,25 @@ describe("blogLocalization", () => {
     }
   });
 
+  it("keeps every official article body structure aligned across languages", () => {
+    const chineseArticles = getLocalizedBlogArticles("zh-CN");
+
+    for (const language of OFFICIAL_CONTENT_LANGUAGES) {
+      const localizedArticles = getLocalizedBlogArticles(language);
+      expect(localizedArticles.map((article) => article.id)).toEqual(
+        chineseArticles.map((article) => article.id),
+      );
+
+      for (const chineseArticle of chineseArticles) {
+        const localizedArticle = localizedArticles.find((article) => article.id === chineseArticle.id);
+        expect(localizedArticle?.body.length).toBe(chineseArticle.body.length);
+        expect(localizedArticle?.body.map((block) => formatBlogBodyBlock(block).tone)).toEqual(
+          chineseArticle.body.map((block) => formatBlogBodyBlock(block).tone),
+        );
+      }
+    }
+  });
+
   it("searches localized guide content across titles, tags, body text, and official links", () => {
     expect(searchLocalizedBlogArticles("en", "deposit").map((article) => article.id)).toContain("category-housing");
     expect(searchLocalizedBlogArticles("zh-CN", "押金").map((article) => article.id)).toContain("category-housing");

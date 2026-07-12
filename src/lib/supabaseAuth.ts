@@ -1,5 +1,6 @@
 import { ArrivalStatusOption, AuthUser, createRandomAvatar, SexOption } from "./authStore";
 import { formatNationalities, normalizeNationalities } from "./nationalities";
+import { type ForumTranslationLanguage, normalizeForumTranslationLanguage } from "./forumTranslation";
 
 export interface SupabaseUserLike {
   id: string;
@@ -19,6 +20,7 @@ export interface ProfileRow {
   country_nationality: string | null;
   current_location: string | null;
   arrival_status: ArrivalStatusOption | null;
+  forum_translation_language?: ForumTranslationLanguage | null;
 }
 
 export interface SignUpResultLike {
@@ -51,6 +53,9 @@ export function mapSupabaseUser(input: {
   const metadataCurrentLocation =
     typeof input.user.user_metadata?.current_location === "string" ? input.user.user_metadata.current_location : "";
   const metadataArrivalStatus = normalizeArrivalStatus(input.user.user_metadata?.arrival_status);
+  const metadataForumTranslationLanguage = normalizeForumTranslationLanguage(
+    input.user.user_metadata?.forum_translation_language,
+  );
 
   const profileNationalities = normalizeNationalities(input.profile?.nationalities, input.profile?.country_nationality);
   const nationalities = profileNationalities.length ? profileNationalities : metadataNationalities;
@@ -67,6 +72,9 @@ export function mapSupabaseUser(input: {
     countryNationality: formatNationalities(nationalities),
     currentLocation: input.profile?.current_location ?? metadataCurrentLocation,
     arrivalStatus: normalizeArrivalStatus(input.profile?.arrival_status ?? metadataArrivalStatus),
+    forumTranslationLanguage: normalizeForumTranslationLanguage(
+      input.profile?.forum_translation_language ?? metadataForumTranslationLanguage,
+    ),
     savedGuideIds: input.savedGuideIds,
     savedPostIds: input.savedPostIds,
   };

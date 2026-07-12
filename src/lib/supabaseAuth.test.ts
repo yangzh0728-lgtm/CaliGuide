@@ -28,6 +28,7 @@ describe("supabaseAuth", () => {
         nationalities: ["China", "Canada"],
         current_location: "San Jose, CA",
         arrival_status: "arrived",
+        forum_translation_language: "zh-TW",
       },
       savedGuideIds: ["guide-1"],
       savedPostIds: ["post-1"],
@@ -45,6 +46,7 @@ describe("supabaseAuth", () => {
       countryNationality: "China, Canada",
       currentLocation: "San Jose, CA",
       arrivalStatus: "arrived",
+      forumTranslationLanguage: "zh-TW",
       savedGuideIds: ["guide-1"],
       savedPostIds: ["post-1"],
     });
@@ -78,6 +80,7 @@ describe("supabaseAuth", () => {
     expect(user.countryNationality).toBe("Mexico, Spain");
     expect(user.currentLocation).toBe("Los Angeles, CA");
     expect(user.arrivalStatus).toBe("planning");
+    expect(user.forumTranslationLanguage).toBe("en");
     expect(user.avatarUrl).toStartWith("data:image/svg+xml");
   });
 
@@ -119,6 +122,7 @@ describe("supabaseAuth", () => {
         countryNationality: "China, Canada",
         currentLocation: "San Jose, CA",
         arrivalStatus: "arrived",
+        forumTranslationLanguage: "es",
         savedGuideIds: [],
         savedPostIds: [],
       }),
@@ -137,6 +141,7 @@ describe("supabaseAuth", () => {
         countryNationality: "",
         currentLocation: "",
         arrivalStatus: "planning",
+        forumTranslationLanguage: "en",
         savedGuideIds: [],
         savedPostIds: [],
       }),

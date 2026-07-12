@@ -1,0 +1,81 @@
+import { describe, expect, it, mock } from "bun:test";
+import {
+  FORUM_TRANSLATION_LANGUAGES,
+  requestForumTranslation,
+} from "./forumTranslation";
+import {
+  buildForumTranslationMessages,
+  parseForumTranslationCompletion,
+} from "./forumTranslationServer";
+
+describe("forum translation", () => {
+  it("supports the four translation targets exposed in settings", () => {
+    expect(FORUM_TRANSLATION_LANGUAGES.map((language) => language.code)).toEqual([
+      "en",
+      "zh-CN",
+      "zh-TW",
+      "es",
+    ]);
+  });
+
+  it("builds a strict translation request that preserves body order", () => {
+    const messages = buildForumTranslationMessages({
+      sourceType: "post",
+      sourceId: "post-1",
+      targetLanguage: "es",
+      title: "DMV question",
+      excerpt: "I need help.",
+      body: ["First paragraph", "Second paragraph"],
+    });
+
+    expect(messages[0].content).toContain("Spanish");
+    expect(messages[1].content).toContain('"body":["First paragraph","Second paragraph"]');
+    expect(messages[0].content).toContain("same number of body items");
+  });
+
+  it("parses fenced JSON and rejects a changed paragraph count", () => {
+    expect(
+      parseForumTranslationCompletion(
+        '```json\n{"title":"Pregunta","excerpt":"Ayuda","body":["Uno","Dos"]}\n```',
+        { bodyCount: 2, includeTitle: true, includeExcerpt: true },
+      ),
+    ).toEqual({ title: "Pregunta", excerpt: "Ayuda", body: ["Uno", "Dos"] });
+
+    expect(() =>
+      parseForumTranslationCompletion('{"title":"Pregunta","excerpt":"Ayuda","body":["Uno"]}', {
+        bodyCount: 2,
+        includeTitle: true,
+        includeExcerpt: true,
+      }),
+    ).toThrow("body structure");
+  });
+
+  it("sends an authenticated on-demand translation request", async () => {
+    const fetcher = mock(async () =>
+      new Response(JSON.stringify({ translation: { title: "住房", excerpt: "求助", body: ["正文"] } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const result = await requestForumTranslation(
+      {
+        sourceType: "post",
+        sourceId: "post-1",
+        targetLanguage: "zh-CN",
+        title: "Housing",
+        excerpt: "Help",
+        body: ["Body"],
+      },
+      "access-token",
+      "https://api.caliguide.org",
+      fetcher,
+    );
+
+    expect(result.title).toBe("住房");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const request = fetcher.mock.calls[0];
+    expect(request[0]).toBe("https://api.caliguide.org/api/forum/translate");
+    expect((request[1]?.headers as Record<string, string>).Authorization).toBe("Bearer access-token");
+  });
+});

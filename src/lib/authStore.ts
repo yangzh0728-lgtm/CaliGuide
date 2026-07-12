@@ -1,4 +1,5 @@
 import { formatNationalities, normalizeNationalities } from "./nationalities";
+import { type ForumTranslationLanguage, normalizeForumTranslationLanguage } from "./forumTranslation";
 
 export type SexOption = "male" | "female" | "prefer_not_to_say";
 export type ArrivalStatusOption = "planning" | "arrived" | "long_term_resident";
@@ -15,6 +16,7 @@ export interface AuthUser {
   countryNationality: string;
   currentLocation: string;
   arrivalStatus: ArrivalStatusOption;
+  forumTranslationLanguage: ForumTranslationLanguage;
   savedGuideIds: string[];
   savedPostIds: string[];
 }
@@ -53,6 +55,7 @@ export function registerUser(
     countryNationality?: string;
     currentLocation?: string;
     arrivalStatus?: ArrivalStatusOption;
+    forumTranslationLanguage?: ForumTranslationLanguage;
   },
 ): AuthState {
   const name = input.name.trim();
@@ -64,6 +67,7 @@ export function registerUser(
   const countryNationality = formatNationalities(nationalities);
   const currentLocation = normalizeOptionalText(input.currentLocation);
   const arrivalStatus = normalizeArrivalStatus(input.arrivalStatus);
+  const forumTranslationLanguage = normalizeForumTranslationLanguage(input.forumTranslationLanguage);
 
   if (!name) {
     throw new Error("Name is required");
@@ -94,6 +98,7 @@ export function registerUser(
     countryNationality,
     currentLocation,
     arrivalStatus,
+    forumTranslationLanguage,
     savedGuideIds: [],
     savedPostIds: [],
   };
@@ -142,6 +147,7 @@ export function updateProfile(
     countryNationality?: string;
     currentLocation?: string;
     arrivalStatus?: ArrivalStatusOption;
+    forumTranslationLanguage?: ForumTranslationLanguage;
   },
 ): AuthState {
   const currentUser = requireCurrentUser(state);
@@ -159,6 +165,10 @@ export function updateProfile(
     input.currentLocation === undefined ? currentUser.currentLocation : normalizeOptionalText(input.currentLocation);
   const arrivalStatus =
     input.arrivalStatus === undefined ? currentUser.arrivalStatus : normalizeArrivalStatus(input.arrivalStatus);
+  const forumTranslationLanguage =
+    input.forumTranslationLanguage === undefined
+      ? currentUser.forumTranslationLanguage
+      : normalizeForumTranslationLanguage(input.forumTranslationLanguage);
 
   if (!name) {
     throw new Error("Name is required");
@@ -172,7 +182,7 @@ export function updateProfile(
 
   const users = state.users.map((user) =>
     user.id === currentUser.id
-      ? { ...user, name, email, avatarUrl, dateOfBirth, sex, nationalities, countryNationality, currentLocation, arrivalStatus }
+      ? { ...user, name, email, avatarUrl, dateOfBirth, sex, nationalities, countryNationality, currentLocation, arrivalStatus, forumTranslationLanguage }
       : user,
   );
   const updatedUser = users.find((user) => user.id === currentUser.id);
@@ -423,6 +433,7 @@ function publicUser(user: StoredUser): AuthUser {
     countryNationality: formatNationalities(normalizeNationalities(user.nationalities, user.countryNationality)),
     currentLocation: user.currentLocation ?? "",
     arrivalStatus: normalizeArrivalStatus(user.arrivalStatus),
+    forumTranslationLanguage: normalizeForumTranslationLanguage(user.forumTranslationLanguage),
     savedGuideIds: user.savedGuideIds ?? [],
     savedPostIds: user.savedPostIds ?? [],
   };
@@ -437,6 +448,7 @@ function hydrateStoredUser(user: StoredUser): StoredUser {
     countryNationality: formatNationalities(normalizeNationalities(user.nationalities, user.countryNationality)),
     currentLocation: user.currentLocation ?? "",
     arrivalStatus: normalizeArrivalStatus(user.arrivalStatus),
+    forumTranslationLanguage: normalizeForumTranslationLanguage(user.forumTranslationLanguage),
     savedGuideIds: Array.isArray(user.savedGuideIds) ? user.savedGuideIds : [],
     savedPostIds: Array.isArray(user.savedPostIds) ? user.savedPostIds : [],
   };

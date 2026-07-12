@@ -1,4 +1,5 @@
 import type { LanguageCode } from "../i18n/translations";
+import { ENGLISH_BLOG_BODIES, SPANISH_BLOG_BODIES } from "./blogBodyTranslations";
 import { BLOG_ARTICLES, BlogArticle, OfficialLink, getBlogArticle } from "./blogContent";
 
 export type OfficialContentLanguage = "en" | "zh-CN" | "zh-TW" | "es";
@@ -427,8 +428,22 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
   },
 };
 
+function applyBodyTranslations(
+  translations: Record<string, BlogArticleTranslation>,
+  bodies: Record<string, string[]>,
+) {
+  return Object.fromEntries(
+    Object.entries(translations).map(([id, translation]) => [
+      id,
+      bodies[id] ? { ...translation, body: bodies[id] } : translation,
+    ]),
+  ) as Record<string, BlogArticleTranslation>;
+}
+
+const alignedEnglishTranslations = applyBodyTranslations(englishTranslations, ENGLISH_BLOG_BODIES);
+
 const spanishByEnglishFallback = (id: string): BlogArticleTranslation => {
-  const source = englishTranslations[id] ?? {};
+  const source = alignedEnglishTranslations[id] ?? {};
   return {
     title: source.title,
     category: source.category,
@@ -439,16 +454,21 @@ const spanishByEnglishFallback = (id: string): BlogArticleTranslation => {
 };
 
 const SPANISH_EXTENSIONS: Record<string, BlogArticleTranslation> = Object.fromEntries(
-  Object.keys(englishTranslations)
+  Object.keys(alignedEnglishTranslations)
     .filter((id) => !spanishTranslations[id])
     .map((id) => [id, spanishByEnglishFallback(id)]),
 );
 
+const alignedSpanishTranslations = applyBodyTranslations(
+  { ...SPANISH_EXTENSIONS, ...spanishTranslations },
+  SPANISH_BLOG_BODIES,
+);
+
 const translationByLanguage: Record<OfficialContentLanguage, Record<string, BlogArticleTranslation>> = {
-  en: englishTranslations,
+  en: alignedEnglishTranslations,
   "zh-CN": zhCnPatches,
   "zh-TW": {},
-  es: { ...SPANISH_EXTENSIONS, ...spanishTranslations },
+  es: alignedSpanishTranslations,
 };
 
 export function getLocalizedBlogArticles(language: LanguageCode): BlogArticle[] {

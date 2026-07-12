@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import { createHash } from "node:crypto";
 import { createServer as createViteServer } from "vite";
 import OpenAI from "openai";
 import dotenv from "dotenv";
@@ -24,12 +25,21 @@ import {
   buildForumVoteUpsert,
 } from "./src/lib/forumSupabase";
 import { isSupabaseUuid } from "./src/lib/uuid";
+import {
+  buildForumTranslationMessages,
+  parseForumTranslationCompletion,
+} from "./src/lib/forumTranslationServer";
+import {
+  normalizeForumTranslationLanguage,
+  type ForumTranslationInput,
+} from "./src/lib/forumTranslation";
 
 dotenv.config();
 
 const QIANFAN_BASE_URL = "https://qianfan.baidubce.com/v2";
 const CHAT_MODEL = process.env.CHAT_MODEL?.trim() || "deepseek-v4-flash";
 const CHAT_VISION_MODEL = process.env.CHAT_VISION_MODEL?.trim() || "";
+const TRANSLATION_MODEL = process.env.TRANSLATION_MODEL?.trim() || CHAT_MODEL;
 const PENDING_MEMORY_TTL_MS = 10 * 60 * 1000;
 
 const pendingMemoryByUserId = new Map<string, Array<{ content: string; createdAt: number }>>();
@@ -727,6 +737,125 @@ async function startServer() {
     }
 
     res.json({ ok: true });
+  });
+
+  app.post("/api/forum/translate", async (req, res) => {
+    if (!supabaseAdmin || !aiClient) {
+      return res.status(500).json({ error: "Supabase service role and AI translation must be configured" });
+    }
+
+    const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+    if ("error" in authResult) {
+      return res.status(authResult.status).json({ error: authResult.error });
+    }
+
+    const sourceType = req.body?.sourceType;
+    const sourceId = getRequiredString(req.body?.sourceId, "Forum content id is required");
+    const requestedLanguage = req.body?.targetLanguage;
+    const title = typeof req.body?.title === "string" ? req.body.title.trim() : undefined;
+    const excerpt = typeof req.body?.excerpt === "string" ? req.body.excerpt.trim() : undefined;
+    const body = Array.isArray(req.body?.body)
+      ? req.body.body
+          .filter((item: unknown): item is string => typeof item === "string")
+          .map((item: string) => item.trim())
+      : null;
+
+    if (sourceType !== "post" && sourceType !== "comment") {
+      return res.status(400).json({ error: "Forum content type is invalid" });
+    }
+    if (sourceId instanceof Error) {
+      return res.status(400).json({ error: sourceId.message });
+    }
+    if (
+      requestedLanguage !== "en" &&
+      requestedLanguage !== "zh-CN" &&
+      requestedLanguage !== "zh-TW" &&
+      requestedLanguage !== "es"
+    ) {
+      return res.status(400).json({ error: "Translation language is invalid" });
+    }
+    if (!body || !body.length || body.some((item: string) => !item)) {
+      return res.status(400).json({ error: "Forum content is required" });
+    }
+    if (body.join("\n").length > 30000 || (title?.length ?? 0) > 500 || (excerpt?.length ?? 0) > 2000) {
+      return res.status(413).json({ error: "Forum content is too large to translate" });
+    }
+
+    const input: ForumTranslationInput = {
+      sourceType,
+      sourceId,
+      targetLanguage: normalizeForumTranslationLanguage(requestedLanguage),
+      ...(title ? { title } : {}),
+      ...(excerpt ? { excerpt } : {}),
+      body,
+    };
+    const sourceHash = createHash("sha256")
+      .update(JSON.stringify({ title: input.title, excerpt: input.excerpt, body: input.body }))
+      .digest("hex");
+
+    const { data: cached, error: cacheReadError } = await supabaseAdmin
+      .from("forum_translations")
+      .select("title,excerpt,body")
+      .eq("source_type", sourceType)
+      .eq("source_id", sourceId)
+      .eq("target_language", input.targetLanguage)
+      .eq("source_hash", sourceHash)
+      .maybeSingle();
+
+    if (cacheReadError) {
+      console.warn(`[forum-translation:${authResult.user.id}] cache read failed`, cacheReadError.message);
+      return res.status(500).json({ error: cacheReadError.message });
+    }
+    if (cached && Array.isArray(cached.body)) {
+      return res.json({
+        translation: {
+          ...(typeof cached.title === "string" ? { title: cached.title } : {}),
+          ...(typeof cached.excerpt === "string" ? { excerpt: cached.excerpt } : {}),
+          body: cached.body,
+        },
+        cached: true,
+      });
+    }
+
+    try {
+      const completion = await aiClient.chat.completions.create({
+        model: TRANSLATION_MODEL,
+        messages: buildForumTranslationMessages(input),
+        temperature: 0,
+      });
+      const content = completion.choices[0]?.message?.content;
+      if (typeof content !== "string" || !content.trim()) {
+        throw new Error("Translation service returned an empty response");
+      }
+
+      const translation = parseForumTranslationCompletion(content, {
+        bodyCount: body.length,
+        includeTitle: title !== undefined,
+        includeExcerpt: excerpt !== undefined,
+      });
+      const { error: cacheWriteError } = await supabaseAdmin.from("forum_translations").upsert(
+        {
+          source_type: sourceType,
+          source_id: sourceId,
+          target_language: input.targetLanguage,
+          source_hash: sourceHash,
+          title: translation.title ?? null,
+          excerpt: translation.excerpt ?? null,
+          body: translation.body,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "source_type,source_id,target_language,source_hash" },
+      );
+
+      if (cacheWriteError) {
+        console.warn(`[forum-translation:${authResult.user.id}] cache write failed`, cacheWriteError.message);
+      }
+
+      res.json({ translation, cached: false });
+    } catch (error) {
+      console.error(`[forum-translation:${authResult.user.id}] failed`, error);
+      res.status(502).json({ error: error instanceof Error ? error.message : "Unable to translate forum content" });
+    }
   });
 
   app.post("/api/chat", async (req, res) => {

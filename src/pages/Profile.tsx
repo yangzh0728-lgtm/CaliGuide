@@ -9,6 +9,7 @@ import {
   Flag,
   LockKeyhole,
   LogOut,
+  Languages,
   Mail,
   MapPin,
   MessageSquare,
@@ -28,6 +29,10 @@ import { uploadAvatarToR2 } from "../lib/avatarUpload";
 import { BlogArticle } from "../lib/blogContent";
 import { ArrivalStatusOption, SexOption } from "../lib/authStore";
 import { COUNTRY_OPTIONS } from "../lib/nationalities";
+import {
+  FORUM_TRANSLATION_LANGUAGES,
+  type ForumTranslationLanguage,
+} from "../lib/forumTranslation";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -70,6 +75,9 @@ export default function Profile({
   const [nationalities, setNationalities] = useState(currentUser?.nationalities?.length ? currentUser.nationalities : [""]);
   const [currentLocation, setCurrentLocation] = useState(currentUser?.currentLocation ?? "");
   const [arrivalStatus, setArrivalStatus] = useState<ArrivalStatusOption>(currentUser?.arrivalStatus ?? "planning");
+  const [forumTranslationLanguage, setForumTranslationLanguage] = useState<ForumTranslationLanguage>(
+    currentUser?.forumTranslationLanguage ?? "en",
+  );
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [profileMessage, setProfileMessage] = useState("");
@@ -99,6 +107,7 @@ export default function Profile({
     setNationalities(currentUser?.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser?.currentLocation ?? "");
     setArrivalStatus(currentUser?.arrivalStatus ?? "planning");
+    setForumTranslationLanguage(currentUser?.forumTranslationLanguage ?? "en");
   }, [currentUser]);
 
   const menuItems = [
@@ -146,6 +155,7 @@ export default function Profile({
     setNationalities(currentUser.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser.currentLocation);
     setArrivalStatus(currentUser.arrivalStatus);
+    setForumTranslationLanguage(currentUser.forumTranslationLanguage);
     setCurrentPassword("");
     setNewPassword("");
     setProfileMessage("");
@@ -175,6 +185,7 @@ export default function Profile({
     setNationalities(currentUser.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser.currentLocation);
     setArrivalStatus(currentUser.arrivalStatus);
+    setForumTranslationLanguage(currentUser.forumTranslationLanguage);
     setCurrentPassword("");
     setNewPassword("");
     setProfileMessage("");
@@ -197,6 +208,7 @@ export default function Profile({
         nationalities,
         currentLocation,
         arrivalStatus,
+        forumTranslationLanguage,
       });
       setProfileMessage(t("settings.profileUpdated"));
     } catch (error) {
@@ -441,6 +453,29 @@ export default function Profile({
                 <option value="long_term_resident">{t("auth.arrivalLongTermResident")}</option>
               </select>
             </div>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">
+              {t("settings.forumTranslationLanguage")}
+            </span>
+            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
+              <Languages size={18} className="text-on-surface-variant" />
+              <select
+                value={forumTranslationLanguage}
+                onChange={(event) => setForumTranslationLanguage(event.target.value as ForumTranslationLanguage)}
+                className="w-full bg-transparent py-3 text-sm outline-none"
+              >
+                {FORUM_TRANSLATION_LANGUAGES.map((option) => (
+                  <option key={option.code} value={option.code}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <span className="mt-2 block text-xs leading-5 text-on-surface-variant">
+              {t("settings.forumTranslationLanguageDesc")}
+            </span>
           </label>
 
           {profileMessage && (

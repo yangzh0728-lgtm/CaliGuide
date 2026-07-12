@@ -13,6 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
+import { ForumTranslateButton } from "../components/ForumTranslateButton";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -21,6 +23,12 @@ import {
   isUnusefulByUser,
   isUsefulByUser,
 } from "../lib/forumContent";
+import {
+  getForumTranslationLanguage,
+  requestForumTranslation,
+  type ForumTranslationResult,
+} from "../lib/forumTranslation";
+import { supabase } from "../lib/supabaseClient";
 
 interface ForumDetailProps {
   discussion: ForumDiscussion;
@@ -54,8 +62,15 @@ export default function ForumDetail({
   onClearSyncError,
 }: ForumDetailProps) {
   const { t } = useLanguage();
+  const { currentUser } = useAuth();
   const [commentBody, setCommentBody] = useState("");
   const [previewImage, setPreviewImage] = useState<{ url: string; index: number } | null>(null);
+  const [postTranslation, setPostTranslation] = useState<ForumTranslationResult | null>(null);
+  const [commentTranslations, setCommentTranslations] = useState<Record<string, ForumTranslationResult>>({});
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState("");
+  const translationLanguage = currentUser?.forumTranslationLanguage ?? "en";
+  const translationLanguageLabel = getForumTranslationLanguage(translationLanguage).shortLabel;
   const commentCount = getForumReplyCount(discussion);
   const canSubmitComment = commentBody.trim().length > 0;
 
@@ -73,6 +88,67 @@ export default function ForumDetail({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [previewImage]);
+
+  useEffect(() => {
+    setPostTranslation(null);
+    setCommentTranslations({});
+    setTranslationError("");
+  }, [discussion.id, translationLanguage]);
+
+  const handleTranslateDiscussion = async () => {
+    if (postTranslation) {
+      setPostTranslation(null);
+      setCommentTranslations({});
+      return;
+    }
+
+    setIsTranslating(true);
+    setTranslationError("");
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session?.access_token) {
+        throw new Error("Sign in required");
+      }
+      const accessToken = data.session.access_token;
+
+      const [translatedPost, translatedComments] = await Promise.all([
+        requestForumTranslation(
+          {
+            sourceType: "post",
+            sourceId: discussion.id,
+            targetLanguage: translationLanguage,
+            title: discussion.title,
+            excerpt: discussion.excerpt,
+            body: discussion.body,
+          },
+          accessToken,
+        ),
+        discussion.replies.length
+          ? requestForumTranslation(
+              {
+                sourceType: "comment",
+                sourceId: `${discussion.id}:comments`,
+                targetLanguage: translationLanguage,
+                body: discussion.replies.map((reply) => reply.body),
+              },
+              accessToken,
+            )
+          : Promise.resolve({ body: [] }),
+      ]);
+
+      setPostTranslation(translatedPost);
+      setCommentTranslations(
+        Object.fromEntries(
+          discussion.replies.map((reply, index) => [reply.id, { body: [translatedComments.body[index]] }]),
+        ),
+      );
+    } catch (error) {
+      console.warn("Forum detail translation failed", error);
+      setTranslationError(t("forum.translationError"));
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   const handleCommentSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,6 +176,14 @@ export default function ForumDetail({
               <X size={16} />
             </button>
           </div>
+        </section>
+      )}
+
+      {translationError && (
+        <section className="px-4 pb-5">
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+            {translationError}
+          </p>
         </section>
       )}
 
@@ -137,10 +221,20 @@ export default function ForumDetail({
               {tag}
             </span>
           ))}
+          <ForumTranslateButton
+            isTranslated={Boolean(postTranslation)}
+            isLoading={isTranslating}
+            targetLabel={translationLanguageLabel}
+            onClick={() => void handleTranslateDiscussion()}
+          />
         </div>
 
-        <h1 className="text-3xl font-bold leading-tight text-on-surface">{discussion.title}</h1>
-        <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{discussion.excerpt}</p>
+        <h1 className="text-3xl font-bold leading-tight text-on-surface">
+          {postTranslation?.title ?? discussion.title}
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
+          {postTranslation?.excerpt ?? discussion.excerpt}
+        </p>
 
         {!!discussion.imageUrls?.length && (
           <section className="mt-5 rounded-2xl border border-outline-variant bg-white p-3 shadow-sm">
@@ -223,7 +317,7 @@ export default function ForumDetail({
       </header>
 
       <section className="px-4 text-base leading-7 text-on-surface">
-        {discussion.body.map((paragraph, index) => (
+        {(postTranslation?.body ?? discussion.body).map((paragraph, index) => (
           <p key={index} className="mb-5">
             {paragraph}
           </p>
@@ -275,7 +369,9 @@ export default function ForumDetail({
                     </button>
                   )}
                 </div>
-                <p className="mt-1 text-sm leading-6 text-on-surface-variant">{reply.body}</p>
+                <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                  {commentTranslations[reply.id]?.body[0] ?? reply.body}
+                </p>
                 <div className="mt-3">
                   <VoteControls
                     usefulActive={isUsefulByUser(reply, currentUserId)}

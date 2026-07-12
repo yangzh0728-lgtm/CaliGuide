@@ -38,6 +38,7 @@ View your app in AI Studio: https://ai.studio/apps/7d845aca-bd91-45d0-95d5-64d4c
 3. Set `API_KEY` and `APP_ID` in `.env`.
 
    `CHAT_MODEL` is optional. Leave it blank to use the server default, or set it to a model such as `deepseek-v4-flash`.
+   `TRANSLATION_MODEL` is optional. Leave it blank to use `CHAT_MODEL` for requested forum translations.
 
    `CHAT_VISION_MODEL` is used only when a chatbot message includes images. CaliBot defaults to Qianfan's `ernie-4.5-turbo-vl`; set this variable only when you want another vision-capable model from the same OpenAI-compatible provider.
 
@@ -75,6 +76,12 @@ The forgot password flow uses Supabase Auth email recovery links. In the Supabas
 - Redirect URLs: `http://localhost:3000/*` for local development and your production URL pattern
 
 The app sends reset emails with a redirect back to `/?password-recovery=1`, then lets the user set a new password after Supabase opens a recovery session.
+
+## Forum Translation
+
+Forum translations are generated only after a signed-in user clicks the compact Translate control. The target language is stored on the user's `profiles` row, and translated posts and comments are cached by source-content hash so new or edited content receives a fresh translation while repeated requests reuse the existing result.
+
+Run `supabase/forum-translations.sql` in Supabase SQL Editor for a new environment. It adds the profile preference and the server-only `forum_translations` cache table. The Express server requires `API_KEY`, `APP_ID`, and `SUPABASE_SERVICE_ROLE_KEY`; the cache is not exposed directly to browser roles.
 
 ## Cloudflare R2 Folder Structure
 

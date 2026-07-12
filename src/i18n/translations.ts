@@ -165,6 +165,10 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "forum.post3.excerpt": "I'm hearing mixed things about the job availability in Irvine compared to Mountain View...",
     "forum.savePost": "Save post",
     "forum.savedPost": "Saved",
+    "forum.translate": "Translate",
+    "forum.translating": "Translating...",
+    "forum.showOriginal": "Show original",
+    "forum.translationError": "Unable to translate this forum content. Please try again.",
     "chatbot.intro": "Your professional immigration assistant. I can help with visa status, document preparation, and legal guidance.",
     "chatbot.status": "Online & Ready",
     "chatbot.newChat": "New chat",
@@ -208,6 +212,8 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "settings.profileUpdated": "Profile updated",
     "settings.avatarReady": "Profile picture ready to save",
     "settings.passwordChanged": "Password changed",
+    "settings.forumTranslationLanguage": "Forum translation language",
+    "settings.forumTranslationLanguageDesc": "Forum posts and comments translate to this language only when you request it.",
   },
   "zh-CN": {
     "app.title": "加州指南",
@@ -360,6 +366,10 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "forum.post3.excerpt": "我听到很多关于 Irvine 和 Mountain View 就业机会的不同说法...",
     "forum.savePost": "保存帖子",
     "forum.savedPost": "已保存",
+    "forum.translate": "翻译",
+    "forum.translating": "翻译中...",
+    "forum.showOriginal": "显示原文",
+    "forum.translationError": "暂时无法翻译此论坛内容，请稍后重试。",
     "chatbot.intro": "你的专业移民助手。我可以帮助你了解签证状态、文件准备和法律指引。",
     "chatbot.status": "在线并准备好",
     "chatbot.newChat": "新聊天",
@@ -403,6 +413,8 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "settings.profileUpdated": "资料已更新",
     "settings.avatarReady": "头像已准备保存",
     "settings.passwordChanged": "密码已修改",
+    "settings.forumTranslationLanguage": "论坛翻译语言",
+    "settings.forumTranslationLanguageDesc": "只有在你主动请求时，帖子和评论才会翻译成此语言。",
   },
   yue: {} as TranslationTable,
   "zh-TW": {} as TranslationTable,
@@ -559,6 +571,10 @@ translations.yue = {
   "forum.post3.excerpt": "我聽到好多關於 Irvine 同 Mountain View 工作機會嘅唔同講法...",
   "forum.savePost": "儲存帖文",
   "forum.savedPost": "已儲存",
+  "forum.translate": "翻譯",
+  "forum.translating": "翻譯中...",
+  "forum.showOriginal": "顯示原文",
+  "forum.translationError": "暫時無法翻譯呢段討論內容，請稍後再試。",
   "chatbot.intro": "你嘅專業移民助手。我可以幫你了解簽證狀態、文件準備同法律指引。",
   "chatbot.status": "在線，可以開始",
   "chatbot.newChat": "新對話",
@@ -602,6 +618,8 @@ translations.yue = {
   "settings.profileUpdated": "資料已更新",
   "settings.avatarReady": "頭像已準備儲存",
   "settings.passwordChanged": "密碼已修改",
+  "settings.forumTranslationLanguage": "討論區翻譯語言",
+  "settings.forumTranslationLanguageDesc": "只有你主動要求時，帖文同留言先會翻譯成呢種語言。",
 };
 
 translations["zh-TW"] = {
@@ -755,6 +773,10 @@ translations["zh-TW"] = {
   "forum.post3.excerpt": "我聽到很多關於 Irvine 和 Mountain View 就業機會的不同說法...",
   "forum.savePost": "儲存貼文",
   "forum.savedPost": "已儲存",
+  "forum.translate": "翻譯",
+  "forum.translating": "翻譯中...",
+  "forum.showOriginal": "顯示原文",
+  "forum.translationError": "暫時無法翻譯此論壇內容，請稍後再試。",
   "chatbot.intro": "你的專業移民助手。我可以幫助你了解簽證狀態、文件準備和法律指引。",
   "chatbot.status": "線上並準備好",
   "chatbot.newChat": "新聊天",
@@ -798,6 +820,8 @@ translations["zh-TW"] = {
   "settings.profileUpdated": "資料已更新",
   "settings.avatarReady": "頭像已準備儲存",
   "settings.passwordChanged": "密碼已修改",
+  "settings.forumTranslationLanguage": "論壇翻譯語言",
+  "settings.forumTranslationLanguageDesc": "只有在你主動要求時，貼文和留言才會翻譯成此語言。",
 };
 
 translations.es = {
@@ -950,6 +974,10 @@ translations.es = {
   "forum.post3.excerpt": "Estoy escuchando opiniones mixtas sobre oportunidades en Irvine comparado con Mountain View...",
   "forum.savePost": "Guardar publicación",
   "forum.savedPost": "Guardado",
+  "forum.translate": "Traducir",
+  "forum.translating": "Traduciendo...",
+  "forum.showOriginal": "Ver original",
+  "forum.translationError": "No se pudo traducir este contenido del foro. Inténtalo de nuevo.",
   "chatbot.intro": "Tu asistente profesional de inmigración. Puedo ayudar con estatus de visa, preparación de documentos y orientación legal.",
   "chatbot.status": "En línea y listo",
   "chatbot.newChat": "Nuevo chat",
@@ -993,6 +1021,8 @@ translations.es = {
   "settings.profileUpdated": "Perfil actualizado",
   "settings.avatarReady": "Foto lista para guardar",
   "settings.passwordChanged": "Contraseña cambiada",
+  "settings.forumTranslationLanguage": "Idioma de traducción del foro",
+  "settings.forumTranslationLanguageDesc": "Las publicaciones y comentarios se traducen a este idioma solo cuando lo solicitas.",
 };
 
 export function isLanguageCode(value: string | null): value is LanguageCode {

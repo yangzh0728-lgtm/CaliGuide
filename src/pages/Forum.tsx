@@ -40,6 +40,12 @@ import {
 import { mergeForumPostImageSelection } from '../lib/forumImageSelection';
 import { filesToInlineImageUploads, isRecoverableImageUploadError, uploadImagesToR2 } from '../lib/imageUpload';
 import { supabase } from '../lib/supabaseClient';
+import { ForumTranslateButton } from '../components/ForumTranslateButton';
+import {
+  getForumTranslationLanguage,
+  requestForumTranslation,
+  type ForumTranslationResult,
+} from '../lib/forumTranslation';
 
 interface ForumProps {
   discussions: ForumDiscussion[];
@@ -90,6 +96,11 @@ export default function Forum({
   const [composerError, setComposerError] = useState('');
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0, fileName: '' });
+  const [postTranslations, setPostTranslations] = useState<Record<string, ForumTranslationResult>>({});
+  const [translatingPostIds, setTranslatingPostIds] = useState<string[]>([]);
+  const [translationError, setTranslationError] = useState('');
+  const translationLanguage = currentUser?.forumTranslationLanguage ?? 'en';
+  const translationLanguageLabel = getForumTranslationLanguage(translationLanguage).shortLabel;
   const newPostImagePreviews = useMemo(
     () => newPostImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
     [newPostImages],
@@ -122,6 +133,48 @@ export default function Forum({
       newPostImagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
     };
   }, [newPostImagePreviews]);
+
+  useEffect(() => {
+    setPostTranslations({});
+    setTranslationError('');
+  }, [translationLanguage]);
+
+  const handleTranslatePost = async (discussion: ForumDiscussion) => {
+    if (postTranslations[discussion.id]) {
+      setPostTranslations((current) => {
+        const next = { ...current };
+        delete next[discussion.id];
+        return next;
+      });
+      return;
+    }
+
+    setTranslationError('');
+    setTranslatingPostIds((current) => [...current, discussion.id]);
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session?.access_token) {
+        throw new Error('Sign in required');
+      }
+      const translation = await requestForumTranslation(
+        {
+          sourceType: 'post',
+          sourceId: discussion.id,
+          targetLanguage: translationLanguage,
+          title: discussion.title,
+          excerpt: discussion.excerpt,
+          body: discussion.body,
+        },
+        data.session.access_token,
+      );
+      setPostTranslations((current) => ({ ...current, [discussion.id]: translation }));
+    } catch (error) {
+      console.warn('Forum translation failed', error);
+      setTranslationError(t('forum.translationError'));
+    } finally {
+      setTranslatingPostIds((current) => current.filter((id) => id !== discussion.id));
+    }
+  };
 
   const handleCreatePost = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -230,6 +283,14 @@ export default function Forum({
         </section>
       )}
 
+      {translationError && (
+        <section className="px-4 mb-5">
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+            {translationError}
+          </p>
+        </section>
+      )}
+
       <section className="px-4 mb-5">
         <div className="relative">
           <input
@@ -289,10 +350,10 @@ export default function Forum({
           </div>
           <button type="button" onClick={() => onOpenForumDetail(featuredDiscussion.id)} className="text-left">
             <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors leading-tight">
-              {featuredDiscussion.title}
+              {postTranslations[featuredDiscussion.id]?.title ?? featuredDiscussion.title}
             </h3>
             <p className="text-sm text-on-surface-variant mb-4 line-clamp-2 leading-relaxed">
-              {featuredDiscussion.excerpt}
+              {postTranslations[featuredDiscussion.id]?.excerpt ?? featuredDiscussion.excerpt}
             </p>
           </button>
           <ForumImageGrid imageUrls={featuredDiscussion.imageUrls} compact />
@@ -309,7 +370,7 @@ export default function Forum({
               {t('forum.join')} <ArrowRight size={16} />
             </span>
           </div>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <VoteControls
               usefulActive={isUsefulByUser(featuredDiscussion, currentUserId)}
               unusefulActive={isUnusefulByUser(featuredDiscussion, currentUserId)}
@@ -317,6 +378,12 @@ export default function Forum({
               unusefulCount={getUnusefulCount(featuredDiscussion)}
               onUseful={() => onToggleUseful(featuredDiscussion.id)}
               onUnuseful={() => onToggleUnuseful(featuredDiscussion.id)}
+            />
+            <ForumTranslateButton
+              isTranslated={Boolean(postTranslations[featuredDiscussion.id])}
+              isLoading={translatingPostIds.includes(featuredDiscussion.id)}
+              targetLabel={translationLanguageLabel}
+              onClick={() => void handleTranslatePost(featuredDiscussion)}
             />
           </div>
         </article>
@@ -376,7 +443,9 @@ export default function Forum({
         </div>
 
         {/* Rest of the posts */}
-        {remainingDiscussions.map((post) => (
+        {remainingDiscussions.map((post) => {
+          const translation = postTranslations[post.id];
+          return (
           <article
             key={post.id}
             className="bg-white border border-outline-variant rounded-2xl p-5 flex flex-col gap-4 hover:bg-surface-container-low transition-colors text-left"
@@ -387,10 +456,16 @@ export default function Forum({
                   <span className="bg-surface-container-high text-on-surface-variant px-2 py-1 rounded text-[10px] font-bold">{post.category}</span>
                   <p className="text-xs text-on-surface-variant">{t('forum.postedBy')} <span className="font-bold">{post.author}</span> • {post.time}</p>
                 </div>
-                <h4 className="text-lg font-bold text-on-surface leading-tight">{post.title}</h4>
-                <p className="text-xs text-on-surface-variant mt-2 line-clamp-1">{post.excerpt}</p>
+                <h4 className="text-lg font-bold text-on-surface leading-tight">{translation?.title ?? post.title}</h4>
+                <p className="text-xs text-on-surface-variant mt-2 line-clamp-1">{translation?.excerpt ?? post.excerpt}</p>
                 <ForumImageGrid imageUrls={post.imageUrls} compact />
               </button>
+              <ForumTranslateButton
+                isTranslated={Boolean(translation)}
+                isLoading={translatingPostIds.includes(post.id)}
+                targetLabel={translationLanguageLabel}
+                onClick={() => void handleTranslatePost(post)}
+              />
               {post.userId === currentUserId && (
                 <button
                   type="button"
@@ -415,7 +490,8 @@ export default function Forum({
               onUnuseful={() => onToggleUnuseful(post.id)}
             />
           </article>
-        ))}
+          );
+        })}
         {filteredDiscussions.length === 0 && (
           <div className="rounded-2xl border border-outline-variant bg-white p-6 text-center shadow-sm">
             <h3 className="font-bold text-on-surface">No discussions found</h3>
