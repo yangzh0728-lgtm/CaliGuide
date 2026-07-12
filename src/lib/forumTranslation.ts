@@ -115,7 +115,29 @@ async function requestForumTranslationThroughChat(
   }
 
   const normalized = responseText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  return parseTranslationResult(parseJsonObject(normalized), input);
+  try {
+    return parseTranslationResult(parseJsonObject(normalized), input);
+  } catch (error) {
+    if (input.sourceType !== "comment" || input.body.length < 2) {
+      throw error;
+    }
+
+    const translations = await Promise.all(
+      input.body.map((paragraph, index) =>
+        requestForumTranslationThroughChat(
+          {
+            sourceType: "comment",
+            sourceId: `${input.sourceId}:${index}`,
+            targetLanguage: input.targetLanguage,
+            body: [paragraph],
+          },
+          apiBaseUrl,
+          fetcher,
+        ),
+      ),
+    );
+    return { body: translations.map((translation) => translation.body[0]) };
+  }
 }
 
 function parseTranslationResult(value: unknown, input: ForumTranslationInput): ForumTranslationResult {
@@ -126,7 +148,8 @@ function parseTranslationResult(value: unknown, input: ForumTranslationInput): F
   const result = value as Record<string, unknown>;
   if (
     !Array.isArray(result.body) ||
-    result.body.length !== input.body.length ||
+    (input.sourceType === "comment" && result.body.length !== input.body.length) ||
+    result.body.length === 0 ||
     result.body.some((item) => typeof item !== "string" || !item.trim())
   ) {
     throw new Error("Translation response changed the forum body structure");

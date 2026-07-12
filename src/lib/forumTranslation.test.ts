@@ -33,11 +33,11 @@ describe("forum translation", () => {
     expect(messages[0].content).toContain("same number of body items");
   });
 
-  it("parses fenced JSON and rejects a changed paragraph count", () => {
+  it("parses fenced JSON and preserves strict comment paragraph mapping", () => {
     expect(
       parseForumTranslationCompletion(
         '```json\n{"title":"Pregunta","excerpt":"Ayuda","body":["Uno","Dos"]}\n```',
-        { bodyCount: 2, includeTitle: true, includeExcerpt: true },
+        { bodyCount: 2, includeTitle: true, includeExcerpt: true, requireExactBodyCount: true },
       ),
     ).toEqual({ title: "Pregunta", excerpt: "Ayuda", body: ["Uno", "Dos"] });
 
@@ -46,8 +46,80 @@ describe("forum translation", () => {
         bodyCount: 2,
         includeTitle: true,
         includeExcerpt: true,
+        requireExactBodyCount: true,
       }),
     ).toThrow("body structure");
+
+    expect(
+      parseForumTranslationCompletion('{"title":"Pregunta","excerpt":"Ayuda","body":["Uno y dos"]}', {
+        bodyCount: 2,
+        includeTitle: true,
+        includeExcerpt: true,
+        requireExactBodyCount: false,
+      }),
+    ).toEqual({ title: "Pregunta", excerpt: "Ayuda", body: ["Uno y dos"] });
+  });
+
+  it("accepts translated posts when the model merges source paragraphs", async () => {
+    const fetcher = mock(async (url: string | URL | Request) => {
+      if (String(url).endsWith("/api/forum/translate")) {
+        return new Response("Cannot POST /api/forum/translate", { status: 404 });
+      }
+
+      return new Response(
+        '{"title":"Vivienda","excerpt":"Necesito ayuda","body":["Primer y segundo párrafo"]}',
+        { status: 200 },
+      );
+    });
+
+    const result = await requestForumTranslation(
+      {
+        sourceType: "post",
+        sourceId: "post-1",
+        targetLanguage: "es",
+        title: "Housing",
+        excerpt: "I need help",
+        body: ["First paragraph", "Second paragraph"],
+      },
+      "access-token",
+      "",
+      fetcher,
+    );
+
+    expect(result.body).toEqual(["Primer y segundo párrafo"]);
+  });
+
+  it("retries translated comments individually when the model merges replies", async () => {
+    let chatRequest = 0;
+    const fetcher = mock(async (url: string | URL | Request) => {
+      if (String(url).endsWith("/api/forum/translate")) {
+        return new Response("Cannot POST /api/forum/translate", { status: 404 });
+      }
+
+      chatRequest += 1;
+      if (chatRequest === 1) {
+        return new Response('{"body":["Dos respuestas combinadas"]}', { status: 200 });
+      }
+      return new Response(
+        JSON.stringify({ body: [chatRequest === 2 ? "Primera respuesta" : "Segunda respuesta"] }),
+        { status: 200 },
+      );
+    });
+
+    const result = await requestForumTranslation(
+      {
+        sourceType: "comment",
+        sourceId: "post-1:comments",
+        targetLanguage: "es",
+        body: ["First reply", "Second reply"],
+      },
+      "access-token",
+      "",
+      fetcher,
+    );
+
+    expect(result.body).toEqual(["Primera respuesta", "Segunda respuesta"]);
+    expect(fetcher).toHaveBeenCalledTimes(4);
   });
 
   it("sends an authenticated on-demand translation request", async () => {

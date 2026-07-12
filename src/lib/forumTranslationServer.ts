@@ -33,7 +33,12 @@ export function buildForumTranslationMessages(input: ForumTranslationInput): Cha
 
 export function parseForumTranslationCompletion(
   value: string,
-  expected: { bodyCount: number; includeTitle: boolean; includeExcerpt: boolean },
+  expected: {
+    bodyCount: number;
+    includeTitle: boolean;
+    includeExcerpt: boolean;
+    requireExactBodyCount: boolean;
+  },
 ): ForumTranslationResult {
   const normalized = value.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
   let parsed: unknown;
@@ -51,7 +56,8 @@ export function parseForumTranslationCompletion(
   const result = parsed as Record<string, unknown>;
   if (
     !Array.isArray(result.body) ||
-    result.body.length !== expected.bodyCount ||
+    (expected.requireExactBodyCount && result.body.length !== expected.bodyCount) ||
+    result.body.length === 0 ||
     result.body.some((item) => typeof item !== "string" || !item.trim())
   ) {
     throw new Error("Translation service changed the forum body structure");

@@ -832,6 +832,7 @@ async function startServer() {
         bodyCount: body.length,
         includeTitle: title !== undefined,
         includeExcerpt: excerpt !== undefined,
+        requireExactBodyCount: sourceType === "comment",
       });
       const { error: cacheWriteError } = await supabaseAdmin.from("forum_translations").upsert(
         {

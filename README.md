@@ -79,7 +79,7 @@ The app sends reset emails with a redirect back to `/?password-recovery=1`, then
 
 ## Forum Translation
 
-Forum translations are generated only after a signed-in user clicks the compact Translate control. The target language is stored on the user's `profiles` row, and translated posts and comments are cached by source-content hash so new or edited content receives a fresh translation while repeated requests reuse the existing result.
+Forum translations are generated only after a signed-in user clicks the compact Translate control. Each forum card and detail page includes an `EN / 简 / 繁 / ES` target picker; the language stored on the user's `profiles` row supplies the initial default. Translated posts and comments are cached by source-content hash so new or edited content receives a fresh translation while repeated requests reuse the existing result.
 
 If a static frontend deployment has not yet received the dedicated `/api/forum/translate` route, the client temporarily falls back to the existing `/api/chat` model route and still validates the returned title, excerpt, and paragraph structure before displaying it.
 

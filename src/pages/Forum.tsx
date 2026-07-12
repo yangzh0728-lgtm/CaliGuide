@@ -42,10 +42,15 @@ import { filesToInlineImageUploads, isRecoverableImageUploadError, uploadImagesT
 import { supabase } from '../lib/supabaseClient';
 import { ForumTranslateButton } from '../components/ForumTranslateButton';
 import {
-  getForumTranslationLanguage,
   requestForumTranslation,
+  type ForumTranslationLanguage,
   type ForumTranslationResult,
 } from '../lib/forumTranslation';
+
+interface StoredForumTranslation {
+  language: ForumTranslationLanguage;
+  result: ForumTranslationResult;
+}
 
 interface ForumProps {
   discussions: ForumDiscussion[];
@@ -96,11 +101,11 @@ export default function Forum({
   const [composerError, setComposerError] = useState('');
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0, fileName: '' });
-  const [postTranslations, setPostTranslations] = useState<Record<string, ForumTranslationResult>>({});
+  const [postTranslations, setPostTranslations] = useState<Record<string, StoredForumTranslation>>({});
+  const [translationTargets, setTranslationTargets] = useState<Record<string, ForumTranslationLanguage>>({});
   const [translatingPostIds, setTranslatingPostIds] = useState<string[]>([]);
   const [translationError, setTranslationError] = useState('');
-  const translationLanguage = currentUser?.forumTranslationLanguage ?? 'en';
-  const translationLanguageLabel = getForumTranslationLanguage(translationLanguage).shortLabel;
+  const defaultTranslationLanguage = currentUser?.forumTranslationLanguage ?? 'en';
   const newPostImagePreviews = useMemo(
     () => newPostImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
     [newPostImages],
@@ -136,11 +141,34 @@ export default function Forum({
 
   useEffect(() => {
     setPostTranslations({});
+    setTranslationTargets({});
     setTranslationError('');
-  }, [translationLanguage]);
+  }, [defaultTranslationLanguage]);
 
-  const handleTranslatePost = async (discussion: ForumDiscussion) => {
-    if (postTranslations[discussion.id]) {
+  const getTranslationTarget = (discussionId: string) =>
+    translationTargets[discussionId] ?? defaultTranslationLanguage;
+
+  const handleTranslationTargetChange = (
+    discussionId: string,
+    targetLanguage: ForumTranslationLanguage,
+  ) => {
+    setTranslationTargets((current) => ({ ...current, [discussionId]: targetLanguage }));
+    setPostTranslations((current) => {
+      if (!current[discussionId] || current[discussionId].language === targetLanguage) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[discussionId];
+      return next;
+    });
+    setTranslationError('');
+  };
+
+  const handleTranslatePost = async (
+    discussion: ForumDiscussion,
+    targetLanguage: ForumTranslationLanguage,
+  ) => {
+    if (postTranslations[discussion.id]?.language === targetLanguage) {
       setPostTranslations((current) => {
         const next = { ...current };
         delete next[discussion.id];
@@ -160,14 +188,17 @@ export default function Forum({
         {
           sourceType: 'post',
           sourceId: discussion.id,
-          targetLanguage: translationLanguage,
+          targetLanguage,
           title: discussion.title,
           excerpt: discussion.excerpt,
           body: discussion.body,
         },
         data.session.access_token,
       );
-      setPostTranslations((current) => ({ ...current, [discussion.id]: translation }));
+      setPostTranslations((current) => ({
+        ...current,
+        [discussion.id]: { language: targetLanguage, result: translation },
+      }));
     } catch (error) {
       console.warn('Forum translation failed', error);
       setTranslationError(t('forum.translationError'));
@@ -350,10 +381,10 @@ export default function Forum({
           </div>
           <button type="button" onClick={() => onOpenForumDetail(featuredDiscussion.id)} className="text-left">
             <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors leading-tight">
-              {postTranslations[featuredDiscussion.id]?.title ?? featuredDiscussion.title}
+              {postTranslations[featuredDiscussion.id]?.result.title ?? featuredDiscussion.title}
             </h3>
             <p className="text-sm text-on-surface-variant mb-4 line-clamp-2 leading-relaxed">
-              {postTranslations[featuredDiscussion.id]?.excerpt ?? featuredDiscussion.excerpt}
+              {postTranslations[featuredDiscussion.id]?.result.excerpt ?? featuredDiscussion.excerpt}
             </p>
           </button>
           <ForumImageGrid imageUrls={featuredDiscussion.imageUrls} compact />
@@ -382,8 +413,13 @@ export default function Forum({
             <ForumTranslateButton
               isTranslated={Boolean(postTranslations[featuredDiscussion.id])}
               isLoading={translatingPostIds.includes(featuredDiscussion.id)}
-              targetLabel={translationLanguageLabel}
-              onClick={() => void handleTranslatePost(featuredDiscussion)}
+              targetLanguage={getTranslationTarget(featuredDiscussion.id)}
+              onTargetLanguageChange={(language) =>
+                handleTranslationTargetChange(featuredDiscussion.id, language)
+              }
+              onClick={() =>
+                void handleTranslatePost(featuredDiscussion, getTranslationTarget(featuredDiscussion.id))
+              }
             />
           </div>
         </article>
@@ -444,7 +480,7 @@ export default function Forum({
 
         {/* Rest of the posts */}
         {remainingDiscussions.map((post) => {
-          const translation = postTranslations[post.id];
+          const translation = postTranslations[post.id]?.result;
           return (
           <article
             key={post.id}
@@ -461,10 +497,11 @@ export default function Forum({
                 <ForumImageGrid imageUrls={post.imageUrls} compact />
               </button>
               <ForumTranslateButton
-                isTranslated={Boolean(translation)}
+                isTranslated={Boolean(postTranslations[post.id])}
                 isLoading={translatingPostIds.includes(post.id)}
-                targetLabel={translationLanguageLabel}
-                onClick={() => void handleTranslatePost(post)}
+                targetLanguage={getTranslationTarget(post.id)}
+                onTargetLanguageChange={(language) => handleTranslationTargetChange(post.id, language)}
+                onClick={() => void handleTranslatePost(post, getTranslationTarget(post.id))}
               />
               {post.userId === currentUserId && (
                 <button

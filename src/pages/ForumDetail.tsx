@@ -24,8 +24,8 @@ import {
   isUsefulByUser,
 } from "../lib/forumContent";
 import {
-  getForumTranslationLanguage,
   requestForumTranslation,
+  type ForumTranslationLanguage,
   type ForumTranslationResult,
 } from "../lib/forumTranslation";
 import { supabase } from "../lib/supabaseClient";
@@ -69,8 +69,10 @@ export default function ForumDetail({
   const [commentTranslations, setCommentTranslations] = useState<Record<string, ForumTranslationResult>>({});
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState("");
-  const translationLanguage = currentUser?.forumTranslationLanguage ?? "en";
-  const translationLanguageLabel = getForumTranslationLanguage(translationLanguage).shortLabel;
+  const defaultTranslationLanguage = currentUser?.forumTranslationLanguage ?? "en";
+  const [translationLanguage, setTranslationLanguage] = useState<ForumTranslationLanguage>(
+    defaultTranslationLanguage,
+  );
   const commentCount = getForumReplyCount(discussion);
   const canSubmitComment = commentBody.trim().length > 0;
 
@@ -90,10 +92,21 @@ export default function ForumDetail({
   }, [previewImage]);
 
   useEffect(() => {
+    setTranslationLanguage(defaultTranslationLanguage);
+  }, [defaultTranslationLanguage]);
+
+  useEffect(() => {
     setPostTranslation(null);
     setCommentTranslations({});
     setTranslationError("");
   }, [discussion.id, translationLanguage]);
+
+  const handleTranslationTargetChange = (language: ForumTranslationLanguage) => {
+    setTranslationLanguage(language);
+    setPostTranslation(null);
+    setCommentTranslations({});
+    setTranslationError("");
+  };
 
   const handleTranslateDiscussion = async () => {
     if (postTranslation) {
@@ -224,7 +237,8 @@ export default function ForumDetail({
           <ForumTranslateButton
             isTranslated={Boolean(postTranslation)}
             isLoading={isTranslating}
-            targetLabel={translationLanguageLabel}
+            targetLanguage={translationLanguage}
+            onTargetLanguageChange={handleTranslationTargetChange}
             onClick={() => void handleTranslateDiscussion()}
           />
         </div>
