@@ -78,4 +78,40 @@ describe("forum translation", () => {
     expect(request[0]).toBe("https://api.caliguide.org/api/forum/translate");
     expect((request[1]?.headers as Record<string, string>).Authorization).toBe("Bearer access-token");
   });
+
+  it("falls back to the deployed chat API when the translation route is missing", async () => {
+    const fetcher = mock(async (url: string | URL | Request) => {
+      if (String(url).endsWith("/api/forum/translate")) {
+        return new Response("Cannot POST /api/forum/translate", { status: 404 });
+      }
+
+      return new Response(
+        '```json\n{"title":"Vivienda","excerpt":"Necesito ayuda","body":["Primer párrafo","Segundo párrafo"]}\n```',
+        { status: 200 },
+      );
+    });
+
+    const result = await requestForumTranslation(
+      {
+        sourceType: "post",
+        sourceId: "post-1",
+        targetLanguage: "es",
+        title: "Housing",
+        excerpt: "I need help",
+        body: ["First paragraph", "Second paragraph"],
+      },
+      "access-token",
+      "",
+      fetcher,
+    );
+
+    expect(result).toEqual({
+      title: "Vivienda",
+      excerpt: "Necesito ayuda",
+      body: ["Primer párrafo", "Segundo párrafo"],
+    });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher.mock.calls[1][0]).toBe("/api/chat");
+    expect(JSON.parse(String(fetcher.mock.calls[1][1]?.body)).userId).toStartWith("forum-translation:");
+  });
 });
