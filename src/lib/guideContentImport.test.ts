@@ -2,6 +2,19 @@ import { describe, expect, it } from "bun:test";
 import { buildGuideContentImportRows } from "./guideContentImport";
 
 describe("guideContentImport", () => {
+  it("keeps every imported guide section connected to a stored reference", async () => {
+    const content = await Bun.file("content/california_newcomer_20_blogs_zh-CN.json").json();
+    const rows = buildGuideContentImportRows(content);
+
+    expect(rows.articles).toHaveLength(20);
+    expect(rows.officialLinks.length).toBeGreaterThan(0);
+    expect(
+      rows.translations.every((translation) =>
+        translation.body.every((section) => Boolean(section.citationIds?.length)),
+      ),
+    ).toBe(true);
+  });
+
   it("builds Supabase rows from guide content JSON", () => {
     const rows = buildGuideContentImportRows({
       categories: [{ id: "dmv", label: "DMV", description: "DMV help", sortOrder: 10 }],
@@ -22,10 +35,16 @@ describe("guideContentImport", () => {
               locale: "zh-CN",
               title: "加州 DMV 指南",
               summary: "摘要",
-              body: [{ heading: "准备材料", content: ["准备身份证明。"] }],
+              body: [{ heading: "准备材料", content: ["准备身份证明。"], citationIds: ["dmv-license"] }],
             },
           ],
-          officialLinks: [{ label: "DMV", url: "https://www.dmv.ca.gov/" }],
+          officialLinks: [{
+            id: "dmv-license",
+            label: "DMV",
+            publisher: "California DMV",
+            url: "https://www.dmv.ca.gov/",
+            lastReviewedAt: "2026-08-25",
+          }],
           mediaAssets: [{ kind: "cover", r2Key: "assets/platform/guide/guide-dmv/hero.jpg" }],
         },
       ],
@@ -48,6 +67,9 @@ describe("guideContentImport", () => {
       article_id: "guide-dmv",
       title: "DMV",
       purpose: "DMV",
+      source_key: "dmv-license",
+      publisher: "California DMV",
+      last_reviewed_at: "2026-08-25",
       sort_order: 0,
     });
     expect(rows.mediaAssets[0]).toMatchObject({ article_id: "guide-dmv", kind: "cover" });
@@ -71,5 +93,75 @@ describe("guideContentImport", () => {
         ],
       }),
     ).toThrow("Unknown category dmv for article guide-dmv");
+  });
+
+  it("throws when a guide section cites an unknown official source", () => {
+    expect(() =>
+      buildGuideContentImportRows({
+        categories: [{ id: "dmv", label: "DMV" }],
+        tags: [],
+        articles: [
+          {
+            id: "guide-dmv",
+            slug: "guide-dmv",
+            articleType: "guide",
+            categoryId: "dmv",
+            status: "draft",
+            translations: [
+              {
+                locale: "en",
+                title: "DMV guide",
+                summary: "Summary",
+                body: [{ heading: "Documents", content: ["Bring documents."], citationIds: ["missing"] }],
+              },
+            ],
+            officialLinks: [
+              {
+                id: "dmv-license",
+                title: "DMV",
+                publisher: "California DMV",
+                url: "https://www.dmv.ca.gov/",
+                lastReviewedAt: "2026-08-25",
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow("Unknown citation missing in guide-dmv (en) section 1");
+  });
+
+  it("throws when a guide section has no citation", () => {
+    expect(() =>
+      buildGuideContentImportRows({
+        categories: [{ id: "dmv", label: "DMV" }],
+        tags: [],
+        articles: [
+          {
+            id: "guide-dmv",
+            slug: "guide-dmv",
+            articleType: "guide",
+            categoryId: "dmv",
+            status: "draft",
+            translations: [
+              {
+                locale: "en",
+                title: "DMV guide",
+                summary: "Summary",
+                body: [{ heading: "Documents", content: ["Bring documents."] }],
+              },
+            ],
+            officialLinks: [
+              {
+                id: "dmv-license",
+                title: "DMV",
+                publisher: "California DMV",
+                url: "https://www.dmv.ca.gov/",
+                lastReviewedAt: "2026-08-25",
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow("Missing citation in guide-dmv (en) section 1");
   });
 });

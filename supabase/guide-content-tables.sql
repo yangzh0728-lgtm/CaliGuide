@@ -68,13 +68,18 @@ create table if not exists public.guide_article_tags (
 create table if not exists public.guide_official_links (
   id bigint generated always as identity primary key,
   article_id text not null references public.guide_articles(id) on delete cascade,
+  source_key text not null,
   title text not null,
+  publisher text not null,
   url text not null,
   purpose text not null,
+  last_reviewed_at date not null,
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint guide_official_links_url_check check (url ~ '^https?://')
+  constraint guide_official_links_url_check check (url ~ '^https://'),
+  constraint guide_official_links_source_key_format check (source_key ~ '^[a-z0-9][a-z0-9-]*$'),
+  unique (article_id, source_key)
 );
 
 create table if not exists public.guide_media_assets (

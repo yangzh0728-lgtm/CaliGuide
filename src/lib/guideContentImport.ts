@@ -29,15 +29,18 @@ export interface GuideContentArticle {
     locale: Locale;
     title: string;
     summary: string;
-    body: Array<Record<string, unknown>>;
+    body: GuideContentBodySection[];
     seoTitle?: string;
     seoDescription?: string;
   }>;
   officialLinks?: Array<{
+    id: string;
     title?: string;
     label?: string;
+    publisher: string;
     url: string;
     purpose?: string;
+    lastReviewedAt: string;
     sortOrder?: number;
   }>;
   mediaAssets?: Array<{
@@ -48,6 +51,14 @@ export interface GuideContentArticle {
     caption?: string;
     sortOrder?: number;
   }>;
+}
+
+export interface GuideContentBodySection extends Record<string, unknown> {
+  heading: string;
+  content: string[];
+  checklist?: string[];
+  warning?: string;
+  citationIds?: string[];
 }
 
 export function buildGuideContentImportRows(data: GuideContentImportData) {
@@ -103,9 +114,12 @@ export function buildGuideContentImportRows(data: GuideContentImportData) {
 
       return {
         article_id: article.id,
+        source_key: link.id,
         title,
+        publisher: link.publisher,
         url: link.url,
         purpose: link.purpose ?? title,
+        last_reviewed_at: link.lastReviewedAt,
         sort_order: link.sortOrder ?? index,
       };
     }),
@@ -148,6 +162,28 @@ function validateReferences(data: GuideContentImportData) {
       if (!tagIds.has(tagId)) {
         throw new Error(`Unknown tag ${tagId} for article ${article.id}`);
       }
+    }
+
+    const citationIds = new Set(
+      (article.officialLinks ?? [])
+        .map((link) => link.id)
+        .filter(Boolean),
+    );
+
+    for (const translation of article.translations) {
+      translation.body.forEach((section, sectionIndex) => {
+        if (!section.citationIds?.length) {
+          throw new Error(`Missing citation in ${article.id} (${translation.locale}) section ${sectionIndex + 1}`);
+        }
+
+        for (const citationId of section.citationIds) {
+          if (!citationIds.has(citationId)) {
+            throw new Error(
+              `Unknown citation ${citationId} in ${article.id} (${translation.locale}) section ${sectionIndex + 1}`,
+            );
+          }
+        }
+      });
     }
   }
 }

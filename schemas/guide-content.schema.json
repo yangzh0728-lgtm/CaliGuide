@@ -143,7 +143,7 @@
     "bodySection": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["heading", "content"],
+      "required": ["heading", "content", "citationIds"],
       "properties": {
         "heading": { "type": "string", "minLength": 1 },
         "content": {
@@ -155,26 +155,36 @@
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
         },
-        "warning": { "type": "string" }
+        "warning": { "type": "string" },
+        "citationIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Stable IDs from this article's officialLinks that support this section.",
+          "items": { "$ref": "#/$defs/id" }
+        }
       }
     },
     "officialLink": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["url"],
+      "required": ["id", "publisher", "url", "lastReviewedAt"],
       "anyOf": [
         { "required": ["title"] },
         { "required": ["label"] }
       ],
       "properties": {
+        "id": { "$ref": "#/$defs/id" },
         "title": { "type": "string", "minLength": 1 },
         "label": { "type": "string", "minLength": 1 },
+        "publisher": { "type": "string", "minLength": 1 },
         "url": {
           "type": "string",
           "format": "uri",
-          "pattern": "^https?://"
+          "pattern": "^https://"
         },
         "purpose": { "type": "string", "minLength": 1 },
+        "lastReviewedAt": { "type": "string", "format": "date" },
         "sortOrder": { "type": "integer", "minimum": 0, "default": 0 }
       }
     },

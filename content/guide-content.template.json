@@ -45,7 +45,8 @@
                 "准备身份证明",
                 "准备加州住址证明"
               ],
-              "warning": "DMV 材料要求可能变化，提交前建议再次查看官方页面。"
+              "warning": "DMV 材料要求可能变化，提交前建议再次查看官方页面。",
+              "citationIds": ["dmv-driver-licenses"]
             }
           ],
           "seoTitle": "加州驾照申请步骤 | CaliGuide",
@@ -54,9 +55,12 @@
       ],
       "officialLinks": [
         {
+          "id": "dmv-driver-licenses",
           "title": "California DMV Driver's Licenses",
+          "publisher": "California Department of Motor Vehicles",
           "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-licenses-dl/",
           "purpose": "查看加州驾照申请条件、主要材料和办理流程。",
+          "lastReviewedAt": "2026-08-25",
           "sortOrder": 10
         }
       ],

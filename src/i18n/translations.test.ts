@@ -17,6 +17,14 @@ describe("translations", () => {
     expect(translate("es", "profile.signOutConfirmBody")).toBe("Tendrás que iniciar sesión de nuevo para acceder a guías, publicaciones y configuración guardadas.");
   });
 
+  it("translates guide reference labels", () => {
+    expect(translate("en", "blog.references")).toBe("References");
+    expect(translate("zh-CN", "blog.references")).toBe("参考资料");
+    expect(translate("zh-TW", "blog.officialSource")).toBe("官方來源");
+    expect(translate("yue", "blog.reviewedOn")).toBe("資料覆核日期");
+    expect(translate("es", "blog.backToSection")).toBe("Volver a la sección");
+  });
+
   it("recognizes supported language codes", () => {
     expect(isLanguageCode("en")).toBe(true);
     expect(isLanguageCode("zh-CN")).toBe(true);

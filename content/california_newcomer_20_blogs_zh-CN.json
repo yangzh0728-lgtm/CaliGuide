@@ -283,7 +283,12 @@
                 "决定标准驾照或 REAL ID",
                 "检查姓名在所有文件上是否一致"
               ],
-              "warning": "不同移民身份可使用的身份证明文件不同；不要根据他人的经验推断自己的资格。"
+              "warning": "不同移民身份可使用的身份证明文件不同；不要根据他人的经验推断自己的资格。",
+              "citationIds": [
+                "guide-california-driver-license-first-time-source-1",
+                "guide-california-driver-license-first-time-source-2",
+                "guide-california-driver-license-first-time-source-3"
+              ]
             },
             {
               "heading": "在线填写申请并准备原件",
@@ -297,7 +302,12 @@
                 "把原件和复印件分开放",
                 "预约 DMV 办公室时间"
               ],
-              "warning": "照片、截图或普通复印件通常不能代替 DMV 要求的原件或认证副本。"
+              "warning": "照片、截图或普通复印件通常不能代替 DMV 要求的原件或认证副本。",
+              "citationIds": [
+                "guide-california-driver-license-first-time-source-1",
+                "guide-california-driver-license-first-time-source-2",
+                "guide-california-driver-license-first-time-source-3"
+              ]
             },
             {
               "heading": "现场办理与知识考试",
@@ -310,6 +320,11 @@
                 "确认考试语言选项",
                 "带眼镜或隐形眼镜",
                 "保留付款收据和临时文件"
+              ],
+              "citationIds": [
+                "guide-california-driver-license-first-time-source-1",
+                "guide-california-driver-license-first-time-source-2",
+                "guide-california-driver-license-first-time-source-3"
               ]
             },
             {
@@ -324,23 +339,37 @@
                 "规划去考场路线",
                 "通过后核对邮寄地址"
               ],
-              "warning": "没有有效学习许可、合规陪同或保险时不要上路练习。"
+              "warning": "没有有效学习许可、合规陪同或保险时不要上路练习。",
+              "citationIds": [
+                "guide-california-driver-license-first-time-source-1",
+                "guide-california-driver-license-first-time-source-2",
+                "guide-california-driver-license-first-time-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-california-driver-license-first-time-source-1",
           "label": "California DMV 驾照申请",
-          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-licenses-dl/"
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-licenses-dl/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-driver-license-first-time-source-2",
           "label": "DMV 在线申请",
-          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/dl-id-online-app-edl-44/"
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/dl-id-online-app-edl-44/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-driver-license-first-time-source-3",
           "label": "California Driver Handbook",
-          "url": "https://www.dmv.ca.gov/portal/handbook/california-driver-handbook/"
+          "url": "https://www.dmv.ca.gov/portal/handbook/california-driver-handbook/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -377,6 +406,11 @@
                 "确认自己是否经常国内飞行",
                 "检查护照有效期",
                 "比较标准驾照与 REAL ID 的使用场景"
+              ],
+              "citationIds": [
+                "guide-california-real-id-checklist-source-1",
+                "guide-california-real-id-checklist-source-2",
+                "guide-california-real-id-checklist-source-3"
               ]
             },
             {
@@ -391,7 +425,12 @@
                 "社会安全号码信息（如适用）",
                 "姓名变更证明（如适用）"
               ],
-              "warning": "邮政信箱可以作为邮寄地址，但住址证明通常需要显示实际居住地址。"
+              "warning": "邮政信箱可以作为邮寄地址，但住址证明通常需要显示实际居住地址。",
+              "citationIds": [
+                "guide-california-real-id-checklist-source-1",
+                "guide-california-real-id-checklist-source-2",
+                "guide-california-real-id-checklist-source-3"
+              ]
             },
             {
               "heading": "在线预审与现场原件",
@@ -404,6 +443,11 @@
                 "上传清晰完整的文件",
                 "打印或保存确认页面",
                 "携带全部原件"
+              ],
+              "citationIds": [
+                "guide-california-real-id-checklist-source-1",
+                "guide-california-real-id-checklist-source-2",
+                "guide-california-real-id-checklist-source-3"
               ]
             },
             {
@@ -418,23 +462,37 @@
                 "核对全名和中间名",
                 "准备备用住址文件"
               ],
-              "warning": "AB 60 驾照与 REAL ID 的资格规则不同，请以 DMV 对本人身份类别的说明为准。"
+              "warning": "AB 60 驾照与 REAL ID 的资格规则不同，请以 DMV 对本人身份类别的说明为准。",
+              "citationIds": [
+                "guide-california-real-id-checklist-source-1",
+                "guide-california-real-id-checklist-source-2",
+                "guide-california-real-id-checklist-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-california-real-id-checklist-source-1",
           "label": "California DMV REAL ID",
-          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/"
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-real-id-checklist-source-2",
           "label": "REAL ID 官方材料清单",
-          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/real-id-checklist/"
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/real-id-checklist/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-real-id-checklist-source-3",
           "label": "非美国公民 REAL ID 信息",
-          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/what-is-real-id/real-id-info-non-u-s-citizens/"
+          "url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/what-is-real-id/real-id-info-non-u-s-citizens/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -473,6 +531,11 @@
                 "查看最低余额要求",
                 "确认 ATM 网络",
                 "查看国际转账与现金存款规则"
+              ],
+              "citationIds": [
+                "guide-open-bank-account-newcomer-source-1",
+                "guide-open-bank-account-newcomer-source-2",
+                "guide-open-bank-account-newcomer-source-3"
               ]
             },
             {
@@ -488,7 +551,12 @@
                 "第二身份证明或地址文件",
                 "少量初始存款（如要求）"
               ],
-              "warning": "ITIN 是税务号码，不是工作许可，也不会改变移民身份。"
+              "warning": "ITIN 是税务号码，不是工作许可，也不会改变移民身份。",
+              "citationIds": [
+                "guide-open-bank-account-newcomer-source-1",
+                "guide-open-bank-account-newcomer-source-2",
+                "guide-open-bank-account-newcomer-source-3"
+              ]
             },
             {
               "heading": "确认存款保险与账户所有权",
@@ -501,6 +569,11 @@
                 "保存开户协议",
                 "核对姓名与税号",
                 "开启账户提醒"
+              ],
+              "citationIds": [
+                "guide-open-bank-account-newcomer-source-1",
+                "guide-open-bank-account-newcomer-source-2",
+                "guide-open-bank-account-newcomer-source-3"
               ]
             },
             {
@@ -516,23 +589,37 @@
                 "保存银行客服电话",
                 "阅读 overdraft 选项"
               ],
-              "warning": "不要通过短信或搜索广告中的链接登录银行；优先使用官方 App 或手动输入官网地址。"
+              "warning": "不要通过短信或搜索广告中的链接登录银行；优先使用官方 App 或手动输入官网地址。",
+              "citationIds": [
+                "guide-open-bank-account-newcomer-source-1",
+                "guide-open-bank-account-newcomer-source-2",
+                "guide-open-bank-account-newcomer-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-open-bank-account-newcomer-source-1",
           "label": "FDIC GetBanked 开户指南",
-          "url": "https://www.fdic.gov/getbanked"
+          "url": "https://www.fdic.gov/getbanked",
+          "publisher": "Federal Deposit Insurance Corporation",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-open-bank-account-newcomer-source-2",
           "label": "FDIC 如何开设银行账户",
-          "url": "https://www.fdic.gov/getbanked/pdf/how-to-open-a-bank-account.pdf"
+          "url": "https://www.fdic.gov/getbanked/pdf/how-to-open-a-bank-account.pdf",
+          "publisher": "Federal Deposit Insurance Corporation",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-open-bank-account-newcomer-source-3",
           "label": "FDIC 官方网站",
-          "url": "https://www.fdic.gov/"
+          "url": "https://www.fdic.gov/",
+          "publisher": "Federal Deposit Insurance Corporation",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -564,6 +651,12 @@
               "content": [
                 "信用报告记录账户、付款历史、欠款和查询等信息；信用分数是基于报告数据计算出的风险指标。刚到美国没有信用记录并不等于信用差，只是可供评估的信息较少。",
                 "租房、信用卡、车贷甚至部分服务押金都可能参考信用信息，因此越早建立稳定、可验证的付款记录越有帮助。"
+              ],
+              "citationIds": [
+                "guide-build-credit-avoid-bank-fees-source-1",
+                "guide-build-credit-avoid-bank-fees-source-2",
+                "guide-build-credit-avoid-bank-fees-source-3",
+                "guide-build-credit-avoid-bank-fees-source-4"
               ]
             },
             {
@@ -579,7 +672,13 @@
                 "控制余额占额度比例",
                 "不要短期频繁申请多张卡"
               ],
-              "warning": "预付卡和借记卡通常不会建立借款还款记录。"
+              "warning": "预付卡和借记卡通常不会建立借款还款记录。",
+              "citationIds": [
+                "guide-build-credit-avoid-bank-fees-source-1",
+                "guide-build-credit-avoid-bank-fees-source-2",
+                "guide-build-credit-avoid-bank-fees-source-3",
+                "guide-build-credit-avoid-bank-fees-source-4"
+              ]
             },
             {
               "heading": "免费检查信用报告",
@@ -592,6 +691,12 @@
                 "查看 Experian 报告",
                 "查看 TransUnion 报告",
                 "保存争议材料和确认号码"
+              ],
+              "citationIds": [
+                "guide-build-credit-avoid-bank-fees-source-1",
+                "guide-build-credit-avoid-bank-fees-source-2",
+                "guide-build-credit-avoid-bank-fees-source-3",
+                "guide-build-credit-avoid-bank-fees-source-4"
               ]
             },
             {
@@ -606,27 +711,45 @@
                 "每周核对 pending 交易",
                 "取消不用的订阅扣款"
               ],
-              "warning": "自动还款只能减少忘记付款的风险，不能替代每月核对账单和账户余额。"
+              "warning": "自动还款只能减少忘记付款的风险，不能替代每月核对账单和账户余额。",
+              "citationIds": [
+                "guide-build-credit-avoid-bank-fees-source-1",
+                "guide-build-credit-avoid-bank-fees-source-2",
+                "guide-build-credit-avoid-bank-fees-source-3",
+                "guide-build-credit-avoid-bank-fees-source-4"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-build-credit-avoid-bank-fees-source-1",
           "label": "CFPB 建立信用记录",
-          "url": "https://www.consumerfinance.gov/ask-cfpb/what-are-some-ways-to-start-or-rebuild-a-good-credit-history-en-2155/"
+          "url": "https://www.consumerfinance.gov/ask-cfpb/what-are-some-ways-to-start-or-rebuild-a-good-credit-history-en-2155/",
+          "publisher": "Consumer Financial Protection Bureau",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-build-credit-avoid-bank-fees-source-2",
           "label": "官方免费信用报告",
-          "url": "https://www.annualcreditreport.com/"
+          "url": "https://www.annualcreditreport.com/",
+          "publisher": "www.annualcreditreport.com",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-build-credit-avoid-bank-fees-source-3",
           "label": "CFPB Overdraft 选项",
-          "url": "https://www.consumerfinance.gov/consumer-tools/bank-accounts/know-your-overdraft-options/"
+          "url": "https://www.consumerfinance.gov/consumer-tools/bank-accounts/know-your-overdraft-options/",
+          "publisher": "Consumer Financial Protection Bureau",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-build-credit-avoid-bank-fees-source-4",
           "label": "FDIC 账户费用说明",
-          "url": "https://www.fdic.gov/consumer-resource-center/2021-12/overdraft-and-account-fees"
+          "url": "https://www.fdic.gov/consumer-resource-center/2021-12/overdraft-and-account-fees",
+          "publisher": "Federal Deposit Insurance Corporation",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -665,7 +788,12 @@
                 "搜索物业公司或经纪执照",
                 "不要在看房前支付大额款项"
               ],
-              "warning": "不要把护照、SSN、银行流水等完整敏感材料发给尚未核验身份的人。"
+              "warning": "不要把护照、SSN、银行流水等完整敏感材料发给尚未核验身份的人。",
+              "citationIds": [
+                "guide-california-rental-application-source-1",
+                "guide-california-rental-application-source-2",
+                "guide-california-rental-application-source-3"
+              ]
             },
             {
               "heading": "建立租房申请资料包",
@@ -679,6 +807,11 @@
                 "银行资金证明（遮盖不必要账户信息）",
                 "推荐人联系方式",
                 "计划入住日期"
+              ],
+              "citationIds": [
+                "guide-california-rental-application-source-1",
+                "guide-california-rental-application-source-2",
+                "guide-california-rental-application-source-3"
               ]
             },
             {
@@ -692,6 +825,11 @@
                 "获取筛选公司名称和联系方式",
                 "申请报告副本",
                 "书面争议错误信息"
+              ],
+              "citationIds": [
+                "guide-california-rental-application-source-1",
+                "guide-california-rental-application-source-2",
+                "guide-california-rental-application-source-3"
               ]
             },
             {
@@ -707,23 +845,37 @@
                 "保存签字完整副本",
                 "索取每笔付款收据"
               ],
-              "warning": "本指南是一般信息，不替代针对具体租约的法律意见。"
+              "warning": "本指南是一般信息，不替代针对具体租约的法律意见。",
+              "citationIds": [
+                "guide-california-rental-application-source-1",
+                "guide-california-rental-application-source-2",
+                "guide-california-rental-application-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-california-rental-application-source-1",
           "label": "California 2026 房东租客指南",
-          "url": "https://www.dre.ca.gov/publications/ResourceGuidebook/2026_Landlord_Tenant_Guide.pdf"
+          "url": "https://www.dre.ca.gov/publications/ResourceGuidebook/2026_Landlord_Tenant_Guide.pdf",
+          "publisher": "California Department of Real Estate",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-rental-application-source-2",
           "label": "CFPB 租户筛选报告",
-          "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-tenant-screening-report-en-2102/"
+          "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-tenant-screening-report-en-2102/",
+          "publisher": "Consumer Financial Protection Bureau",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-rental-application-source-3",
           "label": "CFPB 审查租房背景报告",
-          "url": "https://www.consumerfinance.gov/rules-policy/tenant-background-checks/review-your-rental-background-check/"
+          "url": "https://www.consumerfinance.gov/rules-policy/tenant-background-checks/review-your-rental-background-check/",
+          "publisher": "Consumer Financial Protection Bureau",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -761,6 +913,11 @@
                 "近距离拍已有损坏",
                 "测试烟雾报警器和家电",
                 "书面提交入住检查表"
+              ],
+              "citationIds": [
+                "guide-california-security-deposit-moveout-source-1",
+                "guide-california-security-deposit-moveout-source-2",
+                "guide-california-security-deposit-moveout-source-3"
               ]
             },
             {
@@ -775,7 +932,12 @@
                 "区分正常磨损与损坏",
                 "不要把押金当作最后一个月租金"
               ],
-              "warning": "不要擅自用押金抵最后一个月租金，除非房东书面同意。"
+              "warning": "不要擅自用押金抵最后一个月租金，除非房东书面同意。",
+              "citationIds": [
+                "guide-california-security-deposit-moveout-source-1",
+                "guide-california-security-deposit-moveout-source-2",
+                "guide-california-security-deposit-moveout-source-3"
+              ]
             },
             {
               "heading": "搬出前请求初步检查",
@@ -789,6 +951,11 @@
                 "修复自己造成的损坏",
                 "完成退租清洁",
                 "拍摄空房和钥匙交接"
+              ],
+              "citationIds": [
+                "guide-california-security-deposit-moveout-source-1",
+                "guide-california-security-deposit-moveout-source-2",
+                "guide-california-security-deposit-moveout-source-3"
               ]
             },
             {
@@ -804,23 +971,37 @@
                 "书面提出异议",
                 "保留全部证据"
               ],
-              "warning": "押金争议的处理取决于事实和租约；金额较大或情况复杂时应寻求法律帮助。"
+              "warning": "押金争议的处理取决于事实和租约；金额较大或情况复杂时应寻求法律帮助。",
+              "citationIds": [
+                "guide-california-security-deposit-moveout-source-1",
+                "guide-california-security-deposit-moveout-source-2",
+                "guide-california-security-deposit-moveout-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-california-security-deposit-moveout-source-1",
           "label": "California Courts 押金指南",
-          "url": "https://selfhelp.courts.ca.gov/guide-security-deposits-california"
+          "url": "https://selfhelp.courts.ca.gov/guide-security-deposits-california",
+          "publisher": "California Courts",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-security-deposit-moveout-source-2",
           "label": "California DRE 搬出与押金",
-          "url": "https://www.dre.ca.gov/publications/ResourceGuidebook/gb10_movingout.html"
+          "url": "https://www.dre.ca.gov/publications/ResourceGuidebook/gb10_movingout.html",
+          "publisher": "California Department of Real Estate",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-security-deposit-moveout-source-3",
           "label": "California DOJ 租客权利",
-          "url": "https://oag.ca.gov/tenants"
+          "url": "https://oag.ca.gov/tenants",
+          "publisher": "California Department of Justice",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -858,6 +1039,12 @@
                 "检查 Covered California 资格",
                 "检查 Medi-Cal 资格",
                 "列出家庭常用医生和药物"
+              ],
+              "citationIds": [
+                "guide-california-health-insurance-basics-source-1",
+                "guide-california-health-insurance-basics-source-2",
+                "guide-california-health-insurance-basics-source-3",
+                "guide-california-health-insurance-basics-source-4"
               ]
             },
             {
@@ -871,6 +1058,12 @@
                 "比较免赔额",
                 "比较家庭医生和专科 copay",
                 "查看年度自付上限"
+              ],
+              "citationIds": [
+                "guide-california-health-insurance-basics-source-1",
+                "guide-california-health-insurance-basics-source-2",
+                "guide-california-health-insurance-basics-source-3",
+                "guide-california-health-insurance-basics-source-4"
               ]
             },
             {
@@ -886,7 +1079,13 @@
                 "确认是否需要转诊",
                 "保存确认截图"
               ],
-              "warning": "医生接受某家保险公司，不代表接受该公司的所有计划。"
+              "warning": "医生接受某家保险公司，不代表接受该公司的所有计划。",
+              "citationIds": [
+                "guide-california-health-insurance-basics-source-1",
+                "guide-california-health-insurance-basics-source-2",
+                "guide-california-health-insurance-basics-source-3",
+                "guide-california-health-insurance-basics-source-4"
+              ]
             },
             {
               "heading": "注意开放投保期和特别投保期",
@@ -900,27 +1099,45 @@
                 "按时选计划并支付首期保费",
                 "确认生效日期"
               ],
-              "warning": "医保资格和补贴会随收入与家庭情况变化；申请时应如实填写并及时更新。"
+              "warning": "医保资格和补贴会随收入与家庭情况变化；申请时应如实填写并及时更新。",
+              "citationIds": [
+                "guide-california-health-insurance-basics-source-1",
+                "guide-california-health-insurance-basics-source-2",
+                "guide-california-health-insurance-basics-source-3",
+                "guide-california-health-insurance-basics-source-4"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-california-health-insurance-basics-source-1",
           "label": "Covered California 基本保障",
-          "url": "https://www.coveredca.com/learning-center/coverage-basics/essential-health-benefits/"
+          "url": "https://www.coveredca.com/learning-center/coverage-basics/essential-health-benefits/",
+          "publisher": "Covered California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-health-insurance-basics-source-2",
           "label": "Covered California 特别投保期",
-          "url": "https://www.coveredca.com/special-enrollment/"
+          "url": "https://www.coveredca.com/special-enrollment/",
+          "publisher": "Covered California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-health-insurance-basics-source-3",
           "label": "Medi-Cal",
-          "url": "https://www.coveredca.com/health/medi-cal/"
+          "url": "https://www.coveredca.com/health/medi-cal/",
+          "publisher": "Covered California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-health-insurance-basics-source-4",
           "label": "查询计划医生网络",
-          "url": "https://www.coveredca.com/support/before-you-buy/providers/"
+          "url": "https://www.coveredca.com/support/before-you-buy/providers/",
+          "publisher": "Covered California",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -958,6 +1175,11 @@
                 "预约年度体检",
                 "准备药物和过敏清单",
                 "保存诊所电话和地址"
+              ],
+              "citationIds": [
+                "guide-doctor-urgent-care-er-pharmacy-source-1",
+                "guide-doctor-urgent-care-er-pharmacy-source-2",
+                "guide-doctor-urgent-care-er-pharmacy-source-3"
               ]
             },
             {
@@ -971,6 +1193,11 @@
                 "带保险卡和身份证",
                 "记录症状开始时间",
                 "询问是否可开处方"
+              ],
+              "citationIds": [
+                "guide-doctor-urgent-care-er-pharmacy-source-1",
+                "guide-doctor-urgent-care-er-pharmacy-source-2",
+                "guide-doctor-urgent-care-er-pharmacy-source-3"
               ]
             },
             {
@@ -985,7 +1212,12 @@
                 "通知紧急联系人",
                 "保存出院文件"
               ],
-              "warning": "网络和费用问题不应阻止真正的紧急医疗救治。"
+              "warning": "网络和费用问题不应阻止真正的紧急医疗救治。",
+              "citationIds": [
+                "guide-doctor-urgent-care-er-pharmacy-source-1",
+                "guide-doctor-urgent-care-er-pharmacy-source-2",
+                "guide-doctor-urgent-care-er-pharmacy-source-3"
+              ]
             },
             {
               "heading": "使用药房和处理账单",
@@ -999,6 +1231,11 @@
                 "区分 EOB 与账单",
                 "保留付款收据",
                 "对错误账单及时申诉"
+              ],
+              "citationIds": [
+                "guide-doctor-urgent-care-er-pharmacy-source-1",
+                "guide-doctor-urgent-care-er-pharmacy-source-2",
+                "guide-doctor-urgent-care-er-pharmacy-source-3"
               ]
             }
           ]
@@ -1006,16 +1243,25 @@
       ],
       "officialLinks": [
         {
+          "id": "guide-doctor-urgent-care-er-pharmacy-source-1",
           "label": "Covered California 就医地点选择",
-          "url": "https://www.coveredca.com/marketing-blog/telehealth-doctors-office-urgent-care-or-emergency-room/"
+          "url": "https://www.coveredca.com/marketing-blog/telehealth-doctors-office-urgent-care-or-emergency-room/",
+          "publisher": "Covered California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-doctor-urgent-care-er-pharmacy-source-2",
           "label": "Covered California 医保术语",
-          "url": "https://www.coveredca.com/marketing-blog/do-you-speak-health-insurance/"
+          "url": "https://www.coveredca.com/marketing-blog/do-you-speak-health-insurance/",
+          "publisher": "Covered California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-doctor-urgent-care-er-pharmacy-source-3",
           "label": "Covered California 医生网络",
-          "url": "https://www.coveredca.com/support/before-you-buy/providers/"
+          "url": "https://www.coveredca.com/support/before-you-buy/providers/",
+          "publisher": "Covered California",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1054,6 +1300,11 @@
                 "扫描 EAD 或绿卡正反面",
                 "保存所有 I-797",
                 "记录 receipt number"
+              ],
+              "citationIds": [
+                "guide-organize-immigration-documents-source-1",
+                "guide-organize-immigration-documents-source-2",
+                "guide-organize-immigration-documents-source-3"
               ]
             },
             {
@@ -1068,7 +1319,12 @@
                 "核对入境类别",
                 "记录获准停留日期"
               ],
-              "warning": "签证有效期、I-94 停留期和工作许可有效期是不同概念。"
+              "warning": "签证有效期、I-94 停留期和工作许可有效期是不同概念。",
+              "citationIds": [
+                "guide-organize-immigration-documents-source-1",
+                "guide-organize-immigration-documents-source-2",
+                "guide-organize-immigration-documents-source-3"
+              ]
             },
             {
               "heading": "设置到期日提醒",
@@ -1081,6 +1337,11 @@
                 "设置多次提醒",
                 "保存申请版本",
                 "记录付款和邮寄追踪"
+              ],
+              "citationIds": [
+                "guide-organize-immigration-documents-source-1",
+                "guide-organize-immigration-documents-source-2",
+                "guide-organize-immigration-documents-source-3"
               ]
             },
             {
@@ -1095,23 +1356,37 @@
                 "核验律师执照或授权资格",
                 "保留沟通记录"
               ],
-              "warning": "本文仅提供文件管理方法，不判断任何人的身份、期限或申请策略。"
+              "warning": "本文仅提供文件管理方法，不判断任何人的身份、期限或申请策略。",
+              "citationIds": [
+                "guide-organize-immigration-documents-source-1",
+                "guide-organize-immigration-documents-source-2",
+                "guide-organize-immigration-documents-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-organize-immigration-documents-source-1",
           "label": "CBP I-94 官方系统",
-          "url": "https://i94.cbp.dhs.gov/home"
+          "url": "https://i94.cbp.dhs.gov/home",
+          "publisher": "U.S. Customs and Border Protection",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-organize-immigration-documents-source-2",
           "label": "USCIS 移民文件更正、更新与补发",
-          "url": "https://www.uscis.gov/tools/uscis-tools-and-resources/immigration-documents-and-how-to-correct-update-or-replace-them"
+          "url": "https://www.uscis.gov/tools/uscis-tools-and-resources/immigration-documents-and-how-to-correct-update-or-replace-them",
+          "publisher": "U.S. Citizenship and Immigration Services",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-organize-immigration-documents-source-3",
           "label": "USCIS 案件状态",
-          "url": "https://egov.uscis.gov/"
+          "url": "https://egov.uscis.gov/",
+          "publisher": "U.S. Citizenship and Immigration Services",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1150,6 +1425,11 @@
                 "更新 DMV",
                 "更新银行与保险",
                 "更新雇主和学校"
+              ],
+              "citationIds": [
+                "guide-uscis-address-change-legal-consult-source-1",
+                "guide-uscis-address-change-legal-consult-source-2",
+                "guide-uscis-address-change-legal-consult-source-3"
               ]
             },
             {
@@ -1164,7 +1444,12 @@
                 "保存确认号码",
                 "数日后检查账户地址"
               ],
-              "warning": "不同身份和程序可能有额外地址通知要求；有移民法庭案件时尤其要查看相应法院规则。"
+              "warning": "不同身份和程序可能有额外地址通知要求；有移民法庭案件时尤其要查看相应法院规则。",
+              "citationIds": [
+                "guide-uscis-address-change-legal-consult-source-1",
+                "guide-uscis-address-change-legal-consult-source-2",
+                "guide-uscis-address-change-legal-consult-source-3"
+              ]
             },
             {
               "heading": "怎样找合规的法律服务",
@@ -1178,6 +1463,11 @@
                 "确认谁实际负责案件",
                 "索取付款收据",
                 "不要签空白表格"
+              ],
+              "citationIds": [
+                "guide-uscis-address-change-legal-consult-source-1",
+                "guide-uscis-address-change-legal-consult-source-2",
+                "guide-uscis-address-change-legal-consult-source-3"
               ]
             },
             {
@@ -1193,23 +1483,37 @@
                 "费用与合同问题",
                 "书面记录咨询结论"
               ],
-              "warning": "不要根据博客直接做高风险移民决定；个案应由合格专业人士审核。"
+              "warning": "不要根据博客直接做高风险移民决定；个案应由合格专业人士审核。",
+              "citationIds": [
+                "guide-uscis-address-change-legal-consult-source-1",
+                "guide-uscis-address-change-legal-consult-source-2",
+                "guide-uscis-address-change-legal-consult-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-uscis-address-change-legal-consult-source-1",
           "label": "USCIS 在线地址变更",
-          "url": "https://www.uscis.gov/addresschange"
+          "url": "https://www.uscis.gov/addresschange",
+          "publisher": "U.S. Citizenship and Immigration Services",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-uscis-address-change-legal-consult-source-2",
           "label": "USCIS 寻找法律服务",
-          "url": "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/find-legal-services"
+          "url": "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/find-legal-services",
+          "publisher": "U.S. Citizenship and Immigration Services",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-uscis-address-change-legal-consult-source-3",
           "label": "USCIS 避免移民诈骗",
-          "url": "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams"
+          "url": "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams",
+          "publisher": "U.S. Citizenship and Immigration Services",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1247,6 +1551,11 @@
                 "收集职位描述",
                 "整理关键词",
                 "列出可量化成果"
+              ],
+              "citationIds": [
+                "guide-california-job-search-resume-linkedin-source-1",
+                "guide-california-job-search-resume-linkedin-source-2",
+                "guide-california-job-search-resume-linkedin-source-3"
               ]
             },
             {
@@ -1261,6 +1570,11 @@
                 "删除不必要个人信息",
                 "导出 PDF",
                 "为每类岗位保存版本"
+              ],
+              "citationIds": [
+                "guide-california-job-search-resume-linkedin-source-1",
+                "guide-california-job-search-resume-linkedin-source-2",
+                "guide-california-job-search-resume-linkedin-source-3"
               ]
             },
             {
@@ -1275,6 +1589,11 @@
                 "填写技能和经历",
                 "自定义个人链接",
                 "每周建立有质量的联系"
+              ],
+              "citationIds": [
+                "guide-california-job-search-resume-linkedin-source-1",
+                "guide-california-job-search-resume-linkedin-source-2",
+                "guide-california-job-search-resume-linkedin-source-3"
               ]
             },
             {
@@ -1289,6 +1608,11 @@
                 "设置职位提醒",
                 "建立投递追踪表",
                 "每周跟进"
+              ],
+              "citationIds": [
+                "guide-california-job-search-resume-linkedin-source-1",
+                "guide-california-job-search-resume-linkedin-source-2",
+                "guide-california-job-search-resume-linkedin-source-3"
               ]
             }
           ]
@@ -1296,16 +1620,25 @@
       ],
       "officialLinks": [
         {
+          "id": "guide-california-job-search-resume-linkedin-source-1",
           "label": "California EDD Jobs and Training",
-          "url": "https://edd.ca.gov/jobs_and_training/"
+          "url": "https://edd.ca.gov/jobs_and_training/",
+          "publisher": "California Employment Development Department",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-job-search-resume-linkedin-source-2",
           "label": "America’s Job Center of California",
-          "url": "https://edd.ca.gov/en/jobs_and_training/TCLobby/"
+          "url": "https://edd.ca.gov/en/jobs_and_training/TCLobby/",
+          "publisher": "California Employment Development Department",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-job-search-resume-linkedin-source-3",
           "label": "CalJOBS",
-          "url": "https://www.caljobs.ca.gov/"
+          "url": "https://www.caljobs.ca.gov/",
+          "publisher": "State of California",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1345,7 +1678,13 @@
                 "不提交无关原件",
                 "保存入职文件副本"
               ],
-              "warning": "ITIN 不能替代工作授权，也不能用于证明合法就业资格。"
+              "warning": "ITIN 不能替代工作授权，也不能用于证明合法就业资格。",
+              "citationIds": [
+                "guide-first-job-i9-w4-paystub-source-1",
+                "guide-first-job-i9-w4-paystub-source-2",
+                "guide-first-job-i9-w4-paystub-source-3",
+                "guide-first-job-i9-w4-paystub-source-4"
+              ]
             },
             {
               "heading": "Form I-9 是什么",
@@ -1358,6 +1697,12 @@
                 "核对姓名和地址",
                 "选择合格文件组合",
                 "记录文件到期日"
+              ],
+              "citationIds": [
+                "guide-first-job-i9-w4-paystub-source-1",
+                "guide-first-job-i9-w4-paystub-source-2",
+                "guide-first-job-i9-w4-paystub-source-3",
+                "guide-first-job-i9-w4-paystub-source-4"
               ]
             },
             {
@@ -1371,6 +1716,12 @@
                 "考虑多个工作",
                 "保留提交副本",
                 "首次工资后核对预扣"
+              ],
+              "citationIds": [
+                "guide-first-job-i9-w4-paystub-source-1",
+                "guide-first-job-i9-w4-paystub-source-2",
+                "guide-first-job-i9-w4-paystub-source-3",
+                "guide-first-job-i9-w4-paystub-source-4"
               ]
             },
             {
@@ -1386,27 +1737,45 @@
                 "保存 W-2",
                 "记录 HR 联系方式"
               ],
-              "warning": "劳动权利和最低工资可能受州、市及行业规则影响；本文不替代劳动法意见。"
+              "warning": "劳动权利和最低工资可能受州、市及行业规则影响；本文不替代劳动法意见。",
+              "citationIds": [
+                "guide-first-job-i9-w4-paystub-source-1",
+                "guide-first-job-i9-w4-paystub-source-2",
+                "guide-first-job-i9-w4-paystub-source-3",
+                "guide-first-job-i9-w4-paystub-source-4"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-first-job-i9-w4-paystub-source-1",
           "label": "USCIS Form I-9",
-          "url": "https://www.uscis.gov/i-9"
+          "url": "https://www.uscis.gov/i-9",
+          "publisher": "U.S. Citizenship and Immigration Services",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-job-i9-w4-paystub-source-2",
           "label": "I-9 可接受文件",
-          "url": "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents"
+          "url": "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents",
+          "publisher": "U.S. Citizenship and Immigration Services",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-job-i9-w4-paystub-source-3",
           "label": "IRS Form W-4",
-          "url": "https://www.irs.gov/forms-pubs/about-form-w-4"
+          "url": "https://www.irs.gov/forms-pubs/about-form-w-4",
+          "publisher": "Internal Revenue Service",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-job-i9-w4-paystub-source-4",
           "label": "California 劳工权益",
-          "url": "https://www.dir.ca.gov/dlse/"
+          "url": "https://www.dir.ca.gov/dlse/",
+          "publisher": "State of California",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1444,6 +1813,11 @@
                 "确认对应学校",
                 "联系注册办公室",
                 "询问年级和开学日期"
+              ],
+              "citationIds": [
+                "guide-california-school-enrollment-newcomer-source-1",
+                "guide-california-school-enrollment-newcomer-source-2",
+                "guide-california-school-enrollment-newcomer-source-3"
               ]
             },
             {
@@ -1458,6 +1832,11 @@
                 "疫苗记录",
                 "成绩单和课程说明",
                 "IEP/504 或评估报告（如有）"
+              ],
+              "citationIds": [
+                "guide-california-school-enrollment-newcomer-source-1",
+                "guide-california-school-enrollment-newcomer-source-2",
+                "guide-california-school-enrollment-newcomer-source-3"
               ]
             },
             {
@@ -1472,7 +1851,12 @@
                 "预约补种或评估",
                 "保存学校提交副本"
               ],
-              "warning": "疫苗要求和医学豁免有专门规则，应以 CDPH 和学校的最新说明为准。"
+              "warning": "疫苗要求和医学豁免有专门规则，应以 CDPH 和学校的最新说明为准。",
+              "citationIds": [
+                "guide-california-school-enrollment-newcomer-source-1",
+                "guide-california-school-enrollment-newcomer-source-2",
+                "guide-california-school-enrollment-newcomer-source-3"
+              ]
             },
             {
               "heading": "申请英语与新生支持",
@@ -1486,6 +1870,11 @@
                 "核对学分转换",
                 "了解辅导员和家长门户",
                 "参加迎新活动"
+              ],
+              "citationIds": [
+                "guide-california-school-enrollment-newcomer-source-1",
+                "guide-california-school-enrollment-newcomer-source-2",
+                "guide-california-school-enrollment-newcomer-source-3"
               ]
             }
           ]
@@ -1493,16 +1882,25 @@
       ],
       "officialLinks": [
         {
+          "id": "guide-california-school-enrollment-newcomer-source-1",
           "label": "California CDE Newcomer Students",
-          "url": "https://www.cde.ca.gov/sp/ml/newcomerstudnts.asp"
+          "url": "https://www.cde.ca.gov/sp/ml/newcomerstudnts.asp",
+          "publisher": "California Department of Education",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-school-enrollment-newcomer-source-2",
           "label": "California English Learner Roadmap",
-          "url": "https://www.cde.ca.gov/sp/ml/roadmap.asp"
+          "url": "https://www.cde.ca.gov/sp/ml/roadmap.asp",
+          "publisher": "California Department of Education",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-california-school-enrollment-newcomer-source-3",
           "label": "Shots for School",
-          "url": "https://www.shotsforschool.org/"
+          "url": "https://www.shotsforschool.org/",
+          "publisher": "California Department of Public Health",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1541,6 +1939,11 @@
                 "大学衔接",
                 "职业证书",
                 "公民入籍准备"
+              ],
+              "citationIds": [
+                "guide-adult-esl-community-college-source-1",
+                "guide-adult-esl-community-college-source-2",
+                "guide-adult-esl-community-college-source-3"
               ]
             },
             {
@@ -1555,6 +1958,11 @@
                 "确认是否免费",
                 "询问分班测试",
                 "确认停车或公交"
+              ],
+              "citationIds": [
+                "guide-adult-esl-community-college-source-1",
+                "guide-adult-esl-community-college-source-2",
+                "guide-adult-esl-community-college-source-3"
               ]
             },
             {
@@ -1568,6 +1976,11 @@
                 "查看证书路径",
                 "预约 counselor",
                 "询问衔接到 credit ESL 的条件"
+              ],
+              "citationIds": [
+                "guide-adult-esl-community-college-source-1",
+                "guide-adult-esl-community-college-source-2",
+                "guide-adult-esl-community-college-source-3"
               ]
             },
             {
@@ -1583,23 +1996,37 @@
                 "咨询职业服务",
                 "制定每学期目标"
               ],
-              "warning": "课程费用、居民学费和资助资格与个人情况有关，应由学校官方办公室确认。"
+              "warning": "课程费用、居民学费和资助资格与个人情况有关，应由学校官方办公室确认。",
+              "citationIds": [
+                "guide-adult-esl-community-college-source-1",
+                "guide-adult-esl-community-college-source-2",
+                "guide-adult-esl-community-college-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-adult-esl-community-college-source-1",
           "label": "California Community Colleges Noncredit",
-          "url": "https://www.cccco.edu/About-Us/Chancellors-Office/Divisions/Educational-Services-and-Support/What-we-do/Curriculum-and-Instruction-Unit/Curriculum/Noncredit-Curriculum-and-Instructional-Programs"
+          "url": "https://www.cccco.edu/About-Us/Chancellors-Office/Divisions/Educational-Services-and-Support/What-we-do/Curriculum-and-Instruction-Unit/Curriculum/Noncredit-Curriculum-and-Instructional-Programs",
+          "publisher": "California Community Colleges",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-adult-esl-community-college-source-2",
           "label": "California Community Colleges 学生入口",
-          "url": "https://www.cccco.edu/Students"
+          "url": "https://www.cccco.edu/Students",
+          "publisher": "California Community Colleges",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-adult-esl-community-college-source-3",
           "label": "California Adult Education",
-          "url": "https://caladulted.org/"
+          "url": "https://caladulted.org/",
+          "publisher": "California Adult Education",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1639,7 +2066,13 @@
                 "查看维修记录",
                 "安排购前检测"
               ],
-              "warning": "不要购买 title 缺失、卖家拒绝核验身份或要求空白签字的车辆。"
+              "warning": "不要购买 title 缺失、卖家拒绝核验身份或要求空白签字的车辆。",
+              "citationIds": [
+                "guide-buy-used-car-california-private-party-source-1",
+                "guide-buy-used-car-california-private-party-source-2",
+                "guide-buy-used-car-california-private-party-source-3",
+                "guide-buy-used-car-california-private-party-source-4"
+              ]
             },
             {
               "heading": "付款与文件签署",
@@ -1653,6 +2086,12 @@
                 "记录里程",
                 "保存卖家身份证明信息",
                 "索要付款收据"
+              ],
+              "citationIds": [
+                "guide-buy-used-car-california-private-party-source-1",
+                "guide-buy-used-car-california-private-party-source-2",
+                "guide-buy-used-car-california-private-party-source-3",
+                "guide-buy-used-car-california-private-party-source-4"
               ]
             },
             {
@@ -1667,7 +2106,13 @@
                 "比较 deductible",
                 "保存保险卡"
               ],
-              "warning": "保险必须在开车前确认生效，不要假设卖家的保险会继续覆盖买方。"
+              "warning": "保险必须在开车前确认生效，不要假设卖家的保险会继续覆盖买方。",
+              "citationIds": [
+                "guide-buy-used-car-california-private-party-source-1",
+                "guide-buy-used-car-california-private-party-source-2",
+                "guide-buy-used-car-california-private-party-source-3",
+                "guide-buy-used-car-california-private-party-source-4"
+              ]
             },
             {
               "heading": "十天内完成过户",
@@ -1682,27 +2127,45 @@
                 "确认 registration 邮寄地址",
                 "收到 title 后核对信息"
               ],
-              "warning": "车辆交易税费、smog 例外和特殊 title 情况较复杂，应使用 DMV 官方工具核对。"
+              "warning": "车辆交易税费、smog 例外和特殊 title 情况较复杂，应使用 DMV 官方工具核对。",
+              "citationIds": [
+                "guide-buy-used-car-california-private-party-source-1",
+                "guide-buy-used-car-california-private-party-source-2",
+                "guide-buy-used-car-california-private-party-source-3",
+                "guide-buy-used-car-california-private-party-source-4"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-buy-used-car-california-private-party-source-1",
           "label": "DMV 私人交易车辆登记",
-          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/new-registration/registering-a-vehicle-purchased-from-a-private-party/"
+          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/new-registration/registering-a-vehicle-purchased-from-a-private-party/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-buy-used-car-california-private-party-source-2",
           "label": "DMV Title Transfer",
-          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/titles/title-transfers-and-changes/"
+          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/titles/title-transfers-and-changes/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-buy-used-car-california-private-party-source-3",
           "label": "California 汽车保险要求",
-          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/insurance-requirements/"
+          "url": "https://www.dmv.ca.gov/portal/vehicle-registration/insurance-requirements/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-buy-used-car-california-private-party-source-4",
           "label": "California Department of Insurance 汽车保险",
-          "url": "https://www.insurance.ca.gov/01-consumers/105-type/95-guides/01-auto/auto101.cfm"
+          "url": "https://www.insurance.ca.gov/01-consumers/105-type/95-guides/01-auto/auto101.cfm",
+          "publisher": "California Department of Insurance",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1741,6 +2204,12 @@
                 "收藏常用线路",
                 "查看服务公告",
                 "准备备用路线"
+              ],
+              "citationIds": [
+                "guide-public-transit-commute-parking-source-1",
+                "guide-public-transit-commute-parking-source-2",
+                "guide-public-transit-commute-parking-source-3",
+                "guide-public-transit-commute-parking-source-4"
               ]
             },
             {
@@ -1755,6 +2224,12 @@
                 "截图线路和站点",
                 "携带充电宝",
                 "查看晚间返程"
+              ],
+              "citationIds": [
+                "guide-public-transit-commute-parking-source-1",
+                "guide-public-transit-commute-parking-source-2",
+                "guide-public-transit-commute-parking-source-3",
+                "guide-public-transit-commute-parking-source-4"
               ]
             },
             {
@@ -1769,6 +2244,12 @@
                 "检查车牌输入",
                 "保存付款确认",
                 "设置停车到期提醒"
+              ],
+              "citationIds": [
+                "guide-public-transit-commute-parking-source-1",
+                "guide-public-transit-commute-parking-source-2",
+                "guide-public-transit-commute-parking-source-3",
+                "guide-public-transit-commute-parking-source-4"
               ]
             },
             {
@@ -1784,27 +2265,45 @@
                 "红色：禁止停车",
                 "蓝色：残障许可"
               ],
-              "warning": "停车规则违反可能导致罚单或拖车；始终以现场标志、路缘标记和当地规定为准。"
+              "warning": "停车规则违反可能导致罚单或拖车；始终以现场标志、路缘标记和当地规定为准。",
+              "citationIds": [
+                "guide-public-transit-commute-parking-source-1",
+                "guide-public-transit-commute-parking-source-2",
+                "guide-public-transit-commute-parking-source-3",
+                "guide-public-transit-commute-parking-source-4"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-public-transit-commute-parking-source-1",
           "label": "California DMV 路边颜色与停车",
-          "url": "https://www.dmv.ca.gov/portal/handbook/california-driver-handbook/navigating-the-roads-cont1/"
+          "url": "https://www.dmv.ca.gov/portal/handbook/california-driver-handbook/navigating-the-roads-cont1/",
+          "publisher": "California Department of Motor Vehicles",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-public-transit-commute-parking-source-2",
           "label": "湾区 511",
-          "url": "https://511.org/home"
+          "url": "https://511.org/home",
+          "publisher": "Metropolitan Transportation Commission",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-public-transit-commute-parking-source-3",
           "label": "南加州 511",
-          "url": "https://go511.com/"
+          "url": "https://go511.com/",
+          "publisher": "Southern California 511",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-public-transit-commute-parking-source-4",
           "label": "Los Angeles Metro Trip Planner",
-          "url": "https://www.metro.net/riding/trip-planner/"
+          "url": "https://www.metro.net/riding/trip-planner/",
+          "publisher": "Los Angeles County Metropolitan Transportation Authority",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1843,6 +2342,12 @@
                 "确认水和垃圾",
                 "确认网络线路",
                 "记录服务起始日"
+              ],
+              "citationIds": [
+                "guide-set-up-phone-internet-utilities-source-1",
+                "guide-set-up-phone-internet-utilities-source-2",
+                "guide-set-up-phone-internet-utilities-source-3",
+                "guide-set-up-phone-internet-utilities-source-4"
               ]
             },
             {
@@ -1858,7 +2363,13 @@
                 "核对首账单",
                 "设置自动付款提醒"
               ],
-              "warning": "不要向自称公用事业公司的陌生来电立即付款；断电威胁类诈骗很常见。"
+              "warning": "不要向自称公用事业公司的陌生来电立即付款；断电威胁类诈骗很常见。",
+              "citationIds": [
+                "guide-set-up-phone-internet-utilities-source-1",
+                "guide-set-up-phone-internet-utilities-source-2",
+                "guide-set-up-phone-internet-utilities-source-3",
+                "guide-set-up-phone-internet-utilities-source-4"
+              ]
             },
             {
               "heading": "选择手机和家庭网络",
@@ -1872,6 +2383,12 @@
                 "确认设备租金",
                 "确认安装时间",
                 "保存退还设备规则"
+              ],
+              "citationIds": [
+                "guide-set-up-phone-internet-utilities-source-1",
+                "guide-set-up-phone-internet-utilities-source-2",
+                "guide-set-up-phone-internet-utilities-source-3",
+                "guide-set-up-phone-internet-utilities-source-4"
               ]
             },
             {
@@ -1887,27 +2404,45 @@
                 "查看电气费援助",
                 "设置续期提醒"
               ],
-              "warning": "ACP 已结束，不要把旧的 ACP 广告当成当前仍可申请的项目。"
+              "warning": "ACP 已结束，不要把旧的 ACP 广告当成当前仍可申请的项目。",
+              "citationIds": [
+                "guide-set-up-phone-internet-utilities-source-1",
+                "guide-set-up-phone-internet-utilities-source-2",
+                "guide-set-up-phone-internet-utilities-source-3",
+                "guide-set-up-phone-internet-utilities-source-4"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-set-up-phone-internet-utilities-source-1",
           "label": "CPUC 开通、停止或转移公用事业",
-          "url": "https://www.cpuc.ca.gov/consumer-support/late-bill-assistance/my-service"
+          "url": "https://www.cpuc.ca.gov/consumer-support/late-bill-assistance/my-service",
+          "publisher": "California Public Utilities Commission",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-set-up-phone-internet-utilities-source-2",
           "label": "California LifeLine",
-          "url": "https://www.cpuc.ca.gov/consumer-support/financial-assistance-savings-and-discounts/lifeline"
+          "url": "https://www.cpuc.ca.gov/consumer-support/financial-assistance-savings-and-discounts/lifeline",
+          "publisher": "California Public Utilities Commission",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-set-up-phone-internet-utilities-source-3",
           "label": "California 低价网络计划",
-          "url": "https://webtraining.cpuc.ca.gov/industries-and-topics/internet-and-phone/california-low-cost-internet-plans"
+          "url": "https://webtraining.cpuc.ca.gov/industries-and-topics/internet-and-phone/california-low-cost-internet-plans",
+          "publisher": "California Public Utilities Commission",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-set-up-phone-internet-utilities-source-4",
           "label": "Federal Lifeline",
-          "url": "https://www.fcc.gov/lifeline-consumers"
+          "url": "https://www.fcc.gov/lifeline-consumers",
+          "publisher": "Federal Communications Commission",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -1945,6 +2480,11 @@
                 "确认收信地址",
                 "创建重要账户邮箱",
                 "建立纸质和云端文件夹"
+              ],
+              "citationIds": [
+                "guide-first-30-days-community-resources-source-1",
+                "guide-first-30-days-community-resources-source-2",
+                "guide-first-30-days-community-resources-source-3"
               ]
             },
             {
@@ -1959,6 +2499,11 @@
                 "保存收据",
                 "了解退货政策",
                 "设置交易提醒"
+              ],
+              "citationIds": [
+                "guide-first-30-days-community-resources-source-1",
+                "guide-first-30-days-community-resources-source-2",
+                "guide-first-30-days-community-resources-source-3"
               ]
             },
             {
@@ -1972,6 +2517,11 @@
                 "查找社区中心",
                 "保存县政府网站",
                 "加入可信本地群组"
+              ],
+              "citationIds": [
+                "guide-first-30-days-community-resources-source-1",
+                "guide-first-30-days-community-resources-source-2",
+                "guide-first-30-days-community-resources-source-3"
               ]
             },
             {
@@ -1987,23 +2537,37 @@
                 "记录转介结果",
                 "核验机构官网"
               ],
-              "warning": "211 是资源转介服务，不是 911。生命危险、火灾或正在发生的犯罪应拨打 911。"
+              "warning": "211 是资源转介服务，不是 911。生命危险、火灾或正在发生的犯罪应拨打 911。",
+              "citationIds": [
+                "guide-first-30-days-community-resources-source-1",
+                "guide-first-30-days-community-resources-source-2",
+                "guide-first-30-days-community-resources-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-first-30-days-community-resources-source-1",
           "label": "211 California",
-          "url": "https://211ca.org/"
+          "url": "https://211ca.org/",
+          "publisher": "211 California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-30-days-community-resources-source-2",
           "label": "查找本地 211",
-          "url": "https://211ca.org/find-your-local-211/"
+          "url": "https://211ca.org/find-your-local-211/",
+          "publisher": "211 California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-30-days-community-resources-source-3",
           "label": "California 州政府服务",
-          "url": "https://www.ca.gov/services/"
+          "url": "https://www.ca.gov/services/",
+          "publisher": "State of California",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -2044,6 +2608,12 @@
                 "1099-K",
                 "失业金或其他政府税表",
                 "银行利息和投资税表"
+              ],
+              "citationIds": [
+                "guide-first-year-tax-documents-california-source-1",
+                "guide-first-year-tax-documents-california-source-2",
+                "guide-first-year-tax-documents-california-source-3",
+                "guide-first-year-tax-documents-california-source-4"
               ]
             },
             {
@@ -2058,6 +2628,12 @@
                 "核对收入",
                 "核对联邦预扣",
                 "核对 California 预扣"
+              ],
+              "citationIds": [
+                "guide-first-year-tax-documents-california-source-1",
+                "guide-first-year-tax-documents-california-source-2",
+                "guide-first-year-tax-documents-california-source-3",
+                "guide-first-year-tax-documents-california-source-4"
               ]
             },
             {
@@ -2072,7 +2648,13 @@
                 "核对州外和海外收入",
                 "保留入境与搬家日期证据"
               ],
-              "warning": "移民身份、税务居民身份和州税居民身份不是同一概念。"
+              "warning": "移民身份、税务居民身份和州税居民身份不是同一概念。",
+              "citationIds": [
+                "guide-first-year-tax-documents-california-source-1",
+                "guide-first-year-tax-documents-california-source-2",
+                "guide-first-year-tax-documents-california-source-3",
+                "guide-first-year-tax-documents-california-source-4"
+              ]
             },
             {
               "heading": "选择报税方式并保存回执",
@@ -2087,27 +2669,45 @@
                 "下载完整 PDF",
                 "记录付款或退款日期"
               ],
-              "warning": "税法会按年度变化；本文只用于准备文件，不提供个别税务结论。"
+              "warning": "税法会按年度变化；本文只用于准备文件，不提供个别税务结论。",
+              "citationIds": [
+                "guide-first-year-tax-documents-california-source-1",
+                "guide-first-year-tax-documents-california-source-2",
+                "guide-first-year-tax-documents-california-source-3",
+                "guide-first-year-tax-documents-california-source-4"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-first-year-tax-documents-california-source-1",
           "label": "IRS 报税前准备",
-          "url": "https://www.irs.gov/individuals/get-ready-to-file-your-taxes"
+          "url": "https://www.irs.gov/individuals/get-ready-to-file-your-taxes",
+          "publisher": "Internal Revenue Service",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-year-tax-documents-california-source-2",
           "label": "IRS 税务记录保存",
-          "url": "https://www.irs.gov/taxtopics/tc305"
+          "url": "https://www.irs.gov/taxtopics/tc305",
+          "publisher": "Internal Revenue Service",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-year-tax-documents-california-source-3",
           "label": "California FTB 个人报税",
-          "url": "https://www.ftb.ca.gov/file/personal/index.html"
+          "url": "https://www.ftb.ca.gov/file/personal/index.html",
+          "publisher": "State of California",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-first-year-tax-documents-california-source-4",
           "label": "California CalFile",
-          "url": "https://www.ftb.ca.gov/file/ways-to-file/online/calfile/index.asp"
+          "url": "https://www.ftb.ca.gov/file/ways-to-file/online/calfile/index.asp",
+          "publisher": "State of California",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
@@ -2139,6 +2739,11 @@
               "content": [
                 "Individual Taxpayer Identification Number（ITIN）是 IRS 为需要美国联邦税务识别号码、但不符合 SSN 资格的人签发的九位号码。它用于联邦税务目的。",
                 "ITIN 可能用于提交税表、申请符合条件的退款或税收优惠，或满足其他联邦税务要求。加州也允许符合州申报要求的纳税人使用 ITIN 报州税。"
+              ],
+              "citationIds": [
+                "guide-itin-basics-application-source-1",
+                "guide-itin-basics-application-source-2",
+                "guide-itin-basics-application-source-3"
               ]
             },
             {
@@ -2153,7 +2758,12 @@
                 "不改变移民身份",
                 "不自动带来福利资格"
               ],
-              "warning": "任何声称“买 ITIN 就能合法工作或获得身份”的说法都不可信。"
+              "warning": "任何声称“买 ITIN 就能合法工作或获得身份”的说法都不可信。",
+              "citationIds": [
+                "guide-itin-basics-application-source-1",
+                "guide-itin-basics-application-source-2",
+                "guide-itin-basics-application-source-3"
+              ]
             },
             {
               "heading": "申请通常使用 Form W-7",
@@ -2167,6 +2777,11 @@
                 "准备合格身份证明",
                 "确认是否附税表",
                 "保存完整申请副本"
+              ],
+              "citationIds": [
+                "guide-itin-basics-application-source-1",
+                "guide-itin-basics-application-source-2",
+                "guide-itin-basics-application-source-3"
               ]
             },
             {
@@ -2181,23 +2796,37 @@
                 "报税前确认有效状态",
                 "取得 SSN 后联系 IRS"
               ],
-              "warning": "申请 ITIN 或处理复杂跨境税务时，可咨询有资质的税务专业人士或 IRS 认可渠道。"
+              "warning": "申请 ITIN 或处理复杂跨境税务时，可咨询有资质的税务专业人士或 IRS 认可渠道。",
+              "citationIds": [
+                "guide-itin-basics-application-source-1",
+                "guide-itin-basics-application-source-2",
+                "guide-itin-basics-application-source-3"
+              ]
             }
           ]
         }
       ],
       "officialLinks": [
         {
+          "id": "guide-itin-basics-application-source-1",
           "label": "IRS ITIN 官方说明",
-          "url": "https://www.irs.gov/tin/itin/individual-taxpayer-identification-number-itin"
+          "url": "https://www.irs.gov/tin/itin/individual-taxpayer-identification-number-itin",
+          "publisher": "Internal Revenue Service",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-itin-basics-application-source-2",
           "label": "IRS Form W-7",
-          "url": "https://www.irs.gov/forms-pubs/about-form-w-7"
+          "url": "https://www.irs.gov/forms-pubs/about-form-w-7",
+          "publisher": "Internal Revenue Service",
+          "lastReviewedAt": "2026-08-25"
         },
         {
+          "id": "guide-itin-basics-application-source-3",
           "label": "California FTB ITIN",
-          "url": "https://www.ftb.ca.gov/file/personal/credits/itin.html"
+          "url": "https://www.ftb.ca.gov/file/personal/credits/itin.html",
+          "publisher": "State of California",
+          "lastReviewedAt": "2026-08-25"
         }
       ],
       "mediaAssets": []
