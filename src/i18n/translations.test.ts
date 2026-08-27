@@ -25,12 +25,45 @@ describe("translations", () => {
     expect(translate("es", "blog.backToSection")).toBe("Volver a la sección");
   });
 
+  it("translates guide disclaimer copy in every supported language", () => {
+    const languages = ["en", "zh-CN", "zh-TW", "yue", "es"] as const;
+    const keys = [
+      "disclaimer.heading",
+      "disclaimer.legal",
+      "disclaimer.medical",
+      "disclaimer.financial",
+    ];
+
+    for (const language of languages) {
+      for (const key of keys) {
+        const value = translate(language, key);
+        expect(value).toBeTruthy();
+        expect(value).not.toBe(key);
+        // Non-English tables must not silently fall back to the English string.
+        if (language !== "en") {
+          expect(value).not.toBe(translate("en", key));
+        }
+      }
+    }
+  });
+
+  it("keeps emergency guidance in the medical disclaimer", () => {
+    expect(translate("en", "disclaimer.medical")).toContain("911");
+    expect(translate("zh-CN", "disclaimer.medical")).toContain("911");
+    expect(translate("es", "disclaimer.medical")).toContain("911");
+  });
+
+  it("keeps Cantonese and Traditional Chinese disclaimer copy in the correct tables", () => {
+    expect(translate("yue", "disclaimer.heading")).toContain("呢份指南只係");
+    expect(translate("zh-TW", "disclaimer.heading")).toContain("本指南僅為");
+  });
+
   it("recognizes supported language codes", () => {
     expect(isLanguageCode("en")).toBe(true);
     expect(isLanguageCode("zh-CN")).toBe(true);
     expect(isLanguageCode("zh-TW")).toBe(true);
     expect(isLanguageCode("es")).toBe(true);
-    expect(isLanguageCode("yue")).toBe(false);
+    expect(isLanguageCode("yue")).toBe(true);
     expect(isLanguageCode("fr")).toBe(false);
   });
 });

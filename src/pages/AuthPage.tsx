@@ -5,8 +5,10 @@ import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { ArrivalStatusOption, SexOption } from "../lib/authStore";
 import { COUNTRY_OPTIONS } from "../lib/nationalities";
+import LegalFooter from "../components/LegalFooter";
+import { LegalPageId } from "../lib/legalContent";
 
-export default function AuthPage() {
+export default function AuthPage({ onOpenLegalPage }: { onOpenLegalPage: (pageId: LegalPageId) => void }) {
   const { isPasswordRecovery, login, loginWithGoogle, register, requestPasswordReset, resetRecoveredPassword } = useAuth();
   const { t } = useLanguage();
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
@@ -105,10 +107,11 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <div className="relative flex min-h-screen flex-col bg-background">
       <div className="absolute right-4 top-4 z-20 rounded-full bg-white/80 shadow-sm backdrop-blur-sm">
         <LanguageSwitcher />
       </div>
+      <div className="flex flex-1 items-center justify-center px-4 py-10">
       <main className="w-full max-w-md">
         <section className="mb-8">
           <div className="w-14 h-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg mb-5">
@@ -449,6 +452,8 @@ export default function AuthPage() {
           )}
         </form>
       </main>
+      </div>
+      <LegalFooter onOpenLegalPage={onOpenLegalPage} compact />
     </div>
   );
 }

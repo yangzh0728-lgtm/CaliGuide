@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { Page } from './types';
 import Navigation from './components/Navigation';
 import TopAppBar from './components/TopAppBar';
@@ -45,6 +45,12 @@ import {
 } from './lib/forumApi';
 import { supabase } from './lib/supabaseClient';
 import { AnimatePresence, motion } from 'motion/react';
+import LegalPage from './pages/LegalPage';
+import { LegalPageId } from './lib/legalContent';
+import LegalFooter from './components/LegalFooter';
+import PrivacyConsentBanner from './components/PrivacyConsentBanner';
+import PrivacyPreferencesDialog from './components/PrivacyPreferencesDialog';
+import { getLegalPageFromPath, getLegalPagePath } from './lib/legalRoutes';
 
 type PendingForumDelete =
   | { type: 'post'; discussionId: string; title: string }
@@ -57,6 +63,9 @@ export default function App() {
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
   const [forumSyncError, setForumSyncError] = useState('');
   const [pendingForumDelete, setPendingForumDelete] = useState<PendingForumDelete | null>(null);
+  const [legalPage, setLegalPage] = useState<LegalPageId | null>(() =>
+    typeof window === 'undefined' ? null : getLegalPageFromPath(window.location.pathname),
+  );
   const {
     currentUser,
     isGuideSaved,
@@ -92,6 +101,27 @@ export default function App() {
   useEffect(() => {
     void reloadForumDiscussions();
   }, [reloadForumDiscussions]);
+
+  useEffect(() => {
+    const handlePopState = () => setLegalPage(getLegalPageFromPath(window.location.pathname));
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const openLegalPage = useCallback((pageId: LegalPageId) => {
+    const path = getLegalPagePath(pageId);
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+    setLegalPage(pageId);
+  }, []);
+
+  const closeLegalPage = useCallback(() => {
+    if (getLegalPageFromPath(window.location.pathname)) {
+      window.history.pushState({}, '', '/');
+    }
+    setLegalPage(null);
+  }, []);
 
   const pageTitles: Record<Page, string> = {
     home: t('app.title'),
@@ -461,8 +491,22 @@ export default function App() {
     }
   };
 
+  const renderWithPrivacyControls = (content: ReactNode) => (
+    <>
+      {content}
+      <PrivacyConsentBanner onOpenCookieNotice={() => openLegalPage('cookies')} />
+      <PrivacyPreferencesDialog />
+    </>
+  );
+
+  if (legalPage) {
+    return renderWithPrivacyControls(
+      <LegalPage pageId={legalPage} onBack={closeLegalPage} />,
+    );
+  }
+
   if (isLoading) {
-    return (
+    return renderWithPrivacyControls(
       <div className="flex min-h-screen items-center justify-center bg-background px-4 text-sm font-bold text-on-surface-variant">
         Loading CaliGuide...
       </div>
@@ -470,10 +514,10 @@ export default function App() {
   }
 
   if (!currentUser || isPasswordRecovery) {
-    return <AuthPage />;
+    return renderWithPrivacyControls(<AuthPage onOpenLegalPage={openLegalPage} />);
   }
 
-  return (
+  return renderWithPrivacyControls(
     <div className="min-h-screen bg-background pb-20">
       <TopAppBar 
         title={pageTitles[currentPage]} 
@@ -494,6 +538,8 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      <LegalFooter onOpenLegalPage={openLegalPage} />
 
       <Navigation 
         currentPage={currentPage} 

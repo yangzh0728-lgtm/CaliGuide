@@ -7,6 +7,8 @@ import {
   isLanguageCode,
   translate,
 } from "../i18n/translations";
+import { usePrivacyConsent } from "./PrivacyConsentContext";
+import { readPreferenceStorage, writePreferenceStorage } from "../lib/privacyConsent";
 
 interface LanguageContextValue {
   language: LanguageCode;
@@ -18,18 +20,28 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  const { isPreferencesAllowed } = usePrivacyConsent();
   const [language, setLanguage] = useState<LanguageCode>(() => {
     if (typeof window === "undefined") {
       return "en";
     }
 
-    const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    const storedLanguage = readPreferenceStorage(
+      window.localStorage,
+      LANGUAGE_STORAGE_KEY,
+      isPreferencesAllowed,
+    );
     return isLanguageCode(storedLanguage) ? storedLanguage : "en";
   });
 
   useEffect(() => {
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-  }, [language]);
+    if (!isPreferencesAllowed) {
+      window.localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+      return;
+    }
+
+    writePreferenceStorage(window.localStorage, LANGUAGE_STORAGE_KEY, language, true);
+  }, [isPreferencesAllowed, language]);
 
   const value = useMemo<LanguageContextValue>(
     () => ({

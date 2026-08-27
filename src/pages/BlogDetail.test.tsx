@@ -1,0 +1,50 @@
+import { describe, expect, it } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import { LanguageProvider } from "../context/LanguageContext";
+import { PrivacyConsentProvider } from "../context/PrivacyConsentContext";
+import { translate } from "../i18n/translations";
+import { getBlogArticle } from "../lib/blogContent";
+import BlogDetail from "./BlogDetail";
+
+function renderArticle(articleId: string) {
+  const article = getBlogArticle(articleId);
+  if (!article) {
+    throw new Error(`Missing fixture article: ${articleId}`);
+  }
+
+  return renderToStaticMarkup(
+    <PrivacyConsentProvider>
+      <LanguageProvider>
+        <BlogDetail article={article} isSaved={false} onToggleSave={() => {}} />
+      </LanguageProvider>
+    </PrivacyConsentProvider>,
+  );
+}
+
+describe("BlogDetail", () => {
+  it("shows the disclaimer above the guide body on sensitive guides", () => {
+    const markup = renderArticle("category-health");
+
+    expect(markup).toContain(translate("en", "disclaimer.heading"));
+    expect(markup).toContain(translate("en", "disclaimer.medical"));
+
+    // The notice must appear before the first body section, not buried at the end.
+    expect(markup.indexOf("guide-disclaimer-heading")).toBeLessThan(
+      markup.indexOf('id="guide-section-1"'),
+    );
+  });
+
+  it("omits the disclaimer on low-risk guides", () => {
+    const markup = renderArticle("guide-school-esl-resources");
+
+    expect(markup).not.toContain("guide-disclaimer-heading");
+    expect(markup).toContain('id="guide-section-1"');
+  });
+
+  it("still renders citations alongside the disclaimer", () => {
+    const markup = renderArticle("category-banking");
+
+    expect(markup).toContain("guide-disclaimer-heading");
+    expect(markup).toContain('id="guide-references"');
+  });
+});

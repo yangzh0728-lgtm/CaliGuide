@@ -5,6 +5,7 @@ export const LANGUAGE_STORAGE_KEY = "caliguide-language";
 export const LANGUAGES: Array<{ code: LanguageCode; label: string; shortLabel: string }> = [
   { code: "en", label: "English", shortLabel: "EN" },
   { code: "zh-CN", label: "简体中文", shortLabel: "简" },
+  { code: "yue", label: "粵語", shortLabel: "粵" },
   { code: "zh-TW", label: "繁體中文", shortLabel: "繁" },
   { code: "es", label: "Español", shortLabel: "ES" },
 ];
@@ -100,6 +101,13 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "blog.officialSource": "Official source",
     "blog.reviewedOn": "Source reviewed",
     "blog.backToSection": "Back to section",
+    "disclaimer.heading": "Important: this guide is general information",
+    "disclaimer.legal":
+      "This guide explains general immigration, tenancy, and government-process information. It is not legal advice. The rules that apply to you depend on your individual status and case. Confirm your situation with the official agency or a qualified immigration or legal professional.",
+    "disclaimer.medical":
+      "This guide is general health information, not medical advice. It cannot diagnose or treat any condition. For medical concerns, contact a licensed clinician. In an emergency, call 911.",
+    "disclaimer.financial":
+      "This guide is general financial information, not financial or tax advice. Fees, eligibility, and terms differ by institution and change over time. Confirm the details directly with the provider before you decide.",
     "guide.title": "California Driver's License",
     "guide.hero": "Navigating the Department of Motor Vehicles (DMV) is a key milestone for your mobility in California. This guide breaks down the requirements and steps for new residents and first-time applicants.",
     "guide.overview": "Overview",
@@ -306,6 +314,13 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "blog.officialSource": "官方来源",
     "blog.reviewedOn": "资料审核日期",
     "blog.backToSection": "返回对应段落",
+    "disclaimer.heading": "重要提示：本指南仅为一般信息",
+    "disclaimer.legal":
+      "本指南提供移民、租房和政府办事流程的一般信息，不构成法律意见。适用于你的具体规则取决于你的个人身份和案件情况。请向官方机构或有资格的移民、法律专业人士确认你的情况。",
+    "disclaimer.medical":
+      "本指南提供一般健康信息，不构成医疗建议，也不能用于诊断或治疗任何疾病。有健康问题请联系有执照的医疗专业人员。紧急情况请拨打 911。",
+    "disclaimer.financial":
+      "本指南提供一般金融信息，不构成财务或税务建议。费用、资格和条款因机构而异，并且会随时间变化。做出决定前请直接向相关机构确认细节。",
     "guide.title": "加州驾照",
     "guide.hero": "了解加州 DMV 是在加州出行的重要一步。本指南为新居民和首次申请者拆解要求和步骤。",
     "guide.overview": "概览",
@@ -516,6 +531,13 @@ translations.yue = {
   "blog.officialSource": "官方來源",
   "blog.reviewedOn": "資料覆核日期",
   "blog.backToSection": "返回相關段落",
+  "disclaimer.heading": "重要提示：呢份指南只係一般資訊",
+  "disclaimer.legal":
+    "呢份指南提供移民、租屋同政府辦事流程嘅一般資訊，唔係法律意見。實際適用嘅規則要睇你自己嘅身分同個案情況。請向官方機構或者有資格嘅移民、法律專業人士確認你嘅情況。",
+  "disclaimer.medical":
+    "呢份指南提供一般健康資訊，唔係醫療建議，亦都唔可以用嚟診斷或者治療任何疾病。有健康問題請搵有牌嘅醫療專業人員。緊急情況請打 911。",
+  "disclaimer.financial":
+    "呢份指南提供一般金融資訊，唔係財務或者稅務建議。收費、資格同條款會因機構而異，亦會隨時間變。做決定之前請直接同有關機構確認細節。",
   "guide.title": "加州車牌",
   "guide.hero": "了解加州 DMV 係喺加州出行嘅重要一步。本指南幫新居民同首次申請人士拆解要求同流程。",
   "guide.overview": "概覽",
@@ -723,6 +745,13 @@ translations["zh-TW"] = {
   "blog.officialSource": "官方來源",
   "blog.reviewedOn": "資料覆核日期",
   "blog.backToSection": "返去相關段落",
+  "disclaimer.heading": "重要提示：本指南僅為一般資訊",
+  "disclaimer.legal":
+    "本指南提供移民、租屋和政府辦事流程的一般資訊，不構成法律意見。適用於你的具體規則取決於你的個人身分和案件情況。請向官方機構或具資格的移民、法律專業人士確認你的情況。",
+  "disclaimer.medical":
+    "本指南提供一般健康資訊，不構成醫療建議，也不能用於診斷或治療任何疾病。有健康問題請聯絡有執照的醫療專業人員。緊急情況請撥打 911。",
+  "disclaimer.financial":
+    "本指南提供一般金融資訊，不構成財務或稅務建議。費用、資格和條款因機構而異，並且會隨時間變動。做出決定前請直接向相關機構確認細節。",
   "guide.title": "加州駕照",
   "guide.hero": "了解加州 DMV 是在加州出行的重要一步。本指南為新居民和首次申請者拆解要求與步驟。",
   "guide.overview": "概覽",
@@ -929,6 +958,13 @@ translations.es = {
   "blog.officialSource": "Fuente oficial",
   "blog.reviewedOn": "Fuente revisada",
   "blog.backToSection": "Volver a la sección",
+  "disclaimer.heading": "Importante: esta guía es información general",
+  "disclaimer.legal":
+    "Esta guía ofrece información general sobre inmigración, alquiler y trámites gubernamentales. No es asesoría legal. Las reglas que se aplican a tu caso dependen de tu situación y tu estatus individual. Confirma tu situación con la agencia oficial o con un profesional legal o de inmigración calificado.",
+  "disclaimer.medical":
+    "Esta guía ofrece información general de salud, no asesoría médica. No sirve para diagnosticar ni tratar ninguna condición. Ante dudas médicas, consulta a un profesional con licencia. En una emergencia, llama al 911.",
+  "disclaimer.financial":
+    "Esta guía ofrece información financiera general, no asesoría financiera ni fiscal. Las tarifas, los requisitos y los términos varían según la institución y cambian con el tiempo. Confirma los detalles directamente con el proveedor antes de decidir.",
   "guide.title": "Licencia de conducir de California",
   "guide.hero": "Navegar el DMV es un paso clave para moverte en California. Esta guía resume los requisitos y pasos para nuevos residentes y solicitantes primerizos.",
   "guide.overview": "Resumen",
@@ -1049,6 +1085,166 @@ translations.es = {
   "settings.forumTranslationLanguage": "Idioma de traducción del foro",
   "settings.forumTranslationLanguageDesc": "Las publicaciones y comentarios se traducen a este idioma solo cuando lo solicitas.",
 };
+
+Object.assign(translations.en, {
+  "legal.back": "Back to CaliGuide",
+  "legal.effectiveDate": "Effective date",
+  "legal.contact": "Privacy contact",
+  "legal.privacy": "Privacy Policy",
+  "legal.terms": "Terms of Use",
+  "legal.cookies": "Cookie Notice",
+  "legal.disclaimer": "Content Disclaimer",
+  "legal.privacyChoices": "Privacy Choices",
+});
+
+Object.assign(translations["zh-CN"], {
+  "legal.back": "返回 CaliGuide",
+  "legal.effectiveDate": "生效日期",
+  "legal.contact": "隐私联系",
+  "legal.privacy": "隐私政策",
+  "legal.terms": "使用条款",
+  "legal.cookies": "Cookie 说明",
+  "legal.disclaimer": "内容免责声明",
+  "legal.privacyChoices": "隐私选择",
+});
+
+Object.assign(translations.yue, {
+  "legal.back": "返回 CaliGuide",
+  "legal.effectiveDate": "生效日期",
+  "legal.contact": "私隱聯絡",
+  "legal.privacy": "私隱政策",
+  "legal.terms": "使用條款",
+  "legal.cookies": "Cookie 通知",
+  "legal.disclaimer": "內容免責聲明",
+  "legal.privacyChoices": "私隱選擇",
+});
+
+Object.assign(translations["zh-TW"], {
+  "legal.back": "返回 CaliGuide",
+  "legal.effectiveDate": "生效日期",
+  "legal.contact": "隱私權聯絡",
+  "legal.privacy": "隱私權政策",
+  "legal.terms": "使用條款",
+  "legal.cookies": "Cookie 通知",
+  "legal.disclaimer": "內容免責聲明",
+  "legal.privacyChoices": "隱私權選擇",
+});
+
+Object.assign(translations.es, {
+  "legal.back": "Volver a CaliGuide",
+  "legal.effectiveDate": "Fecha de vigencia",
+  "legal.contact": "Contacto de privacidad",
+  "legal.privacy": "Política de privacidad",
+  "legal.terms": "Términos de uso",
+  "legal.cookies": "Aviso de cookies",
+  "legal.disclaimer": "Descargo de responsabilidad",
+  "legal.privacyChoices": "Opciones de privacidad",
+});
+
+Object.assign(translations.en, {
+  "privacy.bannerTitle": "Your privacy choices",
+  "privacy.bannerCopy": "CaliGuide uses necessary storage for sign-in and security. Optional storage remembers language and local chat preferences only when you allow it.",
+  "privacy.acceptAll": "Accept all",
+  "privacy.rejectOptional": "Reject non-essential",
+  "privacy.customize": "Customize",
+  "privacy.readNotice": "Read cookie notice",
+  "privacy.dialogTitle": "Privacy choices",
+  "privacy.dialogCopy": "Choose which optional categories CaliGuide may store on this device.",
+  "privacy.necessary": "Necessary",
+  "privacy.necessaryCopy": "Authentication, security, password recovery, and consent records. Always active.",
+  "privacy.preferences": "Preferences",
+  "privacy.preferencesCopy": "Remembers interface language and a local chatbot cache.",
+  "privacy.analytics": "Analytics",
+  "privacy.analyticsCopy": "No analytics service is currently installed.",
+  "privacy.marketing": "Marketing",
+  "privacy.marketingCopy": "No advertising or marketing service is currently installed.",
+  "privacy.cancel": "Cancel",
+  "privacy.save": "Save choices",
+});
+
+Object.assign(translations["zh-CN"], {
+  "privacy.bannerTitle": "你的隐私选择",
+  "privacy.bannerCopy": "CaliGuide 使用必要存储来完成登录和安全保护。只有你允许后，可选存储才会记住语言和本地聊天偏好。",
+  "privacy.acceptAll": "全部接受",
+  "privacy.rejectOptional": "拒绝非必要项",
+  "privacy.customize": "自定义",
+  "privacy.readNotice": "查看 Cookie 说明",
+  "privacy.dialogTitle": "隐私选择",
+  "privacy.dialogCopy": "选择 CaliGuide 可以在本设备保存的可选分类。",
+  "privacy.necessary": "必要",
+  "privacy.necessaryCopy": "登录、安全、密码重置和同意记录，始终启用。",
+  "privacy.preferences": "偏好",
+  "privacy.preferencesCopy": "记住界面语言和本地聊天缓存。",
+  "privacy.analytics": "分析",
+  "privacy.analyticsCopy": "目前没有安装分析服务。",
+  "privacy.marketing": "营销",
+  "privacy.marketingCopy": "目前没有安装广告或营销服务。",
+  "privacy.cancel": "取消",
+  "privacy.save": "保存选择",
+});
+
+Object.assign(translations.yue, {
+  "privacy.bannerTitle": "你嘅私隱選擇",
+  "privacy.bannerCopy": "CaliGuide 會用必要儲存處理登入同安全。只有你允許之後，可選儲存先會記住語言同本機聊天偏好。",
+  "privacy.acceptAll": "全部接受",
+  "privacy.rejectOptional": "拒絕非必要項目",
+  "privacy.customize": "自訂",
+  "privacy.readNotice": "查看 Cookie 通知",
+  "privacy.dialogTitle": "私隱選擇",
+  "privacy.dialogCopy": "選擇 CaliGuide 可以喺呢部裝置儲存嘅可選分類。",
+  "privacy.necessary": "必要",
+  "privacy.necessaryCopy": "登入、安全、密碼重設同同意紀錄，長期啟用。",
+  "privacy.preferences": "偏好",
+  "privacy.preferencesCopy": "記住介面語言同本機聊天快取。",
+  "privacy.analytics": "分析",
+  "privacy.analyticsCopy": "目前未有安裝分析服務。",
+  "privacy.marketing": "推廣",
+  "privacy.marketingCopy": "目前未有安裝廣告或推廣服務。",
+  "privacy.cancel": "取消",
+  "privacy.save": "儲存選擇",
+});
+
+Object.assign(translations["zh-TW"], {
+  "privacy.bannerTitle": "你的隱私權選擇",
+  "privacy.bannerCopy": "CaliGuide 使用必要儲存來完成登入與安全保護。只有你允許後，選用儲存才會記住語言與本機聊天偏好。",
+  "privacy.acceptAll": "全部接受",
+  "privacy.rejectOptional": "拒絕非必要項目",
+  "privacy.customize": "自訂",
+  "privacy.readNotice": "查看 Cookie 通知",
+  "privacy.dialogTitle": "隱私權選擇",
+  "privacy.dialogCopy": "選擇 CaliGuide 可以在此裝置儲存的選用分類。",
+  "privacy.necessary": "必要",
+  "privacy.necessaryCopy": "登入、安全、密碼重設與同意紀錄，永遠啟用。",
+  "privacy.preferences": "偏好",
+  "privacy.preferencesCopy": "記住介面語言與本機聊天快取。",
+  "privacy.analytics": "分析",
+  "privacy.analyticsCopy": "目前未安裝分析服務。",
+  "privacy.marketing": "行銷",
+  "privacy.marketingCopy": "目前未安裝廣告或行銷服務。",
+  "privacy.cancel": "取消",
+  "privacy.save": "儲存選擇",
+});
+
+Object.assign(translations.es, {
+  "privacy.bannerTitle": "Tus opciones de privacidad",
+  "privacy.bannerCopy": "CaliGuide usa almacenamiento necesario para inicio de sesión y seguridad. Solo recuerda idioma y preferencias locales de chat si lo autorizas.",
+  "privacy.acceptAll": "Aceptar todo",
+  "privacy.rejectOptional": "Rechazar lo no esencial",
+  "privacy.customize": "Personalizar",
+  "privacy.readNotice": "Leer aviso de cookies",
+  "privacy.dialogTitle": "Opciones de privacidad",
+  "privacy.dialogCopy": "Elige qué categorías opcionales puede guardar CaliGuide en este dispositivo.",
+  "privacy.necessary": "Necesario",
+  "privacy.necessaryCopy": "Autenticación, seguridad, recuperación y registro de consentimiento. Siempre activo.",
+  "privacy.preferences": "Preferencias",
+  "privacy.preferencesCopy": "Recuerda el idioma y una caché local del chatbot.",
+  "privacy.analytics": "Analítica",
+  "privacy.analyticsCopy": "No hay un servicio de analítica instalado actualmente.",
+  "privacy.marketing": "Marketing",
+  "privacy.marketingCopy": "No hay publicidad ni marketing instalados actualmente.",
+  "privacy.cancel": "Cancelar",
+  "privacy.save": "Guardar opciones",
+});
 
 export function isLanguageCode(value: string | null): value is LanguageCode {
   return LANGUAGES.some((language) => language.code === value);

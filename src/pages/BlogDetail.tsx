@@ -1,4 +1,5 @@
 import { Bookmark, CalendarDays, Clock, ExternalLink, Tag } from 'lucide-react';
+import GuideDisclaimer from '../components/GuideDisclaimer';
 import { useLanguage } from '../context/LanguageContext';
 import { formatBlogBodyBlock, type BlogBodyTone } from '../lib/blogBodyFormat';
 import type { BlogArticle } from '../lib/blogContent';
@@ -73,6 +74,8 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
       />
 
       <section className="px-4 pt-6">
+        <GuideDisclaimer articleId={article.id} />
+
         <div className="flex flex-col gap-4">
           {bodyBlocks.map((block, index) => (
             <section

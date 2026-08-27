@@ -27,10 +27,12 @@ import { supabase } from '../lib/supabaseClient';
 import { uploadImagesWithInlineFallback } from '../lib/imageUpload';
 import { resolveApiUrl } from '../lib/apiUrl';
 import { readChatResponseError } from '../lib/chatClient';
+import { usePrivacyConsent } from '../context/PrivacyConsentContext';
 
 export default function Chatbot() {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
+  const { isPreferencesAllowed } = usePrivacyConsent();
   const userId = currentUser?.id ?? DEFAULT_CHAT_USER_ID;
   const introMessage = useMemo<ChatMessage>(() => createIntroMessage(t('chatbot.intro')), [t]);
   const [chatMemory, setChatMemory] = useState(() => {
@@ -38,7 +40,9 @@ export default function Chatbot() {
       return createChatMemoryState();
     }
 
-    return loadChatMemoryState(window.localStorage);
+    return isPreferencesAllowed
+      ? loadChatMemoryState(window.localStorage)
+      : createChatMemoryState();
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -92,10 +96,10 @@ export default function Chatbot() {
   }, [currentUser, introMessage, userId]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isPreferencesAllowed) {
       saveChatMemoryState(window.localStorage, chatMemory);
     }
-  }, [chatMemory]);
+  }, [chatMemory, isPreferencesAllowed]);
 
   useEffect(() => {
     return () => {
