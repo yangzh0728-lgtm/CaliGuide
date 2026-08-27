@@ -45,6 +45,14 @@ describe("ProfileSettingsShell", () => {
     expect(markup).toContain("Selected settings content");
   });
 
+  it("uses a high-contrast color pair for the selected desktop section", () => {
+    const markup = render("account");
+
+    expect(markup).toMatch(
+      /data-settings-section="account"[^>]*aria-current="page"[^>]*class="[^"]*bg-primary[^"]*text-white/,
+    );
+  });
+
   it("shows the mobile section menu instead of panel content before a section is selected", () => {
     const markup = render(null);
 

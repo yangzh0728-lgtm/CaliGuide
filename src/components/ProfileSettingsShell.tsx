@@ -65,7 +65,7 @@ export default function ProfileSettingsShell({
           isDanger
             ? "text-error hover:bg-error/10"
             : isActive && !mobile
-              ? "bg-primary-container text-primary"
+              ? "bg-primary text-white"
               : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
         }`}
       >
