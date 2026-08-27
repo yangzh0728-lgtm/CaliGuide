@@ -35,12 +35,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    if (!isPreferencesAllowed) {
-      window.localStorage.removeItem(LANGUAGE_STORAGE_KEY);
-      return;
-    }
-
-    writePreferenceStorage(window.localStorage, LANGUAGE_STORAGE_KEY, language, true);
+    writePreferenceStorage(
+      window.localStorage,
+      LANGUAGE_STORAGE_KEY,
+      language,
+      isPreferencesAllowed,
+    );
   }, [isPreferencesAllowed, language]);
 
   const value = useMemo<LanguageContextValue>(

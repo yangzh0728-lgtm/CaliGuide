@@ -3,6 +3,7 @@ import {
   createForumPostViaApi,
   deleteForumCommentViaApi,
   deleteForumPostViaApi,
+  reportForumContentViaApi,
   setForumVoteViaApi,
 } from "./forumApi";
 
@@ -13,6 +14,43 @@ afterEach(() => {
 });
 
 describe("forumApi", () => {
+  it("submits authenticated forum reports to the moderation API", async () => {
+    let request: { url: string; init: RequestInit } | null = null;
+    globalThis.fetch = (async (url, init) => {
+      request = { url: String(url), init: init ?? {} };
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    await reportForumContentViaApi(
+      {
+        auth: {
+          getSession: async () => ({
+            data: { session: { access_token: "access-token" } },
+            error: null,
+          }),
+        },
+      },
+      {
+        targetType: "post",
+        targetId: "11111111-1111-4111-8111-111111111111",
+        reason: "misinformation",
+        details: "The deadline in this post appears outdated.",
+      },
+    );
+
+    expect(request?.url).toBe("/api/forum/reports");
+    expect((request?.init.headers as Record<string, string>).Authorization).toBe("Bearer access-token");
+    expect(JSON.parse(String(request?.init.body))).toEqual({
+      targetType: "post",
+      targetId: "11111111-1111-4111-8111-111111111111",
+      reason: "misinformation",
+      details: "The deadline in this post appears outdated.",
+    });
+  });
+
   it("sends forum posts through the server API with the current access token", async () => {
     let request: { url: string; init: RequestInit } | null = null;
     globalThis.fetch = (async (url, init) => {

@@ -53,7 +53,7 @@ const legalDocuments: Record<LanguageCode, LegalDocumentsById> = {
           heading: "Your choices, retention, and contact",
           paragraphs: [
             "You can reject optional browser storage, change Privacy Choices, edit available profile fields, and delete forum content you created where the feature is available. Authentication storage remains necessary for sign-in and security.",
-            "Self-service account export and full account deletion are not yet available. To request access, correction, export, or deletion, contact privacy@caliguide.org. Retention depends on the feature, legal obligations, security needs, and provider configuration. California residents may have additional rights when applicable law covers the service.",
+            "In Profile > Settings, you can download a copy of your account data or permanently delete your account. Account deletion removes user-owned Supabase records, uploaded Cloudflare R2 media, Mem0 chatbot memories, and the Supabase Auth identity. For access or correction help, contact privacy@caliguide.org. Retention depends on the feature, legal obligations, security needs, and provider configuration. California residents may have additional rights when applicable law covers the service.",
           ],
         },
       ],
@@ -101,21 +101,21 @@ const legalDocuments: Record<LanguageCode, LegalDocumentsById> = {
         {
           heading: "Necessary storage",
           paragraphs: [
-            "Necessary storage keeps sign-in, security, password recovery, and requested registration flows working. It cannot be switched off through Privacy Choices because the requested account service would not work reliably without it.",
+            "Necessary storage keeps sign-in, security, password recovery, requested registration flows, and the selected interface language working. It cannot be switched off through Privacy Choices because those requested functions would not work reliably without it.",
           ],
           items: [
             "Supabase authentication storage: session and refresh-token state used to keep you signed in securely.",
             "caliguide-google-profile-draft: temporary profile details used to complete a Google OAuth registration.",
             "caliguide-privacy-consent: your consent version, category choices, and update time.",
+            "caliguide-language: necessary functional storage that remembers the interface language you selected.",
           ],
         },
         {
           heading: "Preference storage",
           paragraphs: [
-            "Preference storage is disabled until you allow it. Rejecting preferences removes these keys from this browser.",
+            "The optional preference storage is disabled until you allow it. Rejecting preferences removes the local chatbot cache from this browser.",
           ],
           items: [
-            "caliguide-language: remembers your interface language.",
             "caliguide-chat-memory: keeps a local chatbot cache for faster continuity on this device. Signed-in chat history may also be stored in Supabase as part of the account service.",
           ],
         },
@@ -177,7 +177,7 @@ const legalDocuments: Record<LanguageCode, LegalDocumentsById> = {
         { heading: "我们收集的信息", paragraphs: ["CaliGuide 会处理姓名、邮箱、出生日期、性别选择、国籍、当前所在地和到达状态，也会处理论坛内容、收藏、聊天记录、上传图片和基本技术请求数据。", "论坛帖子、评论、显示名称和论坛图片会向其他社区成员公开。请勿在公开论坛发布护照、移民文件、银行账号、病历或其他敏感文件。"] },
         { heading: "信息用途", paragraphs: ["我们使用这些信息来验证账户、提供个性化指南与收藏、运行论坛和聊天助手、记住你允许的偏好、保护服务并排查错误。", "CaliGuide 目前没有安装广告或产品分析技术。未来如有变更，分析和营销类存储仍会保持关闭，直到你主动允许。"] },
         { heading: "服务商和数据传输", paragraphs: ["Supabase 提供登录和数据库服务；Cloudflare R2 保存上传媒体；Google OAuth 可用于登录；Baidu Qianfan 处理聊天提示和图片；Mem0 保存用户级聊天记忆。服务商可能在你所在州或国家以外处理数据。", "请只向聊天助手发送你愿意交由 AI 和记忆服务商处理的信息。为了回答后续问题，CaliGuide 可能发送相关对话上下文和已保存记忆。"] },
-        { heading: "你的选择、保留和联系", paragraphs: ["你可以拒绝可选浏览器存储、重新打开“隐私选择”、修改现有个人资料字段，并在功能可用时删除自己发布的论坛内容。用于登录和安全的存储属于必要存储。", "目前还没有自助账户导出和完整账户删除功能。访问、更正、导出或删除请求请发送至 privacy@caliguide.org。保留期限取决于功能、法律义务、安全需要和服务商配置。适用法律覆盖本服务时，加州居民可能享有额外权利。"] },
+        { heading: "你的选择、保留和联系", paragraphs: ["你可以拒绝可选浏览器存储、重新打开“隐私选择”、修改现有个人资料字段，并在功能可用时删除自己发布的论坛内容。用于登录和安全的存储属于必要存储。", "你可以在“个人资料 > 设置”中下载账户数据副本，或永久删除账户。删除账户会移除用户拥有的 Supabase 数据、Cloudflare R2 上传媒体、Mem0 聊天记忆和 Supabase Auth 身份。访问或更正帮助请联系 privacy@caliguide.org。保留期限取决于功能、法律义务、安全需要和服务商配置。"] },
       ],
     },
     terms: {
@@ -196,8 +196,8 @@ const legalDocuments: Record<LanguageCode, LegalDocumentsById> = {
       summary: "说明 CaliGuide 在浏览器中保存什么，以及如何控制可选存储。",
       effectiveDate: EFFECTIVE_DATE,
       sections: [
-        { heading: "必要存储", paragraphs: ["必要存储用于登录、安全、密码重置和你主动发起的注册流程，因此无法通过“隐私选择”关闭。"], items: ["Supabase authentication：安全保存会话和刷新令牌状态。", "caliguide-google-profile-draft：临时保存完成 Google OAuth 注册所需的资料。", "caliguide-privacy-consent：保存同意版本、分类选择和更新时间。"] },
-        { heading: "偏好存储", paragraphs: ["在你允许前，偏好存储保持关闭。拒绝偏好后，浏览器会删除这些键。"], items: ["caliguide-language：记住界面语言。", "caliguide-chat-memory：在本设备保存聊天缓存；登录后的聊天记录也可能作为账户服务保存在 Supabase。"] },
+        { heading: "必要存储", paragraphs: ["必要存储用于登录、安全、密码重置、你主动发起的注册流程和界面语言，因此无法通过“隐私选择”关闭。"], items: ["Supabase authentication：安全保存会话和刷新令牌状态。", "caliguide-google-profile-draft：临时保存完成 Google OAuth 注册所需的资料。", "caliguide-privacy-consent：保存同意版本、分类选择和更新时间。", "caliguide-language：作为必要功能存储，记住你选择的界面语言。"] },
+        { heading: "偏好存储", paragraphs: ["在你允许前，可选偏好存储保持关闭。拒绝偏好后，浏览器会删除本地聊天缓存。"], items: ["caliguide-chat-memory：在本设备保存聊天缓存；登录后的聊天记录也可能作为账户服务保存在 Supabase。"] },
         { heading: "分析和营销", paragraphs: ["CaliGuide 目前没有安装产品分析或广告存储。现在提前提供控制，是为了未来引入服务时这些分类仍默认关闭。"] },
         { heading: "管理选择", paragraphs: ["你可以随时通过页脚的“隐私选择”接受、拒绝或自定义可选分类。清除浏览器站点数据可能会让你退出登录并重置偏好。", "本说明同时涵盖 Cookie、本地存储和具有类似作用的设备技术。"] },
       ],
@@ -228,7 +228,7 @@ legalDocuments["zh-TW"] = {
       { heading: "我們收集的資訊", paragraphs: ["CaliGuide 會處理姓名、電子郵件、出生日期、性別選擇、國籍、目前所在地與抵達狀態，也會處理論壇內容、收藏、聊天記錄、上傳圖片及基本技術請求資料。", "論壇貼文、留言、顯示名稱與論壇圖片會向其他社群成員公開。請勿在公開論壇發布護照、移民文件、銀行帳號、病歷或其他敏感文件。"] },
       { heading: "資訊用途", paragraphs: ["我們使用這些資訊來驗證帳戶、提供個人化指南與收藏、執行論壇與聊天助理、記住你允許的偏好、保護服務並排查錯誤。", "CaliGuide 目前未安裝廣告或產品分析技術。未來如有變更，分析與行銷類儲存仍會保持關閉，直到你主動允許。"] },
       { heading: "服務供應商與資料傳輸", paragraphs: ["Supabase 提供登入與資料庫服務；Cloudflare R2 保存上傳媒體；Google OAuth 可用於登入；Baidu Qianfan 處理聊天提示與圖片；Mem0 保存使用者層級的聊天記憶。服務供應商可能在你所在州或國家以外處理資料。", "請只向聊天助理傳送你願意交由 AI 與記憶服務供應商處理的資訊。為回答後續問題，CaliGuide 可能傳送相關對話內容與已保存記憶。"] },
-      { heading: "你的選擇、保留與聯絡", paragraphs: ["你可以拒絕選用的瀏覽器儲存、重新開啟「隱私權選擇」、修改現有個人資料欄位，並在功能可用時刪除自己發布的論壇內容。登入與安全所需的儲存屬於必要儲存。", "目前尚未提供自助帳戶匯出與完整帳戶刪除。存取、更正、匯出或刪除請求請寄至 privacy@caliguide.org。保留期限取決於功能、法律義務、安全需求與服務供應商設定。適用法律涵蓋本服務時，加州居民可能享有其他權利。"] },
+      { heading: "你的選擇、保留與聯絡", paragraphs: ["你可以拒絕選用的瀏覽器儲存、重新開啟「隱私權選擇」、修改現有個人資料欄位，並在功能可用時刪除自己發布的論壇內容。登入與安全所需的儲存屬於必要儲存。", "你可以在「個人資料 > 設定」下載帳戶資料副本，或永久刪除帳戶。刪除帳戶會移除使用者擁有的 Supabase 資料、Cloudflare R2 上傳媒體、Mem0 聊天記憶與 Supabase Auth 身分。存取或更正協助請寄至 privacy@caliguide.org。"] },
     ],
   },
   terms: {
@@ -247,8 +247,8 @@ legalDocuments["zh-TW"] = {
     summary: "說明 CaliGuide 在瀏覽器中儲存什麼，以及如何控制選用儲存。",
     effectiveDate: EFFECTIVE_DATE,
     sections: [
-      { heading: "必要儲存", paragraphs: ["必要儲存用於登入、安全、密碼重設與你主動發起的註冊流程，因此無法透過「隱私權選擇」關閉。"], items: ["Supabase authentication：安全保存工作階段與更新權杖狀態。", "caliguide-google-profile-draft：暫時保存完成 Google OAuth 註冊所需的資料。", "caliguide-privacy-consent：保存同意版本、分類選擇與更新時間。"] },
-      { heading: "偏好儲存", paragraphs: ["在你允許前，偏好儲存保持關閉。拒絕偏好後，瀏覽器會刪除這些鍵。"], items: ["caliguide-language：記住介面語言。", "caliguide-chat-memory：在本裝置保存聊天快取；登入後的聊天記錄也可能作為帳戶服務保存在 Supabase。"] },
+      { heading: "必要儲存", paragraphs: ["必要儲存用於登入、安全、密碼重設、你主動發起的註冊流程與介面語言，因此無法透過「隱私權選擇」關閉。"], items: ["Supabase authentication：安全保存工作階段與更新權杖狀態。", "caliguide-google-profile-draft：暫時保存完成 Google OAuth 註冊所需的資料。", "caliguide-privacy-consent：保存同意版本、分類選擇與更新時間。", "caliguide-language：作為必要功能儲存，記住你選擇的介面語言。"] },
+      { heading: "偏好儲存", paragraphs: ["在你允許前，選用偏好儲存保持關閉。拒絕偏好後，瀏覽器會刪除本機聊天快取。"], items: ["caliguide-chat-memory：在本裝置保存聊天快取；登入後的聊天記錄也可能作為帳戶服務保存在 Supabase。"] },
       { heading: "分析與行銷", paragraphs: ["CaliGuide 目前未安裝產品分析或廣告儲存。現在先提供控制，是為了未來引入服務時這些分類仍預設關閉。"] },
       { heading: "管理選擇", paragraphs: ["你可以隨時透過頁尾的「隱私權選擇」接受、拒絕或自訂選用分類。清除瀏覽器網站資料可能會登出並重設偏好。", "本通知同時涵蓋 Cookie、本機儲存與用途相近的裝置技術。"] },
     ],
@@ -275,7 +275,7 @@ legalDocuments.yue = {
       { heading: "我哋收集嘅資料", paragraphs: ["CaliGuide 會處理姓名、電郵、出生日期、性別選擇、國籍、目前所在地同抵達狀態，亦會處理論壇內容、收藏、聊天記錄、上載圖片同基本技術請求資料。", "論壇帖文、留言、顯示名稱同論壇圖片會畀其他社群成員睇到。請唔好喺公開論壇發布護照、移民文件、銀行帳號、病歷或其他敏感文件。"] },
       { heading: "資料用途", paragraphs: ["我哋用呢啲資料驗證帳戶、提供個人化指南同收藏、運作論壇同聊天助手、記住你允許嘅偏好、保護服務同排查錯誤。", "CaliGuide 目前冇安裝廣告或產品分析技術。將來如有改變，分析同市場推廣類儲存仍會保持關閉，直至你主動允許。"] },
       { heading: "服務供應商同資料傳輸", paragraphs: ["Supabase 提供登入同資料庫服務；Cloudflare R2 保存上載媒體；Google OAuth 可用作登入；Baidu Qianfan 處理聊天提示同圖片；Mem0 保存用戶層級嘅聊天記憶。服務供應商可能喺你所在州或國家以外處理資料。", "請只向聊天助手傳送你願意交畀 AI 同記憶服務供應商處理嘅資料。為咗回答之後嘅問題，CaliGuide 可能傳送相關對話內容同已保存記憶。"] },
-      { heading: "你嘅選擇、保留同聯絡", paragraphs: ["你可以拒絕可選瀏覽器儲存、重新開啟「私隱選擇」、修改現有個人資料欄位，並喺功能可用時刪除自己發布嘅論壇內容。登入同安全所需嘅儲存屬於必要儲存。", "目前未提供自助帳戶匯出同完整帳戶刪除。存取、更正、匯出或刪除請求請寄去 privacy@caliguide.org。保留期限取決於功能、法律義務、安全需要同服務供應商設定。適用法律涵蓋本服務時，加州居民可能享有其他權利。"] },
+      { heading: "你嘅選擇、保留同聯絡", paragraphs: ["你可以拒絕可選瀏覽器儲存、重新開啟「私隱選擇」、修改現有個人資料欄位，並喺功能可用時刪除自己發布嘅論壇內容。登入同安全所需嘅儲存屬於必要儲存。", "你可以喺「個人資料 > 設定」下載帳戶資料副本，或者永久刪除帳戶。刪除帳戶會移除用戶擁有嘅 Supabase 資料、Cloudflare R2 上載媒體、Mem0 聊天記憶同 Supabase Auth 身份。存取或更正協助請電郵 privacy@caliguide.org。"] },
     ],
   },
   terms: {
@@ -294,8 +294,8 @@ legalDocuments.yue = {
     summary: "講解 CaliGuide 喺瀏覽器儲存乜嘢，同埋點樣控制可選儲存。",
     effectiveDate: EFFECTIVE_DATE,
     sections: [
-      { heading: "必要儲存", paragraphs: ["必要儲存用於登入、安全、密碼重設同你主動發起嘅註冊流程，所以無法透過「私隱選擇」關閉。"], items: ["Supabase authentication：安全保存工作階段同更新權杖狀態。", "caliguide-google-profile-draft：暫時保存完成 Google OAuth 註冊所需嘅資料。", "caliguide-privacy-consent：保存同意版本、分類選擇同更新時間。"] },
-      { heading: "偏好儲存", paragraphs: ["喺你允許之前，偏好儲存保持關閉。拒絕偏好之後，瀏覽器會刪除呢啲鍵。"], items: ["caliguide-language：記住介面語言。", "caliguide-chat-memory：喺本裝置保存聊天快取；登入後嘅聊天記錄亦可能作為帳戶服務保存在 Supabase。"] },
+      { heading: "必要儲存", paragraphs: ["必要儲存用於登入、安全、密碼重設、你主動發起嘅註冊流程同介面語言，所以無法透過「私隱選擇」關閉。"], items: ["Supabase authentication：安全保存工作階段同更新權杖狀態。", "caliguide-google-profile-draft：暫時保存完成 Google OAuth 註冊所需嘅資料。", "caliguide-privacy-consent：保存同意版本、分類選擇同更新時間。", "caliguide-language：作為必要功能儲存，記住你揀嘅介面語言。"] },
+      { heading: "偏好儲存", paragraphs: ["喺你允許之前，可選偏好儲存保持關閉。拒絕偏好之後，瀏覽器會刪除本機聊天快取。"], items: ["caliguide-chat-memory：喺本裝置保存聊天快取；登入後嘅聊天記錄亦可能作為帳戶服務保存在 Supabase。"] },
       { heading: "分析同市場推廣", paragraphs: ["CaliGuide 目前冇安裝產品分析或廣告儲存。依家先提供控制，係為咗將來引入服務時呢啲分類仍然預設關閉。"] },
       { heading: "管理選擇", paragraphs: ["你可以隨時透過頁尾嘅「私隱選擇」接受、拒絕或自訂可選分類。清除瀏覽器網站資料可能會登出並重設偏好。", "本通知同時涵蓋 Cookie、本機儲存同用途相近嘅裝置技術。"] },
     ],
@@ -322,7 +322,7 @@ legalDocuments.es = {
       { heading: "Información que recopilamos", paragraphs: ["CaliGuide procesa datos de cuenta y perfil, como nombre, correo, fecha de nacimiento, selección de sexo, nacionalidad, ubicación actual y estado de llegada. También procesa publicaciones, comentarios, elementos guardados, conversaciones, imágenes y datos técnicos básicos.", "Las publicaciones, comentarios, nombres visibles e imágenes del foro están destinados a ser públicos para la comunidad. No publiques pasaportes, documentos migratorios, números financieros, historiales médicos ni otros documentos sensibles."] },
       { heading: "Cómo usamos la información", paragraphs: ["Usamos la información para autenticar cuentas, ofrecer guías y recursos guardados, operar el foro y el chatbot, recordar preferencias permitidas, proteger el servicio y resolver errores.", "CaliGuide no instala actualmente tecnología publicitaria ni de analítica de producto. Si esto cambia, el almacenamiento no esencial seguirá desactivado hasta que lo autorices."] },
       { heading: "Proveedores y transferencias", paragraphs: ["Supabase ofrece autenticación y base de datos; Cloudflare R2 almacena medios; Google OAuth permite iniciar sesión; Baidu Qianfan procesa mensajes e imágenes del chatbot; Mem0 guarda memoria del usuario. Estos proveedores pueden procesar datos fuera de tu estado o país.", "Envía al chatbot solo información que aceptes que procesen los proveedores de IA y memoria. CaliGuide puede enviar contexto y memoria relevante para responder preguntas posteriores."] },
-      { heading: "Tus opciones, retención y contacto", paragraphs: ["Puedes rechazar almacenamiento opcional, cambiar tus Opciones de privacidad, editar campos disponibles y borrar contenido propio del foro cuando la función esté disponible. El almacenamiento de autenticación es necesario.", "La exportación y eliminación total de cuenta aún no están disponibles por autoservicio. Solicitudes de acceso, corrección, exportación o eliminación: privacy@caliguide.org. La retención depende de la función, obligaciones legales, seguridad y configuración de proveedores."] },
+      { heading: "Tus opciones, retención y contacto", paragraphs: ["Puedes rechazar almacenamiento opcional, cambiar tus Opciones de privacidad, editar campos disponibles y borrar contenido propio del foro cuando la función esté disponible. El almacenamiento de autenticación es necesario.", "En Perfil > Configuración puedes descargar una copia de los datos de tu cuenta o eliminarla permanentemente. La eliminación borra los datos propios en Supabase, los archivos en Cloudflare R2, los recuerdos de Mem0 y la identidad de Supabase Auth. Para ayuda con acceso o corrección, escribe a privacy@caliguide.org."] },
     ],
   },
   terms: {
@@ -341,8 +341,8 @@ legalDocuments.es = {
     summary: "Qué guarda CaliGuide en tu navegador y cómo controlar el almacenamiento opcional.",
     effectiveDate: EFFECTIVE_DATE,
     sections: [
-      { heading: "Almacenamiento necesario", paragraphs: ["Mantiene el inicio de sesión, la seguridad, la recuperación de contraseña y los registros solicitados. No se puede desactivar en Opciones de privacidad."], items: ["Supabase authentication: conserva la sesión y el token de actualización.", "caliguide-google-profile-draft: datos temporales para completar un registro con Google OAuth.", "caliguide-privacy-consent: versión, categorías y fecha de tus elecciones."] },
-      { heading: "Preferencias", paragraphs: ["Se desactivan hasta que las aceptes. Al rechazarlas, se eliminan estas claves."], items: ["caliguide-language: recuerda el idioma de la interfaz.", "caliguide-chat-memory: caché local del chatbot; el historial de una cuenta también puede guardarse en Supabase."] },
+      { heading: "Almacenamiento necesario", paragraphs: ["Mantiene el inicio de sesión, la seguridad, la recuperación de contraseña, los registros solicitados y el idioma de la interfaz. No se puede desactivar en Opciones de privacidad."], items: ["Supabase authentication: conserva la sesión y el token de actualización.", "caliguide-google-profile-draft: datos temporales para completar un registro con Google OAuth.", "caliguide-privacy-consent: versión, categorías y fecha de tus elecciones.", "caliguide-language: almacenamiento funcional necesario que recuerda el idioma de interfaz elegido."] },
+      { heading: "Preferencias", paragraphs: ["El almacenamiento opcional permanece desactivado hasta que lo aceptes. Al rechazarlo, se elimina la caché local del chatbot."], items: ["caliguide-chat-memory: caché local del chatbot; el historial de una cuenta también puede guardarse en Supabase."] },
       { heading: "Analítica y marketing", paragraphs: ["CaliGuide no instala actualmente almacenamiento de analítica ni publicidad. Los controles existen para mantener esas categorías desactivadas de forma predeterminada si se añaden servicios en el futuro."] },
       { heading: "Administrar opciones", paragraphs: ["Usa Opciones de privacidad en el pie para aceptar, rechazar o personalizar categorías. Borrar datos del sitio puede cerrar tu sesión y reiniciar preferencias.", "Este aviso incluye cookies, almacenamiento local y tecnologías de dispositivo similares."] },
     ],

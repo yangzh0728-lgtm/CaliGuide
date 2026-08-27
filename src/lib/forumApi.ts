@@ -20,6 +20,21 @@ type SupabaseSessionClient = SupabaseClient | {
   };
 };
 
+export type ForumReportReason =
+  | "spam"
+  | "harassment"
+  | "unsafe_advice"
+  | "misinformation"
+  | "inappropriate_image"
+  | "other";
+
+export interface ForumReportInput {
+  targetType: "post" | "comment";
+  targetId: string;
+  reason: ForumReportReason;
+  details?: string;
+}
+
 async function getAccessToken(client: SupabaseSessionClient) {
   const { data, error } = await client.auth.getSession();
 
@@ -143,6 +158,22 @@ export async function setForumVoteViaApi(
   await postForumJson<{ ok: true }>(client, "/api/forum/votes", {
     ...buildForumVoteUpsert(targetType, targetId, userId, voteType ?? "useful"),
     vote_type: voteType,
+  });
+}
+
+export async function reportForumContentViaApi(
+  client: SupabaseSessionClient,
+  input: ForumReportInput,
+) {
+  if (!isSupabaseUuid(input.targetId)) {
+    throw new Error("Only published community content can be reported.");
+  }
+
+  await postForumJson<{ ok: true }>(client, "/api/forum/reports", {
+    targetType: input.targetType,
+    targetId: input.targetId,
+    reason: input.reason,
+    details: input.details?.trim() ?? "",
   });
 }
 

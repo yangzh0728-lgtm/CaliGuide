@@ -3,7 +3,10 @@ import {
   buildPublicR2Url,
   createR2ObjectKey,
   getR2Config,
+  getImageUploadValidationError,
+  isAllowedImageSignature,
   isAllowedUploadMimeType,
+  MAX_IMAGE_UPLOAD_BYTES,
 } from "./r2Upload";
 
 describe("r2Upload", () => {
@@ -101,5 +104,22 @@ describe("r2Upload", () => {
     expect(isAllowedUploadMimeType("image/jpeg")).toBe(true);
     expect(isAllowedUploadMimeType("image/webp")).toBe(true);
     expect(isAllowedUploadMimeType("text/plain")).toBe(false);
+  });
+
+  it("validates the real image signature instead of trusting the file extension", () => {
+    expect(isAllowedImageSignature(Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), "image/png")).toBe(true);
+    expect(isAllowedImageSignature(Uint8Array.from([0xff, 0xd8, 0xff, 0xe0]), "image/jpeg")).toBe(true);
+    expect(isAllowedImageSignature(new TextEncoder().encode("GIF89a"), "image/gif")).toBe(true);
+    expect(isAllowedImageSignature(new TextEncoder().encode("RIFF1234WEBP"), "image/webp")).toBe(true);
+    expect(isAllowedImageSignature(new TextEncoder().encode("not really an image"), "image/png")).toBe(false);
+  });
+
+  it("enforces the public 8 MB image limit", () => {
+    expect(MAX_IMAGE_UPLOAD_BYTES).toBe(8 * 1024 * 1024);
+    expect(getImageUploadValidationError("image/png", MAX_IMAGE_UPLOAD_BYTES + 1)).toBe(
+      "Images must be 8 MB or smaller",
+    );
+    expect(getImageUploadValidationError("text/plain", 12)).toBe("Choose a PNG, JPG, GIF, or WebP image");
+    expect(getImageUploadValidationError("image/png", 0)).toBe("Image file is empty");
   });
 });

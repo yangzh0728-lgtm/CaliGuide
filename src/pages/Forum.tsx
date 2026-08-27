@@ -41,6 +41,7 @@ import { mergeForumPostImageSelection } from '../lib/forumImageSelection';
 import { filesToInlineImageUploads, isRecoverableImageUploadError, uploadImagesToR2 } from '../lib/imageUpload';
 import { supabase } from '../lib/supabaseClient';
 import { ForumTranslateButton } from '../components/ForumTranslateButton';
+import { ForumReportButton } from '../components/ForumReportButton';
 import {
   requestForumTranslation,
   type ForumTranslationLanguage,
@@ -421,6 +422,9 @@ export default function Forum({
                 void handleTranslatePost(featuredDiscussion, getTranslationTarget(featuredDiscussion.id))
               }
             />
+            {featuredDiscussion.userId !== currentUserId && (
+              <ForumReportButton targetType="post" targetId={featuredDiscussion.id} />
+            )}
           </div>
         </article>
         )}
@@ -503,6 +507,9 @@ export default function Forum({
                 onTargetLanguageChange={(language) => handleTranslationTargetChange(post.id, language)}
                 onClick={() => void handleTranslatePost(post, getTranslationTarget(post.id))}
               />
+              {post.userId !== currentUserId && (
+                <ForumReportButton targetType="post" targetId={post.id} />
+              )}
               {post.userId === currentUserId && (
                 <button
                   type="button"

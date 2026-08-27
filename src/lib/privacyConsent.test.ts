@@ -90,7 +90,7 @@ describe("privacy consent", () => {
     ).toBeNull();
   });
 
-  test("revoking preferences removes optional keys but preserves necessary state", () => {
+  test("revoking preferences preserves language but removes optional chat cache", () => {
     const storage = new MemoryStorage();
     storage.setItem("caliguide-language", "es");
     storage.setItem("caliguide-chat-memory", "cached-chat");
@@ -100,23 +100,24 @@ describe("privacy consent", () => {
 
     removeDisallowedPreferenceStorage(storage, false);
 
-    expect(storage.getItem("caliguide-language")).toBeNull();
+    expect(storage.getItem("caliguide-language")).toBe("es");
     expect(storage.getItem("caliguide-chat-memory")).toBeNull();
     expect(storage.getItem("caliguide-google-profile-draft")).toBe("oauth-draft");
     expect(storage.getItem("sb-project-auth-token")).toBe("session");
     expect(storage.getItem(CONSENT_STORAGE_KEY)).toBe("consent-record");
   });
 
-  test("does not read or write preference storage before consent", () => {
+  test("always stores functional language while gating optional preference storage", () => {
     const storage = new MemoryStorage();
     storage.setItem("caliguide-language", "es");
+    storage.setItem("caliguide-chat-memory", "cached-chat");
 
-    expect(readPreferenceStorage(storage, "caliguide-language", false)).toBeNull();
+    expect(readPreferenceStorage(storage, "caliguide-language", false)).toBe("es");
     writePreferenceStorage(storage, "caliguide-language", "zh-CN", false);
-    expect(storage.getItem("caliguide-language")).toBe("es");
-
-    expect(readPreferenceStorage(storage, "caliguide-language", true)).toBe("es");
-    writePreferenceStorage(storage, "caliguide-language", "zh-CN", true);
     expect(storage.getItem("caliguide-language")).toBe("zh-CN");
+
+    expect(readPreferenceStorage(storage, "caliguide-chat-memory", false)).toBeNull();
+    writePreferenceStorage(storage, "caliguide-chat-memory", "new-cache", false);
+    expect(storage.getItem("caliguide-chat-memory")).toBe("cached-chat");
   });
 });

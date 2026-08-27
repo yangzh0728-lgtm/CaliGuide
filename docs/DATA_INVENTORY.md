@@ -67,11 +67,12 @@ The application now separates necessary storage from optional preferences in
 | Supabase Auth browser storage | Necessary | Session and refresh-token persistence (`src/lib/supabaseClient.ts`) |
 | `caliguide-google-profile-draft` | Necessary | Temporary profile state for Google OAuth registration (`src/context/AuthContext.tsx`) |
 | `caliguide-privacy-consent` | Necessary | Consent version, optional category choices, and update time |
-| `caliguide-language` | Preferences | Interface language (`src/context/LanguageContext.tsx`) |
+| `caliguide-language` | Necessary / functional | Interface language required to preserve an accessible experience (`src/context/LanguageContext.tsx`) |
 | `caliguide-chat-memory` | Preferences | Local chatbot cache (`src/pages/Chatbot.tsx`, `src/lib/chatMemory.ts`) |
 
-Language and local chat storage are not read or written until the user accepts
-preferences. Revoking preferences removes both optional keys. Supabase session
+Interface language is always available as necessary functional storage. Local
+chat storage is not read or written until the user accepts preferences, and
+revoking preferences removes that optional key. Supabase session
 and OAuth registration state remain available because authentication and the
 requested registration flow depend on them.
 
@@ -150,16 +151,16 @@ Forum posts and comments are readable by any signed-in user (handoff section 9).
 
 ---
 
-## 4. Rights and controls — current gaps
+## 4. Rights and controls
 
 Searched for account deletion, data export, and retention logic. Results:
 
 | Capability | Status |
 | --- | --- |
-| Delete account and associated data | **Not implemented** |
-| Export personal data | **Not implemented** |
+| Delete account and associated data | **Implemented in Profile > Settings**; removes user-owned Supabase rows, the R2 user prefix, Mem0 memories, then the Auth identity |
+| Export personal data | **Implemented in Profile > Settings** as a JSON export of account, Supabase, Mem0, and R2 metadata |
 | Retention or purge schedule | **Not implemented** |
-| View/delete chatbot memories held by Mem0 | **Not implemented** |
+| View/delete chatbot memories held by Mem0 | **Partially implemented**; memories appear in the account export and are removed with account deletion, but there is no individual memory control yet |
 | Withdraw consent for AI processing | **Not implemented** |
 | Browser-storage consent and preference revocation | **Implemented** |
 
@@ -170,8 +171,9 @@ facts. When the law applies, California residents may have rights including
 access, deletion, and correction. Independent of the threshold analysis, a
 public product collecting exact date of birth, nationality, and
 immigration-adjacent profile data should provide practical deletion and export
-paths. Their absence remains the most substantive privacy-product gap found in
-this audit.
+paths. CaliGuide now provides those paths in Settings; deployment verification
+must confirm the service-role, R2, and Mem0 credentials are all present so the
+cross-provider operation can complete.
 
 The California Privacy Protection Agency currently describes covered
 for-profit businesses as those doing business in California that meet at least
@@ -190,20 +192,18 @@ not determine CaliGuide's legal status under those rules.
 1. **Decide on Baidu Qianfan.** The draft privacy policy now discloses it, but the
    product still needs a deliberate provider decision and a near-input warning
    before users send potentially sensitive text or images.
-2. **Implement account deletion and data export.** Must cascade across Supabase
-   tables, R2 objects, and Mem0.
-3. **Add a retention schedule**, especially for chat messages and uploaded
+2. **Add a retention schedule**, especially for chat messages and uploaded
    images.
-4. **Add Mem0 memory view/delete controls** so users can see and remove what the
+3. **Add Mem0 memory view/delete controls** so users can see and remove what the
    assistant remembers about them.
-5. **Warn before image upload** that images are processed by a third-party AI
+4. **Warn before image upload** that images are processed by a third-party AI
    provider, and discourage uploading identity documents.
-6. **Consider self-hosting guide images** to remove incidental third-party
+5. **Consider self-hosting guide images** to remove incidental third-party
    contact.
 
-The browser-control design treats authentication and an in-progress OAuth
-registration as necessary storage, while language and local chat cache remain
-off until accepted. That distinction follows the general principle that a
+The browser-control design treats authentication, interface language, and an
+in-progress OAuth registration as necessary storage, while the local chat cache
+remains off until accepted. That distinction follows the general principle that a
 storage exception is narrow and tied to a service the user explicitly requests;
 see the UK Information Commissioner's Office guidance on
 [storage-access exceptions](https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/guidance-on-the-use-of-storage-and-access-technologies/what-are-the-exceptions/).

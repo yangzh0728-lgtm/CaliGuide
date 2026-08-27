@@ -63,6 +63,39 @@ export async function listMem0Memories({
   return normalizeMem0SearchResponse(await response.json());
 }
 
+export async function listAllMem0Memories({
+  apiKey,
+  userId,
+  fetcher = fetch,
+}: Mem0Options): Promise<Mem0Memory[]> {
+  if (!apiKey || !userId.trim()) {
+    return [];
+  }
+
+  const pageSize = 100;
+  const memories: Mem0Memory[] = [];
+
+  for (let page = 1; page <= 100; page += 1) {
+    const url = `${MEM0_API_BASE_URL}/memories/?user_id=${encodeURIComponent(userId)}&page=${page}&page_size=${pageSize}`;
+    const response = await fetcher(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Token ${apiKey}`,
+      },
+    });
+
+    await assertMem0Response(response, "list mem0 memories");
+    const pageMemories = normalizeMem0SearchResponse(await response.json());
+    memories.push(...pageMemories);
+
+    if (pageMemories.length < pageSize) {
+      break;
+    }
+  }
+
+  return uniqueMemories(memories);
+}
+
 export async function getRelevantMem0Memories({
   apiKey,
   userId,
@@ -98,6 +131,28 @@ export async function addMem0Conversation({
   });
 
   await assertMem0Response(response, "add mem0 conversation");
+}
+
+export async function deleteAllMem0Memories({
+  apiKey,
+  userId,
+  fetcher = fetch,
+}: Mem0Options) {
+  if (!apiKey || !userId.trim()) {
+    return;
+  }
+
+  const response = await fetcher(
+    `${MEM0_API_BASE_URL}/memories/?user_id=${encodeURIComponent(userId)}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Token ${apiKey}`,
+      },
+    },
+  );
+
+  await assertMem0Response(response, "delete mem0 memories");
 }
 
 export function buildMem0MemoryContext(memories: Mem0Memory[]) {

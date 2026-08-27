@@ -5,6 +5,7 @@ import {
   Camera,
   CalendarDays,
   ChevronRight,
+  Download,
   FileCheck,
   Flag,
   LockKeyhole,
@@ -16,6 +17,7 @@ import {
   Plane,
   Plus,
   Save,
+  ShieldCheck,
   Settings,
   ThumbsDown,
   ThumbsUp,
@@ -42,6 +44,7 @@ import {
   isUsefulByUser,
 } from "../lib/forumContent";
 import { supabase } from "../lib/supabaseClient";
+import { deleteAccountViaApi, requestAccountExportViaApi } from "../lib/accountDataApi";
 
 interface ProfileProps {
   articles: BlogArticle[];
@@ -64,7 +67,7 @@ export default function Profile({
   onToggleForumUnuseful,
   currentUserId,
 }: ProfileProps) {
-  const { currentUser, logout, updateAccount, updatePassword } = useAuth();
+  const { currentUser, logout, clearDeletedAccountSession, updateAccount, updatePassword } = useAuth();
   const { t } = useLanguage();
   const [view, setView] = useState<ProfileView>("profile");
   const [name, setName] = useState(currentUser?.name ?? "");
@@ -85,6 +88,11 @@ export default function Profile({
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isSignOutConfirmOpen, setIsSignOutConfirmOpen] = useState(false);
+  const [accountDataMessage, setAccountDataMessage] = useState("");
+  const [isExportingAccount, setIsExportingAccount] = useState(false);
+  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
+  const [deleteAccountConfirmation, setDeleteAccountConfirmation] = useState("");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const savedArticles = useMemo(
     () => articles.filter((article) => currentUser?.savedGuideIds.includes(article.id)),
     [articles, currentUser?.savedGuideIds],
@@ -273,6 +281,52 @@ export default function Profile({
     } catch (error) {
       setProfileMessage(error instanceof Error ? error.message : "Unable to sign out");
       setIsSignOutConfirmOpen(false);
+    }
+  };
+
+  const handleAccountExport = async () => {
+    setAccountDataMessage("");
+    setIsExportingAccount(true);
+
+    try {
+      const accountData = await requestAccountExportViaApi(supabase);
+      const blob = new Blob([JSON.stringify(accountData, null, 2)], {
+        type: "application/json",
+      });
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `caliguide-account-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(downloadUrl);
+      setAccountDataMessage(t("settings.downloadDataReady"));
+    } catch {
+      setAccountDataMessage(t("settings.accountExportFailed"));
+    } finally {
+      setIsExportingAccount(false);
+    }
+  };
+
+  const handleAccountDelete = async () => {
+    if (deleteAccountConfirmation !== "DELETE") {
+      return;
+    }
+
+    setAccountDataMessage("");
+    setIsDeletingAccount(true);
+
+    try {
+      await deleteAccountViaApi(supabase, deleteAccountConfirmation);
+      await clearDeletedAccountSession();
+      setIsDeleteAccountOpen(false);
+    } catch {
+      setAccountDataMessage(t("settings.accountDeleteFailed"));
+      setIsDeleteAccountOpen(false);
+    } finally {
+      setIsDeletingAccount(false);
+      setDeleteAccountConfirmation("");
     }
   };
 
@@ -491,7 +545,7 @@ export default function Profile({
           </button>
         </form>
 
-        <form onSubmit={handlePasswordSubmit} className="bg-white border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4">
+        <form onSubmit={handlePasswordSubmit} className="bg-white border border-outline-variant rounded-2xl p-5 shadow-sm mb-4 space-y-4">
           <div className="flex items-center gap-3">
             <div className="bg-surface-container-highest text-on-surface-variant p-2.5 rounded-xl">
               <LockKeyhole size={20} />
@@ -534,6 +588,104 @@ export default function Profile({
             {isSavingPassword ? "Saving..." : t("settings.changePassword")}
           </button>
         </form>
+
+        <section className="rounded-2xl border border-outline-variant bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-surface-container-highest p-2.5 text-on-surface-variant">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <h3 className="font-bold text-on-surface">{t("settings.dataPrivacy")}</h3>
+              <p className="text-xs leading-5 text-on-surface-variant">{t("settings.dataPrivacyDesc")}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            <button
+              type="button"
+              disabled={isExportingAccount}
+              onClick={handleAccountExport}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Download size={18} />
+              {isExportingAccount ? t("settings.downloadingData") : t("settings.downloadData")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteAccountConfirmation("");
+                setIsDeleteAccountOpen(true);
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm font-bold text-error transition-colors hover:bg-error/10"
+            >
+              <Trash2 size={18} />
+              {t("settings.deleteAccount")}
+            </button>
+          </div>
+
+          {accountDataMessage && (
+            <p className="mt-3 rounded-xl bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface-variant">
+              {accountDataMessage}
+            </p>
+          )}
+        </section>
+
+        {isDeleteAccountOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+            <section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-account-title"
+              className="w-full max-w-sm rounded-2xl border border-outline-variant bg-white p-5 shadow-2xl"
+            >
+              <div className="mb-4 flex items-start gap-3">
+                <div className="rounded-xl bg-error/10 p-3 text-error">
+                  <Trash2 size={22} />
+                </div>
+                <div>
+                  <h3 id="delete-account-title" className="text-xl font-bold text-on-surface">
+                    {t("settings.deleteAccountTitle")}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                    {t("settings.deleteAccountBody")}
+                  </p>
+                </div>
+              </div>
+
+              <label className="block">
+                <span className="text-xs font-bold uppercase text-on-surface-variant">
+                  {t("settings.deleteAccountLabel")}
+                </span>
+                <input
+                  autoFocus
+                  value={deleteAccountConfirmation}
+                  onChange={(event) => setDeleteAccountConfirmation(event.target.value)}
+                  placeholder={t("settings.deleteAccountPlaceholder")}
+                  className="mt-2 w-full rounded-xl border border-outline-variant px-3 py-3 text-sm outline-none focus:border-error"
+                />
+              </label>
+
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  disabled={isDeletingAccount}
+                  onClick={() => setIsDeleteAccountOpen(false)}
+                  className="rounded-xl border border-outline-variant px-4 py-3 text-sm font-bold text-on-surface hover:bg-surface-container-low disabled:opacity-60"
+                >
+                  {t("settings.deleteAccountCancel")}
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteAccountConfirmation !== "DELETE" || isDeletingAccount}
+                  onClick={handleAccountDelete}
+                  className="rounded-xl bg-error px-4 py-3 text-sm font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isDeletingAccount ? t("settings.deletingAccount") : t("settings.deleteAccountConfirm")}
+                </button>
+              </div>
+            </section>
+          </div>
+        )}
       </div>
     );
   }

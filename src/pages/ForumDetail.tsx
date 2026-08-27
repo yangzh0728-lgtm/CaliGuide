@@ -15,6 +15,7 @@ import {
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { ForumTranslateButton } from "../components/ForumTranslateButton";
+import { ForumReportButton } from "../components/ForumReportButton";
 import {
   ForumDiscussion,
   getForumReplyCount,
@@ -219,6 +220,11 @@ export default function ForumDetail({
               <Trash2 size={16} />
             </button>
           )}
+          {discussion.userId !== currentUserId && (
+            <div className="ml-auto">
+              <ForumReportButton targetType="post" targetId={discussion.id} />
+            </div>
+          )}
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -381,6 +387,11 @@ export default function ForumDetail({
                     >
                       <Trash2 size={14} />
                     </button>
+                  )}
+                  {reply.userId !== currentUserId && (
+                    <div className="ml-auto">
+                      <ForumReportButton targetType="comment" targetId={reply.id} />
+                    </div>
                   )}
                 </div>
                 <p className="mt-1 text-sm leading-6 text-on-surface-variant">

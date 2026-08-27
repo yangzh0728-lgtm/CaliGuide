@@ -36,6 +36,7 @@ interface AuthContextValue {
   requestPasswordReset: (input: { email: string }) => Promise<void>;
   resetRecoveredPassword: (input: { newPassword: string }) => Promise<void>;
   logout: () => Promise<void>;
+  clearDeletedAccountSession: () => Promise<void>;
   updateAccount: (input: {
     name: string;
     email: string;
@@ -253,6 +254,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) {
           throw new Error(formatSupabaseAuthError(error));
         }
+        setCurrentUser(null);
+        setIsPasswordRecovery(false);
+      },
+      clearDeletedAccountSession: async () => {
+        await supabase.auth.signOut({ scope: "local" });
         setCurrentUser(null);
         setIsPasswordRecovery(false);
       },

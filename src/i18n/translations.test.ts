@@ -58,6 +58,53 @@ describe("translations", () => {
     expect(translate("zh-TW", "disclaimer.heading")).toContain("本指南僅為");
   });
 
+  it("classifies interface language as necessary and local chat cache as optional", () => {
+    expect(translate("en", "privacy.necessaryCopy")).toContain("interface language");
+    expect(translate("en", "privacy.preferencesCopy")).toContain("chatbot cache");
+    expect(translate("en", "privacy.preferencesCopy")).not.toContain("language");
+  });
+
+  it("translates the forum reporting flow in every supported language", () => {
+    const languages = ["en", "zh-CN", "zh-TW", "yue", "es"] as const;
+    const keys = [
+      "forum.report",
+      "forum.reportTitle",
+      "forum.reportReason.misinformation",
+      "forum.reportSubmit",
+      "forum.reportSuccess",
+      "forum.reportError",
+    ];
+
+    for (const language of languages) {
+      for (const key of keys) {
+        const value = translate(language, key);
+        expect(value).toBeTruthy();
+        expect(value).not.toBe(key);
+      }
+    }
+  });
+
+  it("translates account export and deletion controls in every supported language", () => {
+    const languages = ["en", "zh-CN", "zh-TW", "yue", "es"] as const;
+    const keys = [
+      "settings.dataPrivacy",
+      "settings.downloadData",
+      "settings.deleteAccount",
+      "settings.deleteAccountTitle",
+      "settings.deleteAccountConfirm",
+      "settings.accountExportFailed",
+      "settings.accountDeleteFailed",
+    ];
+
+    for (const language of languages) {
+      for (const key of keys) {
+        const value = translate(language, key);
+        expect(value).toBeTruthy();
+        expect(value).not.toBe(key);
+      }
+    }
+  });
+
   it("recognizes supported language codes", () => {
     expect(isLanguageCode("en")).toBe(true);
     expect(isLanguageCode("zh-CN")).toBe(true);

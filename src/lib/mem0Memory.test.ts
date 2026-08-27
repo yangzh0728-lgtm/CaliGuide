@@ -2,7 +2,9 @@ import { describe, expect, it } from "bun:test";
 import {
   addMem0Conversation,
   buildMem0MemoryContext,
+  deleteAllMem0Memories,
   getRelevantMem0Memories,
+  listAllMem0Memories,
   searchMem0Memories,
 } from "./mem0Memory";
 
@@ -101,6 +103,53 @@ describe("mem0Memory", () => {
     expect(requests).toEqual([
       "https://api.mem0.ai/v1/memories/search/",
       "https://api.mem0.ai/v1/memories/?user_id=user-1&page=1&page_size=10",
+    ]);
+  });
+
+  it("deletes memories only for the requested user", async () => {
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const fetcher = async (url: string | URL | Request, init?: RequestInit) => {
+      requests.push({ url: String(url), init });
+      return new Response(null, { status: 204 });
+    };
+
+    await deleteAllMem0Memories({
+      apiKey: "mem0-test-key",
+      userId: "user-1",
+      fetcher,
+    });
+
+    expect(requests).toHaveLength(1);
+    expect(requests[0].url).toBe("https://api.mem0.ai/v1/memories/?user_id=user-1");
+    expect(requests[0].init?.method).toBe("DELETE");
+    expect(requests[0].init?.headers).toEqual({ Authorization: "Token mem0-test-key" });
+  });
+
+  it("lists every page of user memories for account export", async () => {
+    const requests: string[] = [];
+    const fetcher = async (url: string | URL | Request) => {
+      requests.push(String(url));
+      const page = new URL(String(url)).searchParams.get("page");
+      return new Response(
+        JSON.stringify({
+          results: page === "1"
+            ? Array.from({ length: 100 }, (_, index) => ({ memory: `Memory ${index + 1}` }))
+            : [{ memory: "Memory 101" }],
+        }),
+        { status: 200 },
+      );
+    };
+
+    const memories = await listAllMem0Memories({
+      apiKey: "mem0-test-key",
+      userId: "user-1",
+      fetcher,
+    });
+
+    expect(memories).toHaveLength(101);
+    expect(requests).toEqual([
+      "https://api.mem0.ai/v1/memories/?user_id=user-1&page=1&page_size=100",
+      "https://api.mem0.ai/v1/memories/?user_id=user-1&page=2&page_size=100",
     ]);
   });
 });

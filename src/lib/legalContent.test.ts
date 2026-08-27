@@ -43,6 +43,17 @@ describe("legal content", () => {
     expect(cookieText).toContain("caliguide-chat-memory");
     expect(cookieText).toContain("caliguide-google-profile-draft");
     expect(cookieText).toContain("Supabase authentication");
+    expect(cookieText).toContain("necessary functional storage");
+    expect(cookieText).toContain("optional preference storage");
+  });
+
+  test("describes the self-service account export and deletion controls", () => {
+    const privacyText = JSON.stringify(getLegalDocument("privacy", "en"));
+
+    expect(privacyText).toContain("Settings");
+    expect(privacyText).toContain("download a copy");
+    expect(privacyText).toContain("permanently delete");
+    expect(privacyText).not.toContain("not yet available");
   });
 
   test("uses localized body copy for Traditional Chinese and Cantonese", () => {

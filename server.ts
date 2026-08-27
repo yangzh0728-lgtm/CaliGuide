@@ -5,19 +5,27 @@ import { createServer as createViteServer } from "vite";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  S3Client,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
   buildPublicR2Url,
   createR2ObjectKey,
+  getImageUploadValidationError,
   getR2Config,
-  isAllowedUploadMimeType,
+  isAllowedImageSignature,
 } from "./src/lib/r2Upload";
 import { buildChatCompletionRequest } from "./src/lib/chatServer";
 import {
   addMem0Conversation,
   buildMem0MemoryContext,
+  deleteAllMem0Memories,
   getRelevantMem0Memories,
+  listAllMem0Memories,
 } from "./src/lib/mem0Memory";
 import {
   buildForumCommentInsert,
@@ -33,6 +41,14 @@ import {
   normalizeForumTranslationLanguage,
   type ForumTranslationInput,
 } from "./src/lib/forumTranslation";
+import { validateForumReportInput } from "./src/lib/forumModeration";
+import { createApiRateLimiter } from "./src/lib/serverRateLimit";
+import {
+  ACCOUNT_DELETE_TABLES,
+  ACCOUNT_EXPORT_TABLES,
+  getAccountDeleteValidationError,
+  getUserMediaPrefix,
+} from "./src/lib/accountDataServer";
 
 dotenv.config();
 
@@ -47,10 +63,14 @@ const pendingMemoryByUserId = new Map<string, Array<{ content: string; createdAt
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS ?? "", 10);
+  if (Number.isInteger(trustProxyHops) && trustProxyHops > 0) {
+    app.set("trust proxy", trustProxyHops);
+  }
   const corsAllowedOrigins = buildCorsAllowedOrigins(process.env);
   const imageUploadBodyParser = express.raw({
     type: ["image/png", "image/jpeg", "image/webp", "image/gif"],
-    limit: "10mb",
+    limit: "8mb",
   });
 
   app.use((req, res, next) => {
@@ -62,6 +82,10 @@ async function startServer() {
     next();
   });
   app.use(express.json({ limit: "16mb" }));
+  app.use("/api", createApiRateLimiter({ max: 300, windowMs: 15 * 60 * 1000 }));
+  app.use("/api/forum", createApiRateLimiter({ max: 90, windowMs: 5 * 60 * 1000 }));
+  app.use("/api/uploads", createApiRateLimiter({ max: 30, windowMs: 10 * 60 * 1000 }));
+  app.use("/api/chat", createApiRateLimiter({ max: 30, windowMs: 5 * 60 * 1000 }));
 
   const apiKey = process.env.API_KEY;
   const appId = process.env.APP_ID;
@@ -130,8 +154,9 @@ async function startServer() {
     const attachedToType = normalizeAttachedToType(req.body?.attachedToType, folder);
     const sizeBytes = typeof req.body?.sizeBytes === "number" ? req.body.sizeBytes : null;
 
-    if (!isAllowedUploadMimeType(mimeType)) {
-      return res.status(400).json({ error: "Choose a PNG, JPG, GIF, or WebP image" });
+    const uploadError = getImageUploadValidationError(mimeType, sizeBytes ?? 0);
+    if (uploadError) {
+      return res.status(400).json({ error: uploadError });
     }
 
     const objectKey = createR2ObjectKey({
@@ -184,16 +209,18 @@ async function startServer() {
 
     const mimeType = typeof req.body?.mimeType === "string" ? req.body.mimeType : "";
     const base64 = typeof req.body?.base64 === "string" ? req.body.base64 : "";
-    const sizeBytes = typeof req.body?.sizeBytes === "number" ? req.body.sizeBytes : null;
-
-    if (!isAllowedUploadMimeType(mimeType)) {
-      return res.status(400).json({ error: "Choose a PNG, JPG, GIF, or WebP image" });
-    }
     if (!base64) {
       return res.status(400).json({ error: "Profile picture is required" });
     }
 
     const body = Buffer.from(base64, "base64");
+    const uploadError = getImageUploadValidationError(mimeType, body.length);
+    if (uploadError) {
+      return res.status(400).json({ error: uploadError });
+    }
+    if (!isAllowedImageSignature(body, mimeType)) {
+      return res.status(400).json({ error: "Image contents do not match the selected file type" });
+    }
     const objectKey = createR2ObjectKey({
       userId: authResult.user.id,
       folder: "profile",
@@ -223,7 +250,7 @@ async function startServer() {
         object_key: objectKey,
         public_url: publicUrl,
         mime_type: mimeType,
-        size_bytes: sizeBytes,
+        size_bytes: body.length,
         attached_to_type: "profile",
         attached_to_id: authResult.user.id,
       })
@@ -290,18 +317,17 @@ async function startServer() {
     const attachedToType = normalizeAttachedToType(getHeaderString(req.headers["x-attached-to-type"]), folder);
     const attachedToIdHeader = getHeaderString(req.headers["x-attached-to-id"]);
     const attachedToId = attachedToIdHeader ? getUuidOrNull(attachedToIdHeader) : null;
-    const sizeBytesHeader = Number(getHeaderString(req.headers["x-size-bytes"]));
-    const sizeBytes = Number.isFinite(sizeBytesHeader) ? sizeBytesHeader : null;
     const body = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
 
     if (folder !== "chat" && folder !== "forum") {
       return res.status(400).json({ error: "Upload folder is invalid" });
     }
-    if (!isAllowedUploadMimeType(mimeType)) {
-      return res.status(400).json({ error: "Choose a PNG, JPG, GIF, or WebP image" });
+    const uploadError = getImageUploadValidationError(mimeType, body.length);
+    if (uploadError) {
+      return res.status(400).json({ error: uploadError });
     }
-    if (!body.length) {
-      return res.status(400).json({ error: "Image is required" });
+    if (!isAllowedImageSignature(body, mimeType)) {
+      return res.status(400).json({ error: "Image contents do not match the selected file type" });
     }
 
     let objectKey = "";
@@ -342,7 +368,7 @@ async function startServer() {
         object_key: objectKey,
         public_url: publicUrl,
         mime_type: mimeType,
-        size_bytes: sizeBytes,
+        size_bytes: body.length,
         attached_to_type: attachedToType,
         attached_to_id: attachedToId,
       })
@@ -375,16 +401,21 @@ async function startServer() {
     const attachedToType = normalizeAttachedToType(req.body?.attachedToType, folder);
     const attachedToId =
       typeof req.body?.attachedToId === "string" ? getUuidOrNull(req.body.attachedToId) : null;
-    const sizeBytes = typeof req.body?.sizeBytes === "number" ? req.body.sizeBytes : null;
 
     if (folder !== "chat" && folder !== "forum") {
       return res.status(400).json({ error: "Upload folder is invalid" });
     }
-    if (!isAllowedUploadMimeType(mimeType)) {
-      return res.status(400).json({ error: "Choose a PNG, JPG, GIF, or WebP image" });
-    }
     if (!base64) {
       return res.status(400).json({ error: "Image is required" });
+    }
+
+    const body = Buffer.from(base64, "base64");
+    const uploadError = getImageUploadValidationError(mimeType, body.length);
+    if (uploadError) {
+      return res.status(400).json({ error: uploadError });
+    }
+    if (!isAllowedImageSignature(body, mimeType)) {
+      return res.status(400).json({ error: "Image contents do not match the selected file type" });
     }
 
     let objectKey = "";
@@ -399,7 +430,6 @@ async function startServer() {
       return res.status(400).json({ error: error.message || "Upload path is invalid" });
     }
 
-    const body = Buffer.from(base64, "base64");
     const publicUrl = buildPublicR2Url(r2Config.publicBaseUrl, objectKey);
 
     try {
@@ -426,7 +456,7 @@ async function startServer() {
         object_key: objectKey,
         public_url: publicUrl,
         mime_type: mimeType,
-        size_bytes: sizeBytes,
+        size_bytes: body.length,
         attached_to_type: attachedToType,
         attached_to_id: attachedToId,
       })
@@ -739,6 +769,189 @@ async function startServer() {
     res.json({ ok: true });
   });
 
+  app.post(
+    "/api/forum/reports",
+    createApiRateLimiter({ max: 10, windowMs: 60 * 60 * 1000 }),
+    async (req, res) => {
+      if (!supabaseAdmin) {
+        return res.status(500).json({ error: "Supabase service role must be configured" });
+      }
+
+      const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+      if ("error" in authResult) {
+        return res.status(authResult.status).json({ error: authResult.error });
+      }
+
+      const validation = validateForumReportInput(req.body);
+      if (validation.ok === false) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const { targetType, targetId, reason, details } = validation.value;
+      const targetTable = targetType === "post" ? "forum_posts" : "forum_comments";
+      const { data: target, error: targetError } = await supabaseAdmin
+        .from(targetTable)
+        .select("id,user_id")
+        .eq("id", targetId)
+        .maybeSingle();
+
+      if (targetError) {
+        console.warn(`[forum-report:${authResult.user.id}] target lookup failed`, targetError.message);
+        return res.status(500).json({ error: "Unable to submit this report right now" });
+      }
+      if (!target) {
+        return res.status(404).json({ error: "This forum content is no longer available" });
+      }
+      if (target.user_id === authResult.user.id) {
+        return res.status(400).json({ error: "You cannot report content that you created" });
+      }
+
+      const { error } = await supabaseAdmin.from("forum_reports").insert({
+        target_type: targetType,
+        target_id: targetId,
+        reporter_user_id: authResult.user.id,
+        reason,
+        details,
+      });
+
+      if (error?.code === "23505") {
+        return res.status(409).json({ error: "You already reported this content" });
+      }
+      if (error) {
+        console.warn(`[forum-report:${authResult.user.id}] insert failed`, error.message);
+        return res.status(500).json({ error: "Unable to submit this report right now" });
+      }
+
+      res.json({ ok: true });
+    },
+  );
+
+  app.get(
+    "/api/account/export",
+    createApiRateLimiter({ max: 5, windowMs: 60 * 60 * 1000 }),
+    async (req, res) => {
+      if (!supabaseAdmin) {
+        return res.status(500).json({ error: "Account export is temporarily unavailable" });
+      }
+
+      const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+      if ("error" in authResult) {
+        return res.status(authResult.status).json({ error: authResult.error });
+      }
+
+      const userId = authResult.user.id;
+      const warnings: string[] = [];
+      const database: Record<string, unknown[]> = {};
+
+      for (const { table, ownerColumn } of ACCOUNT_EXPORT_TABLES) {
+        const { data, error } = await supabaseAdmin
+          .from(table)
+          .select("*")
+          .eq(ownerColumn, userId);
+
+        if (error) {
+          console.warn(`[account-export:${userId}] ${table} failed`, error.message);
+          database[table] = [];
+          warnings.push(`Unable to include ${table} in this export.`);
+        } else {
+          database[table] = data ?? [];
+        }
+      }
+
+      let chatbotMemories: Awaited<ReturnType<typeof listAllMem0Memories>> = [];
+      if (mem0ApiKey) {
+        try {
+          chatbotMemories = await listAllMem0Memories({ apiKey: mem0ApiKey, userId });
+        } catch (error) {
+          console.warn(`[account-export:${userId}] mem0 failed`, error);
+          warnings.push("Unable to include chatbot memories in this export.");
+        }
+      }
+
+      let mediaObjects: Awaited<ReturnType<typeof listR2UserObjects>> = [];
+      if (r2Client && r2Config) {
+        try {
+          mediaObjects = await listR2UserObjects(
+            r2Client,
+            r2Config.bucketName,
+            getUserMediaPrefix(userId),
+          );
+        } catch (error) {
+          console.warn(`[account-export:${userId}] R2 failed`, error);
+          warnings.push("Unable to include uploaded media metadata in this export.");
+        }
+      } else {
+        warnings.push("Uploaded media metadata is unavailable because Cloudflare R2 is not configured.");
+      }
+
+      res.json({
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        account: {
+          id: userId,
+          email: authResult.user.email ?? null,
+          createdAt: authResult.user.created_at ?? null,
+          lastSignInAt: authResult.user.last_sign_in_at ?? null,
+          appMetadata: authResult.user.app_metadata ?? {},
+          userMetadata: authResult.user.user_metadata ?? {},
+        },
+        database,
+        chatbotMemories,
+        mediaObjects,
+        warnings,
+      });
+    },
+  );
+
+  app.post(
+    "/api/account/delete",
+    createApiRateLimiter({ max: 3, windowMs: 60 * 60 * 1000 }),
+    async (req, res) => {
+      if (!supabaseAdmin || !r2Client || !r2Config) {
+        return res.status(500).json({ error: "Account deletion is temporarily unavailable" });
+      }
+
+      const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
+      if ("error" in authResult) {
+        return res.status(authResult.status).json({ error: authResult.error });
+      }
+
+      const validationError = getAccountDeleteValidationError(req.body?.confirmation);
+      if (validationError) {
+        return res.status(400).json({ error: validationError });
+      }
+
+      const userId = authResult.user.id;
+      try {
+        await deleteR2UserObjects(r2Client, r2Config.bucketName, getUserMediaPrefix(userId));
+
+        if (mem0ApiKey) {
+          await deleteAllMem0Memories({ apiKey: mem0ApiKey, userId });
+        }
+        pendingMemoryByUserId.delete(userId);
+
+        for (const { table, ownerColumn } of ACCOUNT_DELETE_TABLES) {
+          const { error } = await supabaseAdmin.from(table).delete().eq(ownerColumn, userId);
+          if (error) {
+            throw new Error(`Unable to delete ${table}: ${error.message}`);
+          }
+        }
+
+        const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+        if (authDeleteError) {
+          throw new Error(`Unable to delete auth user: ${authDeleteError.message}`);
+        }
+
+        res.json({ ok: true });
+      } catch (error) {
+        console.error(`[account-delete:${userId}] failed`, error);
+        res.status(500).json({
+          error: "We could not delete all account data. Your account remains active; please try again.",
+        });
+      }
+    },
+  );
+
   app.post("/api/forum/translate", async (req, res) => {
     if (!supabaseAdmin || !aiClient) {
       return res.status(500).json({ error: "Supabase service role and AI translation must be configured" });
@@ -986,6 +1199,55 @@ async function startServer() {
 
 startServer();
 
+async function listR2UserObjects(client: S3Client, bucketName: string, prefix: string) {
+  const objects: Array<{
+    key: string;
+    size: number;
+    lastModified: string | null;
+    etag: string | null;
+  }> = [];
+  let continuationToken: string | undefined;
+
+  do {
+    const result = await client.send(new ListObjectsV2Command({
+      Bucket: bucketName,
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+    }));
+
+    for (const object of result.Contents ?? []) {
+      if (!object.Key) {
+        continue;
+      }
+      objects.push({
+        key: object.Key,
+        size: object.Size ?? 0,
+        lastModified: object.LastModified?.toISOString() ?? null,
+        etag: object.ETag ?? null,
+      });
+    }
+
+    continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
+  } while (continuationToken);
+
+  return objects;
+}
+
+async function deleteR2UserObjects(client: S3Client, bucketName: string, prefix: string) {
+  const objects = await listR2UserObjects(client, bucketName, prefix);
+
+  for (let index = 0; index < objects.length; index += 1000) {
+    const batch = objects.slice(index, index + 1000);
+    await client.send(new DeleteObjectsCommand({
+      Bucket: bucketName,
+      Delete: {
+        Quiet: true,
+        Objects: batch.map(({ key }) => ({ Key: key })),
+      },
+    }));
+  }
+}
+
 function buildCorsAllowedOrigins(env: NodeJS.ProcessEnv) {
   const configuredOrigins = (env.CORS_ALLOWED_ORIGINS ?? "")
     .split(",")
@@ -1137,7 +1399,16 @@ function getUuidOrNull(value: string) {
 type SupabaseAdminClient = {
   auth: {
     getUser: (token: string) => Promise<{
-      data: { user: { id: string } | null };
+      data: {
+        user: {
+          id: string;
+          email?: string;
+          created_at?: string;
+          last_sign_in_at?: string;
+          app_metadata?: Record<string, unknown>;
+          user_metadata?: Record<string, unknown>;
+        } | null;
+      };
       error: { message: string } | null;
     }>;
   };

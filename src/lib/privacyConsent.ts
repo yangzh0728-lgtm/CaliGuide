@@ -21,9 +21,12 @@ export type ConsentSelection =
   | OptionalConsentChoices;
 
 const OPTIONAL_PREFERENCE_STORAGE_KEYS = [
-  LANGUAGE_STORAGE_KEY,
   CHAT_MEMORY_STORAGE_KEY,
 ] as const;
+
+function isNecessaryFunctionalStorageKey(key: string) {
+  return key === LANGUAGE_STORAGE_KEY;
+}
 
 export function createConsentRecord(
   selection: ConsentSelection,
@@ -80,7 +83,9 @@ export function readPreferenceStorage(
   key: string,
   preferencesAllowed: boolean,
 ) {
-  return preferencesAllowed ? storage.getItem(key) : null;
+  return preferencesAllowed || isNecessaryFunctionalStorageKey(key)
+    ? storage.getItem(key)
+    : null;
 }
 
 export function writePreferenceStorage(
@@ -89,7 +94,7 @@ export function writePreferenceStorage(
   value: string,
   preferencesAllowed: boolean,
 ) {
-  if (preferencesAllowed) {
+  if (preferencesAllowed || isNecessaryFunctionalStorageKey(key)) {
     storage.setItem(key, value);
   }
 }
