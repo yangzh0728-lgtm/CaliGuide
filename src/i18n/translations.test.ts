@@ -105,6 +105,22 @@ describe("translations", () => {
     }
   });
 
+  it("translates every section in the settings navigation", () => {
+    const languages = ["en", "zh-CN", "zh-TW", "yue", "es"] as const;
+    const sections = ["account", "security", "language", "privacy", "data", "danger"];
+
+    for (const language of languages) {
+      for (const section of sections) {
+        expect(translate(language, `settings.section.${section}`)).not.toBe(
+          `settings.section.${section}`,
+        );
+        expect(translate(language, `settings.section.${section}Desc`)).not.toBe(
+          `settings.section.${section}Desc`,
+        );
+      }
+    }
+  });
+
   it("recognizes supported language codes", () => {
     expect(isLanguageCode("en")).toBe(true);
     expect(isLanguageCode("zh-CN")).toBe(true);

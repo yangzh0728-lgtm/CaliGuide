@@ -27,6 +27,10 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
+import { usePrivacyConsent } from "../context/PrivacyConsentContext";
+import ProfileSettingsShell, {
+  type ProfileSettingsSection,
+} from "../components/ProfileSettingsShell";
 import { uploadAvatarToR2 } from "../lib/avatarUpload";
 import { BlogArticle } from "../lib/blogContent";
 import { ArrivalStatusOption, SexOption } from "../lib/authStore";
@@ -68,8 +72,10 @@ export default function Profile({
   currentUserId,
 }: ProfileProps) {
   const { currentUser, logout, clearDeletedAccountSession, updateAccount, updatePassword } = useAuth();
-  const { t } = useLanguage();
+  const { language, languages, setLanguage, t } = useLanguage();
+  const { consent, openPreferences } = usePrivacyConsent();
   const [view, setView] = useState<ProfileView>("profile");
+  const [settingsSection, setSettingsSection] = useState<ProfileSettingsSection | null>(null);
   const [name, setName] = useState(currentUser?.name ?? "");
   const [email, setEmail] = useState(currentUser?.email ?? "");
   const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl ?? "");
@@ -168,6 +174,7 @@ export default function Profile({
     setNewPassword("");
     setProfileMessage("");
     setPasswordMessage("");
+    setSettingsSection(null);
     setView("settings");
   };
 
@@ -198,7 +205,15 @@ export default function Profile({
     setNewPassword("");
     setProfileMessage("");
     setPasswordMessage("");
+    setSettingsSection(null);
     setView("profile");
+  };
+
+  const selectSettingsSection = (section: ProfileSettingsSection | null) => {
+    setProfileMessage("");
+    setPasswordMessage("");
+    setAccountDataMessage("");
+    setSettingsSection(section);
   };
 
   const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -331,32 +346,17 @@ export default function Profile({
   };
 
   if (view === "settings") {
-    return (
-      <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
-        <section className="mb-6 pt-2">
-          <button
-            onClick={closeSettings}
-            className="mb-5 inline-flex items-center gap-2 text-primary font-bold rounded-xl py-2 pr-3 hover:bg-surface-container-low transition-colors"
-          >
-            <ArrowLeft size={20} />
-            {t("nav.profile")}
-          </button>
-          <h2 className="text-3xl font-bold text-on-surface">{t("settings.heading")}</h2>
-          <p className="text-sm text-on-surface-variant mt-2">
-            {t("settings.subtitle")}
-          </p>
-        </section>
+    const selectedSettingsSection = settingsSection ?? "account";
 
-        <form onSubmit={handleProfileSubmit} className="bg-white border border-outline-variant rounded-2xl p-5 shadow-sm mb-4 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary-container text-white p-2.5 rounded-xl">
-              <UserRound size={20} />
-            </div>
-            <div>
-              <h3 className="font-bold text-on-surface">{t("settings.account")}</h3>
-              <p className="text-xs text-on-surface-variant">{t("settings.accountDesc")}</p>
-            </div>
-          </div>
+    return (
+      <>
+        <ProfileSettingsShell
+          activeSection={settingsSection}
+          onBackToProfile={closeSettings}
+          onSelectSection={selectSettingsSection}
+        >
+        {selectedSettingsSection === "account" && (
+        <form onSubmit={handleProfileSubmit} className="space-y-5">
 
           <div className="flex items-center gap-4 rounded-2xl bg-surface-container-low p-4">
             <img
@@ -509,52 +509,24 @@ export default function Profile({
             </div>
           </label>
 
-          <label className="block">
-            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">
-              {t("settings.forumTranslationLanguage")}
-            </span>
-            <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
-              <Languages size={18} className="text-on-surface-variant" />
-              <select
-                value={forumTranslationLanguage}
-                onChange={(event) => setForumTranslationLanguage(event.target.value as ForumTranslationLanguage)}
-                className="w-full bg-transparent py-3 text-sm outline-none"
-              >
-                {FORUM_TRANSLATION_LANGUAGES.map((option) => (
-                  <option key={option.code} value={option.code}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <span className="mt-2 block text-xs leading-5 text-on-surface-variant">
-              {t("settings.forumTranslationLanguageDesc")}
-            </span>
-          </label>
-
           {profileMessage && (
-            <p className="text-sm font-semibold text-primary">{profileMessage}</p>
+            <p role="status" className="rounded-lg bg-primary-container px-4 py-3 text-sm font-semibold text-primary">
+              {profileMessage}
+            </p>
           )}
 
           <button
             disabled={isSavingProfile}
-            className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save size={18} />
-            {isSavingProfile ? "Saving..." : t("settings.saveAccount")}
+            {isSavingProfile ? t("settings.saving") : t("settings.saveAccount")}
           </button>
         </form>
+        )}
 
-        <form onSubmit={handlePasswordSubmit} className="bg-white border border-outline-variant rounded-2xl p-5 shadow-sm mb-4 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-surface-container-highest text-on-surface-variant p-2.5 rounded-xl">
-              <LockKeyhole size={20} />
-            </div>
-            <div>
-              <h3 className="font-bold text-on-surface">{t("settings.security")}</h3>
-              <p className="text-xs text-on-surface-variant">{t("settings.securityDesc")}</p>
-            </div>
-          </div>
+        {selectedSettingsSection === "security" && (
+        <form onSubmit={handlePasswordSubmit} className="space-y-5">
 
           <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("settings.currentPassword")}</span>
@@ -582,53 +554,151 @@ export default function Profile({
 
           <button
             disabled={isSavingPassword}
-            className="w-full flex items-center justify-center gap-2 border border-primary text-primary py-3 rounded-xl font-bold hover:bg-surface-container-low transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary px-5 py-3 font-bold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60"
           >
             <LockKeyhole size={18} />
-            {isSavingPassword ? "Saving..." : t("settings.changePassword")}
+            {isSavingPassword ? t("settings.saving") : t("settings.changePassword")}
           </button>
         </form>
+        )}
 
-        <section className="rounded-2xl border border-outline-variant bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-surface-container-highest p-2.5 text-on-surface-variant">
-              <ShieldCheck size={20} />
+        {selectedSettingsSection === "language" && (
+          <form onSubmit={handleProfileSubmit} className="space-y-6">
+            <label className="block">
+              <span className="text-xs font-bold uppercase text-on-surface-variant">
+                {t("settings.interfaceLanguage")}
+              </span>
+              <div className="mt-2 flex items-center gap-3 rounded-lg border border-outline-variant px-3 focus-within:border-primary">
+                <Languages size={18} className="text-on-surface-variant" />
+                <select
+                  value={language}
+                  onChange={(event) => setLanguage(event.target.value as typeof language)}
+                  className="w-full bg-transparent py-3 text-sm outline-none"
+                >
+                  {languages.map((option) => (
+                    <option key={option.code} value={option.code}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <span className="mt-2 block text-xs leading-5 text-on-surface-variant">
+                {t("settings.interfaceLanguageDesc")}
+              </span>
+            </label>
+
+            <label className="block">
+              <span className="text-xs font-bold uppercase text-on-surface-variant">
+                {t("settings.forumTranslationLanguage")}
+              </span>
+              <div className="mt-2 flex items-center gap-3 rounded-lg border border-outline-variant px-3 focus-within:border-primary">
+                <Languages size={18} className="text-on-surface-variant" />
+                <select
+                  value={forumTranslationLanguage}
+                  onChange={(event) => setForumTranslationLanguage(event.target.value as ForumTranslationLanguage)}
+                  className="w-full bg-transparent py-3 text-sm outline-none"
+                >
+                  {FORUM_TRANSLATION_LANGUAGES.map((option) => (
+                    <option key={option.code} value={option.code}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <span className="mt-2 block text-xs leading-5 text-on-surface-variant">
+                {t("settings.forumTranslationLanguageDesc")}
+              </span>
+            </label>
+
+            {profileMessage && (
+              <p role="status" className="rounded-lg bg-primary-container px-4 py-3 text-sm font-semibold text-primary">
+                {profileMessage}
+              </p>
+            )}
+            <button
+              disabled={isSavingProfile}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            >
+              <Save size={18} />
+              {isSavingProfile ? t("settings.saving") : t("settings.saveLanguage")}
+            </button>
+          </form>
+        )}
+
+        {selectedSettingsSection === "privacy" && (
+          <div className="space-y-5">
+            <div className="rounded-lg bg-surface-container-low p-4">
+              <h3 className="font-bold text-on-surface">{t("privacy.dialogTitle")}</h3>
+              <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                {t("settings.privacySummary")}
+              </p>
+              <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+                <div>
+                  <dt className="font-bold text-on-surface">{t("privacy.preferences")}</dt>
+                  <dd className="text-on-surface-variant">{consent?.preferences ? t("settings.allowed") : t("settings.notAllowed")}</dd>
+                </div>
+                <div>
+                  <dt className="font-bold text-on-surface">{t("privacy.analytics")}</dt>
+                  <dd className="text-on-surface-variant">{consent?.analytics ? t("settings.allowed") : t("settings.notAllowed")}</dd>
+                </div>
+                <div>
+                  <dt className="font-bold text-on-surface">{t("privacy.marketing")}</dt>
+                  <dd className="text-on-surface-variant">{consent?.marketing ? t("settings.allowed") : t("settings.notAllowed")}</dd>
+                </div>
+              </dl>
             </div>
-            <div>
-              <h3 className="font-bold text-on-surface">{t("settings.dataPrivacy")}</h3>
-              <p className="text-xs leading-5 text-on-surface-variant">{t("settings.dataPrivacyDesc")}</p>
-            </div>
+            <button
+              type="button"
+              onClick={openPreferences}
+              className="inline-flex items-center gap-2 rounded-lg border border-primary px-5 py-3 font-bold text-primary hover:bg-surface-container-low"
+            >
+              <ShieldCheck size={18} />
+              {t("settings.managePrivacy")}
+            </button>
           </div>
+        )}
 
-          <div className="mt-4 grid gap-3">
+        {selectedSettingsSection === "data" && (
+          <div className="space-y-4">
+            <p className="text-sm leading-6 text-on-surface-variant">{t("settings.downloadDataCopy")}</p>
             <button
               type="button"
               disabled={isExportingAccount}
               onClick={handleAccountExport}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary px-5 py-3 text-sm font-bold text-primary transition-colors hover:bg-surface-container-low disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Download size={18} />
               {isExportingAccount ? t("settings.downloadingData") : t("settings.downloadData")}
             </button>
+            {accountDataMessage && (
+              <p role="status" className="rounded-lg bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface-variant">
+                {accountDataMessage}
+              </p>
+            )}
+          </div>
+        )}
+
+        {selectedSettingsSection === "danger" && (
+          <div className="space-y-5">
+            <div className="rounded-lg border border-error/20 bg-error/5 p-4">
+              <h3 className="font-bold text-error">{t("settings.deleteAccount")}</h3>
+              <p className="mt-1 text-sm leading-6 text-on-surface-variant">{t("settings.deleteAccountBody")}</p>
+            </div>
             <button
               type="button"
               onClick={() => {
                 setDeleteAccountConfirmation("");
                 setIsDeleteAccountOpen(true);
               }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm font-bold text-error transition-colors hover:bg-error/10"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-error/30 bg-error/5 px-5 py-3 text-sm font-bold text-error transition-colors hover:bg-error/10"
             >
               <Trash2 size={18} />
               {t("settings.deleteAccount")}
             </button>
+            {accountDataMessage && (
+              <p role="status" className="rounded-lg bg-error/10 px-4 py-3 text-sm font-semibold text-error">
+                {accountDataMessage}
+              </p>
+            )}
           </div>
-
-          {accountDataMessage && (
-            <p className="mt-3 rounded-xl bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface-variant">
-              {accountDataMessage}
-            </p>
-          )}
-        </section>
+        )}
+        </ProfileSettingsShell>
 
         {isDeleteAccountOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -686,7 +756,7 @@ export default function Profile({
             </section>
           </div>
         )}
-      </div>
+      </>
     );
   }
 

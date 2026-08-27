@@ -37,7 +37,9 @@ const GUIDE_DISCLAIMERS: Record<string, GuideDisclaimerKind[]> = {
 
   // Immigration document handling and work authorization.
   "guide-legal-30-day-documents": ["legal"],
+  "guide-notario-fraud": ["legal", "financial"],
   "guide-newcomer-job-search": ["legal"],
+  "guide-workers-rights-wage-theft": ["legal", "financial"],
   "trending-ssn": ["legal"],
 
   // Vehicles — registration deadlines plus mandatory insurance minimums.

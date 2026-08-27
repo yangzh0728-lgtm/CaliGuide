@@ -120,5 +120,29 @@ describe("blogLocalization", () => {
     expect(searchLocalizedBlogArticles("zh-CN", "押金").map((article) => article.id)).toContain("category-housing");
     expect(searchLocalizedBlogArticles("es", "licencia").map((article) => article.id)).toContain("guide-1");
     expect(searchLocalizedBlogArticles("en", "driver handbook").map((article) => article.id)).toContain("guide-1");
+    expect(searchLocalizedBlogArticles("en", "wage theft").map((article) => article.id)).toContain("guide-workers-rights-wage-theft");
+    expect(searchLocalizedBlogArticles("zh-CN", "山火").map((article) => article.id)).toContain("guide-earthquake-wildfire-preparedness");
+    expect(searchLocalizedBlogArticles("es", "notario").map((article) => article.id)).toContain("guide-notario-fraud");
+  });
+
+  it("fully localizes the safety collection with aligned reading structure", () => {
+    const guideIds = [
+      "guide-earthquake-wildfire-preparedness",
+      "guide-notario-fraud",
+      "guide-workers-rights-wage-theft",
+    ];
+
+    for (const id of guideIds) {
+      const english = getLocalizedBlogArticle(id, "en");
+      expect(english?.body).toHaveLength(8);
+
+      for (const language of OFFICIAL_CONTENT_LANGUAGES) {
+        const localized = getLocalizedBlogArticle(id, language);
+        expect(localized?.body).toHaveLength(english?.body.length ?? 0);
+        expect(localized?.body.map((block) => formatBlogBodyBlock(block).tone)).toEqual(
+          english?.body.map((block) => formatBlogBodyBlock(block).tone),
+        );
+      }
+    }
   });
 });

@@ -20,6 +20,9 @@ describe("blogContent", () => {
       "guide-school-esl-resources",
       "guide-california-transportation",
       "guide-first-doctor-visit",
+      "guide-earthquake-wildfire-preparedness",
+      "guide-notario-fraud",
+      "guide-workers-rights-wage-theft",
     ];
 
     expect(BLOG_ARTICLES).toHaveLength(entryIds.length);
@@ -48,6 +51,25 @@ describe("blogContent", () => {
     expect(getBlogArticle("guide-newcomer-job-search")?.body.join(" ")).toContain("AJCC");
     expect(getBlogArticle("guide-school-esl-resources")?.body.join(" ")).toContain("ESL");
     expect(getBlogArticle("guide-california-transportation")?.body.join(" ")).toContain("汽车保险");
+    expect(getBlogArticle("guide-earthquake-wildfire-preparedness")?.body.join(" ")).toContain("趴下、掩护、抓牢");
+    expect(getBlogArticle("guide-notario-fraud")?.body.join(" ")).toContain("notario");
+    expect(getBlogArticle("guide-workers-rights-wage-theft")?.body.join(" ")).toContain("移民身份");
+  });
+
+  it("adds the first safety collection with searchable categories and official sources", () => {
+    expect(getBlogArticle("guide-earthquake-wildfire-preparedness")?.category).toBe("Safety");
+    expect(getBlogArticle("guide-notario-fraud")?.category).toBe("Legal");
+    expect(getBlogArticle("guide-workers-rights-wage-theft")?.category).toBe("Jobs");
+
+    for (const id of [
+      "guide-earthquake-wildfire-preparedness",
+      "guide-notario-fraud",
+      "guide-workers-rights-wage-theft",
+    ]) {
+      const article = getBlogArticle(id);
+      expect(article?.officialLinks?.length).toBeGreaterThanOrEqual(3);
+      expect(article?.body.length).toBe(8);
+    }
   });
 
   it("adds official links to DMV and Banking guide articles", () => {

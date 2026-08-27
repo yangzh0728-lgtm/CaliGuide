@@ -22,6 +22,9 @@ const RECOMMENDED_ARTICLE_IDS = [
   "guide-newcomer-job-search",
   "guide-school-esl-resources",
   "guide-california-transportation",
+  "guide-earthquake-wildfire-preparedness",
+  "guide-notario-fraud",
+  "guide-workers-rights-wage-theft",
 ];
 
 const zhCnPatches: Record<string, BlogArticleTranslation> = {
@@ -63,6 +66,15 @@ const zhCnPatches: Record<string, BlogArticleTranslation> = {
       "如果预约有限，可以询问办公室是否接受 walk-in、是否可重新安排时间，以及附近其他办公室是否可以办理。不要只依赖社区经验，因为政策和等待时间会变化。",
       "办理后保存收据或确认信息，并留意邮件送达。如果卡片未在预计时间内寄到，应直接联系 SSA 获取下一步说明。",
     ],
+  },
+  "guide-earthquake-wildfire-preparedness": {
+    category: "安全",
+  },
+  "guide-notario-fraud": {
+    category: "法律",
+  },
+  "guide-workers-rights-wage-theft": {
+    category: "就业",
   },
 };
 
@@ -260,6 +272,24 @@ const englishTranslations: Record<string, BlogArticleTranslation> = {
       "California generally requires insurance or another accepted proof of financial responsibility for vehicles driven or parked on public roads. Minimum coverage may not be enough for every household.",
     ],
   },
+  "guide-earthquake-wildfire-preparedness": {
+    title: "California Earthquake and Wildfire Preparedness",
+    category: "Safety",
+    tags: ["Earthquake", "Wildfire", "Evacuation", "Go bag", "Air quality"],
+    excerpt: "Set up earthquake alerts, plan wildfire evacuation, build a go bag, and protect your household from smoke.",
+  },
+  "guide-notario-fraud": {
+    title: "Avoid Notario Immigration Fraud",
+    category: "Legal",
+    tags: ["Notario", "Immigration fraud", "Legal help", "Attorney lookup", "Immigration services"],
+    excerpt: "Recognize unauthorized immigration advice and verify a licensed attorney or DOJ-accredited representative.",
+  },
+  "guide-workers-rights-wage-theft": {
+    title: "California Worker Rights and Wage Theft",
+    category: "Jobs",
+    tags: ["Worker rights", "Wage theft", "Minimum wage", "Overtime", "Retaliation"],
+    excerpt: "Track hours and pay, recognize wage theft, and understand California complaint and retaliation protections.",
+  },
 };
 
 const spanishTranslations: Record<string, BlogArticleTranslation> = {
@@ -425,6 +455,24 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
     category: "Transporte",
     tags: ["Transporte en California", "Comprar auto", "Seguro de auto", "Registro vehicular", "Recién llegados"],
     excerpt: "Compara transporte público y costo de tener auto, y entiende compra, registro y seguro básico.",
+  },
+  "guide-earthquake-wildfire-preparedness": {
+    title: "Preparación para terremotos e incendios en California",
+    category: "Seguridad",
+    tags: ["Terremoto", "Incendio", "Evacuación", "Mochila de emergencia", "Calidad del aire"],
+    excerpt: "Activa alertas, prepara rutas de evacuación y una mochila, y protege a tu familia del humo.",
+  },
+  "guide-notario-fraud": {
+    title: "Cómo evitar el fraude migratorio de notarios",
+    category: "Legal",
+    tags: ["Notario", "Fraude migratorio", "Ayuda legal", "Verificar abogado", "Servicios migratorios"],
+    excerpt: "Identifica asesoría migratoria no autorizada y verifica abogados o representantes acreditados por DOJ.",
+  },
+  "guide-workers-rights-wage-theft": {
+    title: "Derechos laborales y robo de salarios en California",
+    category: "Empleo",
+    tags: ["Derechos laborales", "Robo de salario", "Salario mínimo", "Horas extra", "Represalias"],
+    excerpt: "Registra horas y pagos, identifica robo de salario y conoce las protecciones y reclamos de California.",
   },
 };
 

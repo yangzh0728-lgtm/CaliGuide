@@ -25,11 +25,14 @@ describe("guideDisclaimers", () => {
   it("returns multiple kinds in a stable order", () => {
     expect(getGuideDisclaimerKinds("trending-banking")).toEqual(["legal", "financial"]);
     expect(getGuideDisclaimerKinds("guide-rental-scams")).toEqual(["legal", "financial"]);
+    expect(getGuideDisclaimerKinds("guide-notario-fraud")).toEqual(["legal", "financial"]);
+    expect(getGuideDisclaimerKinds("guide-workers-rights-wage-theft")).toEqual(["legal", "financial"]);
   });
 
   it("returns no disclaimer for low-risk guides", () => {
     expect(getGuideDisclaimerKinds("guide-school-esl-resources")).toEqual([]);
     expect(getGuideDisclaimerKinds("forum-first-30-days")).toEqual([]);
+    expect(getGuideDisclaimerKinds("guide-earthquake-wildfire-preparedness")).toEqual([]);
   });
 
   it("returns no disclaimer for unknown articles", () => {
