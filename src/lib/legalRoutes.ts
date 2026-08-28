@@ -1,6 +1,9 @@
 import { LegalPageId } from "./legalContent";
 
 const LEGAL_PAGE_PATHS: Record<LegalPageId, string> = {
+  about: "/about",
+  editorial: "/editorial-policy",
+  contact: "/contact",
   privacy: "/privacy",
   terms: "/terms",
   cookies: "/cookies",

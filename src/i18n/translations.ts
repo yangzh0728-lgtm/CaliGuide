@@ -17,6 +17,7 @@ type TranslationTable = Record<TranslationKey, string>;
 export const translations: Record<LanguageCode, TranslationTable> = {
   en: {
     "app.title": "CaliGuide",
+    "app.loading": "Loading CaliGuide",
     "language.label": "Language",
     "nav.home": "Home",
     "nav.forum": "Forum",
@@ -230,6 +231,7 @@ export const translations: Record<LanguageCode, TranslationTable> = {
   },
   "zh-CN": {
     "app.title": "加州指南",
+    "app.loading": "正在加载 CaliGuide",
     "language.label": "语言",
     "nav.home": "首页",
     "nav.forum": "论坛",
@@ -449,6 +451,7 @@ export const translations: Record<LanguageCode, TranslationTable> = {
 translations.yue = {
   ...translations["zh-CN"],
   "app.title": "加州指南",
+  "app.loading": "正在載入 CaliGuide",
   "language.label": "語言",
   "nav.home": "主頁",
   "nav.forum": "討論區",
@@ -662,6 +665,7 @@ translations.yue = {
 translations["zh-TW"] = {
   ...translations["zh-CN"],
   "app.title": "加州指南",
+  "app.loading": "正在載入 CaliGuide",
   "language.label": "語言",
   "nav.home": "首頁",
   "nav.forum": "論壇",
@@ -876,6 +880,7 @@ translations["zh-TW"] = {
 translations.es = {
   ...translations.en,
   "app.title": "Guía California",
+  "app.loading": "Cargando CaliGuide",
   "language.label": "Idioma",
   "nav.home": "Inicio",
   "nav.forum": "Foro",
@@ -1089,7 +1094,11 @@ translations.es = {
 Object.assign(translations.en, {
   "legal.back": "Back to CaliGuide",
   "legal.effectiveDate": "Effective date",
-  "legal.contact": "Privacy contact",
+  "legal.lastUpdated": "Last updated",
+  "legal.about": "About",
+  "legal.editorial": "Editorial Policy",
+  "legal.contact": "Contact and Support",
+  "legal.privacyContact": "Privacy contact",
   "legal.privacy": "Privacy Policy",
   "legal.terms": "Terms of Use",
   "legal.cookies": "Cookie Notice",
@@ -1100,7 +1109,11 @@ Object.assign(translations.en, {
 Object.assign(translations["zh-CN"], {
   "legal.back": "返回 CaliGuide",
   "legal.effectiveDate": "生效日期",
-  "legal.contact": "隐私联系",
+  "legal.lastUpdated": "上次更新",
+  "legal.about": "关于我们",
+  "legal.editorial": "编辑政策",
+  "legal.contact": "联系与支持",
+  "legal.privacyContact": "隐私联系",
   "legal.privacy": "隐私政策",
   "legal.terms": "使用条款",
   "legal.cookies": "Cookie 说明",
@@ -1111,7 +1124,11 @@ Object.assign(translations["zh-CN"], {
 Object.assign(translations.yue, {
   "legal.back": "返回 CaliGuide",
   "legal.effectiveDate": "生效日期",
-  "legal.contact": "私隱聯絡",
+  "legal.lastUpdated": "最後更新",
+  "legal.about": "關於我哋",
+  "legal.editorial": "編輯政策",
+  "legal.contact": "聯絡同支援",
+  "legal.privacyContact": "私隱聯絡",
   "legal.privacy": "私隱政策",
   "legal.terms": "使用條款",
   "legal.cookies": "Cookie 通知",
@@ -1122,7 +1139,11 @@ Object.assign(translations.yue, {
 Object.assign(translations["zh-TW"], {
   "legal.back": "返回 CaliGuide",
   "legal.effectiveDate": "生效日期",
-  "legal.contact": "隱私權聯絡",
+  "legal.lastUpdated": "最後更新",
+  "legal.about": "關於我們",
+  "legal.editorial": "編輯政策",
+  "legal.contact": "聯絡與支援",
+  "legal.privacyContact": "隱私權聯絡",
   "legal.privacy": "隱私權政策",
   "legal.terms": "使用條款",
   "legal.cookies": "Cookie 通知",
@@ -1133,7 +1154,11 @@ Object.assign(translations["zh-TW"], {
 Object.assign(translations.es, {
   "legal.back": "Volver a CaliGuide",
   "legal.effectiveDate": "Fecha de vigencia",
-  "legal.contact": "Contacto de privacidad",
+  "legal.lastUpdated": "Última actualización",
+  "legal.about": "Acerca de",
+  "legal.editorial": "Política editorial",
+  "legal.contact": "Contacto y soporte",
+  "legal.privacyContact": "Contacto de privacidad",
   "legal.privacy": "Política de privacidad",
   "legal.terms": "Términos de uso",
   "legal.cookies": "Aviso de cookies",
@@ -1574,6 +1599,36 @@ Object.assign(translations.es, {
   "settings.deleteAccountConfirm": "Eliminar permanentemente",
   "settings.deletingAccount": "Eliminando cuenta...",
   "settings.accountDeleteFailed": "No pudimos eliminar tu cuenta. Tu cuenta sigue activa; inténtalo de nuevo.",
+});
+
+Object.assign(translations.en, {
+  "auth.signIn": "Sign in",
+  "auth.signInToSave": "Sign in to save this guide",
+  "auth.continueBrowsing": "Continue browsing",
+});
+
+Object.assign(translations["zh-CN"], {
+  "auth.signIn": "登录",
+  "auth.signInToSave": "登录后收藏这篇指南",
+  "auth.continueBrowsing": "继续浏览",
+});
+
+Object.assign(translations.yue, {
+  "auth.signIn": "登入",
+  "auth.signInToSave": "登入後收藏呢篇指南",
+  "auth.continueBrowsing": "繼續瀏覽",
+});
+
+Object.assign(translations["zh-TW"], {
+  "auth.signIn": "登入",
+  "auth.signInToSave": "登入後收藏這篇指南",
+  "auth.continueBrowsing": "繼續瀏覽",
+});
+
+Object.assign(translations.es, {
+  "auth.signIn": "Iniciar sesión",
+  "auth.signInToSave": "Inicia sesión para guardar esta guía",
+  "auth.continueBrowsing": "Seguir explorando",
 });
 
 export function isLanguageCode(value: string | null): value is LanguageCode {

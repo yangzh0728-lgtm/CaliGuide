@@ -8,7 +8,17 @@ import { COUNTRY_OPTIONS } from "../lib/nationalities";
 import LegalFooter from "../components/LegalFooter";
 import { LegalPageId } from "../lib/legalContent";
 
-export default function AuthPage({ onOpenLegalPage }: { onOpenLegalPage: (pageId: LegalPageId) => void }) {
+interface AuthPageProps {
+  onOpenLegalPage: (pageId: LegalPageId) => void;
+  onContinueBrowsing?: () => void;
+  continueBrowsingHref?: string;
+}
+
+export default function AuthPage({
+  onOpenLegalPage,
+  onContinueBrowsing,
+  continueBrowsingHref = "/",
+}: AuthPageProps) {
   const { isPasswordRecovery, login, loginWithGoogle, register, requestPasswordReset, resetRecoveredPassword } = useAuth();
   const { t } = useLanguage();
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
@@ -451,6 +461,14 @@ export default function AuthPage({ onOpenLegalPage }: { onOpenLegalPage: (pageId
             </div>
           )}
         </form>
+        {onContinueBrowsing ? (
+          <a
+            href={`${continueBrowsingHref}${continueBrowsingHref.includes("?") ? "&" : "?"}continue=1`}
+            className="mt-4 block w-full rounded-xl px-4 py-3 text-center text-sm font-bold text-primary transition-colors hover:bg-surface-container-low"
+          >
+            {t("auth.continueBrowsing")}
+          </a>
+        ) : null}
       </main>
       </div>
       <LegalFooter onOpenLegalPage={onOpenLegalPage} compact />

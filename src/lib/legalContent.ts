@@ -1,25 +1,37 @@
 import { LanguageCode } from "../i18n/translations";
 
-export const LEGAL_PAGE_IDS = ["privacy", "terms", "cookies", "disclaimer"] as const;
+export const TRUST_PAGE_IDS = ["about", "editorial", "contact"] as const;
+export const POLICY_PAGE_IDS = ["privacy", "terms", "cookies", "disclaimer"] as const;
+export const LEGAL_PAGE_IDS = [...TRUST_PAGE_IDS, ...POLICY_PAGE_IDS] as const;
 
 export type LegalPageId = (typeof LEGAL_PAGE_IDS)[number];
+type TrustPageId = (typeof TRUST_PAGE_IDS)[number];
+type PolicyPageId = (typeof POLICY_PAGE_IDS)[number];
+
+export interface LegalLink {
+  label: string;
+  href: string;
+}
 
 export interface LegalSection {
   heading: string;
   paragraphs: string[];
   items?: string[];
+  links?: LegalLink[];
 }
 
 export interface LegalDocument {
   title: string;
   summary: string;
   effectiveDate: string;
+  lastUpdatedDate?: string;
   sections: LegalSection[];
 }
 
-type LegalDocumentsById = Record<LegalPageId, LegalDocument>;
+type LegalDocumentsById = Record<PolicyPageId, LegalDocument>;
 
 const EFFECTIVE_DATE = "2026-08-26";
+const LAST_UPDATED_DATE = "2026-08-27";
 
 const legalDocuments: Record<LanguageCode, LegalDocumentsById> = {
   en: {
@@ -360,6 +372,221 @@ legalDocuments.es = {
   },
 };
 
+const trustDocuments: Record<LanguageCode, Record<TrustPageId, LegalDocument>> = {
+  en: {
+    about: {
+      title: "About CaliGuide",
+      summary: "Why CaliGuide exists, who it serves, and how the project is maintained.",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        {
+          heading: "Our purpose",
+          paragraphs: [
+            "CaliGuide helps newcomers understand everyday life in California through multilingual guides, community discussions, and an AI assistant. It is designed to make unfamiliar systems easier to navigate while keeping official sources close at hand.",
+          ],
+        },
+        {
+          heading: "How the project is run",
+          paragraphs: [
+            "CaliGuide is an independently developed project maintained through its public GitHub repository. It is not a government agency, law firm, medical provider, financial adviser, or emergency service.",
+            "The service currently has no advertising or paid placement. If sponsorships, affiliate relationships, or paid recommendations are introduced, they will be clearly disclosed.",
+          ],
+          links: [{ label: "View the public repository", href: "https://github.com/yangzh0728-lgtm/CaliGuide" }],
+        },
+        {
+          heading: "What you can expect",
+          paragraphs: [
+            "CaliGuide aims to explain information clearly, cite authoritative sources, show review dates, and distinguish official guidance from community experience and automated answers. Important decisions should still be confirmed with the responsible agency or a qualified professional.",
+          ],
+        },
+      ],
+    },
+    editorial: {
+      title: "Editorial Policy",
+      summary: "How CaliGuide researches, cites, translates, reviews, and corrects guide content.",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        {
+          heading: "Sources and citations",
+          paragraphs: [
+            "CaliGuide prioritizes official agencies, statutes, public programs, and other primary sources. Guides use section-level citations such as [1], and reference lists link readers to the source behind each factual claim.",
+          ],
+        },
+        {
+          heading: "Review and translation",
+          paragraphs: [
+            "Guide pages display a review date. Translations should preserve the same structure, warnings, citations, and source links across supported languages rather than becoming separate versions of the article.",
+            "No fixed review interval is currently guaranteed. Rules and programs can change between reviews, so readers should confirm time-sensitive requirements with the cited official source.",
+          ],
+        },
+        {
+          heading: "Corrections and boundaries",
+          paragraphs: [
+            "Community posts and AI answers are not treated as verified editorial content. CaliGuide may revise guides when a source changes or an error is reported, while keeping professional disclaimers visible for legal, medical, financial, and tax topics.",
+          ],
+          links: [{ label: "Report a content issue", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }],
+        },
+      ],
+    },
+    contact: {
+      title: "Contact and Support",
+      summary: "Where to ask for product help, report an issue, or make a privacy request.",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        {
+          heading: "Product and technical support",
+          paragraphs: ["Use the public issue tracker for reproducible bugs, feature requests, accessibility problems, and corrections that do not contain personal information."],
+          links: [{ label: "Open GitHub Issues", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }],
+        },
+        {
+          heading: "Privacy and account data",
+          paragraphs: ["For privacy questions or help with access, correction, export, or deletion of account data, email privacy@caliguide.org. Do not include passwords, authentication codes, or copies of sensitive identity documents."],
+          links: [{ label: "Email privacy support", href: "mailto:privacy@caliguide.org" }],
+        },
+        {
+          heading: "Urgent help",
+          paragraphs: ["CaliGuide does not provide emergency, legal, medical, immigration, or financial case support. Call 911 for an emergency and contact the responsible agency or a qualified professional for urgent deadlines or personal advice."],
+        },
+      ],
+    },
+  },
+  "zh-CN": {
+    about: {
+      title: "关于 CaliGuide",
+      summary: "了解 CaliGuide 为什么存在、服务哪些人，以及项目如何维护。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "我们的目标", paragraphs: ["CaliGuide 通过多语言指南、社区讨论和 AI 助手，帮助新来者了解加州日常生活。我们希望降低陌生制度的理解门槛，同时让官方来源始终便于查阅。"] },
+        { heading: "项目如何运作", paragraphs: ["CaliGuide 是一个独立开发的项目，通过公开 GitHub 仓库维护。它不是政府机构、律师事务所、医疗服务机构、财务顾问或紧急服务。", "本服务目前没有广告或付费推荐。如果未来加入赞助、联盟合作或付费推荐，我们会清楚披露。"], links: [{ label: "查看公开代码仓库", href: "https://github.com/yangzh0728-lgtm/CaliGuide" }] },
+        { heading: "我们的内容承诺", paragraphs: ["CaliGuide 力求清晰解释信息、引用权威来源、显示审核日期，并区分官方指南、社区经验和自动生成的回答。重要决定仍应向负责机构或合格专业人士确认。"] },
+      ],
+    },
+    editorial: {
+      title: "编辑政策",
+      summary: "CaliGuide 如何研究、引用、翻译、审核和更正指南内容。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "来源与引用", paragraphs: ["CaliGuide 优先使用政府机构、法规、公共项目和其他第一手来源。指南使用类似 [1] 的分段引用，参考资料列表会链接到每项事实依据。"] },
+        { heading: "审核与翻译", paragraphs: ["指南页面会显示资料审核日期。不同语言版本应保留相同结构、警示、引用和来源链接，而不是成为内容不同的独立文章。", "目前不保证固定审核周期。规则和项目可能在两次审核之间变化，因此请向引用的官方来源确认有时效性的要求。"] },
+        { heading: "更正与边界", paragraphs: ["社区帖子和 AI 回答不视为已核实的编辑内容。当来源变化或有人报告错误时，CaliGuide 可能更新指南；法律、医疗、金融和税务主题会继续显示专业免责声明。"], links: [{ label: "报告内容问题", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+      ],
+    },
+    contact: {
+      title: "联系与支持",
+      summary: "获取产品帮助、报告问题或提交隐私请求的方式。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "产品与技术支持", paragraphs: ["可通过公开问题追踪器报告可复现的错误、功能建议、无障碍问题和不包含个人信息的内容更正。"], links: [{ label: "打开 GitHub Issues", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+        { heading: "隐私与账户数据", paragraphs: ["如需咨询隐私问题，或请求访问、更正、导出或删除账户数据，请发送邮件至 privacy@caliguide.org。请勿发送密码、验证码或敏感身份证件副本。"], links: [{ label: "发送隐私支持邮件", href: "mailto:privacy@caliguide.org" }] },
+        { heading: "紧急帮助", paragraphs: ["CaliGuide 不提供紧急、法律、医疗、移民或财务个案服务。紧急情况请拨打 911；如有迫切期限或需要个人建议，请联系负责机构或合格专业人士。"] },
+      ],
+    },
+  },
+  yue: {
+    about: {
+      title: "關於 CaliGuide",
+      summary: "了解 CaliGuide 點解存在、服務邊啲人，同埋項目點樣維護。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "我哋嘅目標", paragraphs: ["CaliGuide 透過多語言指南、社群討論同 AI 助手，幫助新嚟加州嘅人了解日常生活。我哋希望令陌生制度更易明，同時方便大家查閱官方來源。"] },
+        { heading: "項目點樣運作", paragraphs: ["CaliGuide 係獨立開發項目，透過公開 GitHub 倉庫維護。佢唔係政府機構、律師樓、醫療服務、財務顧問或者緊急服務。", "服務目前冇廣告或者付費推薦。如果將來加入贊助、聯盟合作或者付費推薦，我哋會清楚披露。"], links: [{ label: "查看公開程式碼倉庫", href: "https://github.com/yangzh0728-lgtm/CaliGuide" }] },
+        { heading: "你可以期待乜嘢", paragraphs: ["CaliGuide 會盡力清楚解釋資料、引用權威來源、顯示覆核日期，並分清官方指引、社群經驗同自動生成答案。重要決定仍然要向相關機構或合資格專業人士確認。"] },
+      ],
+    },
+    editorial: {
+      title: "編輯政策",
+      summary: "CaliGuide 點樣研究、引用、翻譯、覆核同更正指南內容。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "來源同引用", paragraphs: ["CaliGuide 優先採用政府機構、法規、公共計劃同其他第一手來源。指南會用 [1] 呢類分段引用，參考資料會連結到每項事實嘅來源。"] },
+        { heading: "覆核同翻譯", paragraphs: ["指南頁面會顯示資料覆核日期。各語言版本應保留相同結構、警示、引用同來源連結，而唔係變成內容唔同嘅文章。", "目前唔保證固定覆核周期。規則同計劃可能喺兩次覆核之間改變，有時效嘅要求請向引用嘅官方來源確認。"] },
+        { heading: "更正同界線", paragraphs: ["社群帖文同 AI 回答唔會當成已核實嘅編輯內容。來源改變或者有人報告錯誤時，CaliGuide 可能更新指南；法律、醫療、金融同稅務主題會繼續顯示專業免責聲明。"], links: [{ label: "報告內容問題", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+      ],
+    },
+    contact: {
+      title: "聯絡同支援",
+      summary: "取得產品協助、報告問題或者提交私隱要求嘅方法。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "產品同技術支援", paragraphs: ["可以用公開問題追蹤器報告可重現錯誤、功能建議、無障礙問題，同埋唔包含個人資料嘅內容更正。"], links: [{ label: "開啟 GitHub Issues", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+        { heading: "私隱同帳戶資料", paragraphs: ["私隱問題，或者要求存取、更正、匯出或刪除帳戶資料，請電郵 privacy@caliguide.org。唔好提交密碼、驗證碼或者敏感身份文件副本。"], links: [{ label: "電郵私隱支援", href: "mailto:privacy@caliguide.org" }] },
+        { heading: "緊急協助", paragraphs: ["CaliGuide 唔提供緊急、法律、醫療、移民或者財務個案支援。緊急情況請打 911；迫切期限或個人建議請直接聯絡相關機構或合資格專業人士。"] },
+      ],
+    },
+  },
+  "zh-TW": {
+    about: {
+      title: "關於 CaliGuide",
+      summary: "瞭解 CaliGuide 為何存在、服務哪些人，以及專案如何維護。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "我們的目標", paragraphs: ["CaliGuide 透過多語言指南、社群討論和 AI 助手，協助新來者瞭解加州日常生活。我們希望降低陌生制度的理解門檻，同時讓官方來源容易查閱。"] },
+        { heading: "專案如何運作", paragraphs: ["CaliGuide 是獨立開發的專案，透過公開 GitHub 儲存庫維護。它不是政府機關、律師事務所、醫療服務機構、財務顧問或緊急服務。", "本服務目前沒有廣告或付費推薦。如果未來加入贊助、聯盟合作或付費推薦，我們會清楚揭露。"], links: [{ label: "查看公開程式碼儲存庫", href: "https://github.com/yangzh0728-lgtm/CaliGuide" }] },
+        { heading: "我們的內容承諾", paragraphs: ["CaliGuide 力求清楚解釋資訊、引用權威來源、顯示審核日期，並區分官方指引、社群經驗和自動生成的回答。重要決定仍應向主管機關或合格專業人士確認。"] },
+      ],
+    },
+    editorial: {
+      title: "編輯政策",
+      summary: "CaliGuide 如何研究、引用、翻譯、審核和更正指南內容。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "來源與引用", paragraphs: ["CaliGuide 優先採用政府機關、法規、公共計畫和其他第一手來源。指南使用類似 [1] 的分段引用，參考資料會連結到每項事實依據。"] },
+        { heading: "審核與翻譯", paragraphs: ["指南頁面會顯示資料審核日期。各語言版本應保留相同結構、警示、引用和來源連結，而不是成為內容不同的獨立文章。", "目前不保證固定審核週期。規則和計畫可能在兩次審核之間改變，因此請向引用的官方來源確認有時效性的要求。"] },
+        { heading: "更正與界線", paragraphs: ["社群貼文和 AI 回答不視為已核實的編輯內容。來源變更或有人回報錯誤時，CaliGuide 可能更新指南；法律、醫療、金融和稅務主題會繼續顯示專業免責聲明。"], links: [{ label: "回報內容問題", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+      ],
+    },
+    contact: {
+      title: "聯絡與支援",
+      summary: "取得產品協助、回報問題或提交隱私權請求的方式。",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "產品與技術支援", paragraphs: ["可透過公開問題追蹤器回報可重現的錯誤、功能建議、無障礙問題，以及不包含個人資料的內容更正。"], links: [{ label: "開啟 GitHub Issues", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+        { heading: "隱私權與帳戶資料", paragraphs: ["如需詢問隱私權問題，或要求存取、更正、匯出或刪除帳戶資料，請寄信至 privacy@caliguide.org。請勿提交密碼、驗證碼或敏感身分文件副本。"], links: [{ label: "寄送隱私權支援郵件", href: "mailto:privacy@caliguide.org" }] },
+        { heading: "緊急協助", paragraphs: ["CaliGuide 不提供緊急、法律、醫療、移民或財務個案支援。緊急情況請撥打 911；如有迫切期限或需要個人建議，請聯絡主管機關或合格專業人士。"] },
+      ],
+    },
+  },
+  es: {
+    about: {
+      title: "Acerca de CaliGuide",
+      summary: "Por qué existe CaliGuide, a quién sirve y cómo se mantiene el proyecto.",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "Nuestro propósito", paragraphs: ["CaliGuide ayuda a las personas recién llegadas a entender la vida cotidiana en California mediante guías multilingües, conversaciones comunitarias y un asistente de IA. Busca facilitar sistemas desconocidos y mantener las fuentes oficiales al alcance."] },
+        { heading: "Cómo funciona el proyecto", paragraphs: ["CaliGuide es un proyecto desarrollado de forma independiente y mantenido mediante su repositorio público de GitHub. No es una agencia pública, firma legal, proveedor médico, asesor financiero ni servicio de emergencias.", "Actualmente no contiene publicidad ni colocaciones pagadas. Si se incorporan patrocinios, afiliaciones o recomendaciones pagadas, se divulgarán claramente."], links: [{ label: "Ver el repositorio público", href: "https://github.com/yangzh0728-lgtm/CaliGuide" }] },
+        { heading: "Qué puedes esperar", paragraphs: ["CaliGuide procura explicar la información con claridad, citar fuentes autorizadas, mostrar fechas de revisión y distinguir la orientación oficial de las experiencias comunitarias y respuestas automáticas. Confirma decisiones importantes con la agencia responsable o un profesional calificado."] },
+      ],
+    },
+    editorial: {
+      title: "Política editorial",
+      summary: "Cómo CaliGuide investiga, cita, traduce, revisa y corrige el contenido de sus guías.",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "Fuentes y citas", paragraphs: ["CaliGuide prioriza agencias oficiales, leyes, programas públicos y otras fuentes primarias. Las guías usan citas por sección como [1], y las listas de referencias enlazan la fuente de cada afirmación factual."] },
+        { heading: "Revisión y traducción", paragraphs: ["Las guías muestran una fecha de revisión. Las traducciones deben conservar la misma estructura, advertencias, citas y enlaces en todos los idiomas compatibles, en lugar de convertirse en versiones distintas del artículo.", "Actualmente no se garantiza un intervalo fijo de revisión. Las reglas y programas pueden cambiar, así que confirma los requisitos urgentes con la fuente oficial citada."] },
+        { heading: "Correcciones y límites", paragraphs: ["Las publicaciones comunitarias y respuestas de IA no se consideran contenido editorial verificado. CaliGuide puede revisar una guía cuando cambia una fuente o se informa un error, y mantiene avisos profesionales en temas legales, médicos, financieros y fiscales."], links: [{ label: "Informar un problema de contenido", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+      ],
+    },
+    contact: {
+      title: "Contacto y soporte",
+      summary: "Dónde pedir ayuda con el producto, informar un problema o presentar una solicitud de privacidad.",
+      effectiveDate: EFFECTIVE_DATE,
+      sections: [
+        { heading: "Soporte técnico y del producto", paragraphs: ["Usa el registro público de incidencias para errores reproducibles, solicitudes de funciones, problemas de accesibilidad y correcciones que no contengan información personal."], links: [{ label: "Abrir GitHub Issues", href: "https://github.com/yangzh0728-lgtm/CaliGuide/issues" }] },
+        { heading: "Privacidad y datos de cuenta", paragraphs: ["Para preguntas de privacidad o ayuda con acceso, corrección, exportación o eliminación de datos, escribe a privacy@caliguide.org. No incluyas contraseñas, códigos de autenticación ni copias de documentos sensibles."], links: [{ label: "Enviar correo a privacidad", href: "mailto:privacy@caliguide.org" }] },
+        { heading: "Ayuda urgente", paragraphs: ["CaliGuide no presta ayuda de emergencia ni asesoramiento legal, médico, migratorio o financiero para casos personales. Llama al 911 en una emergencia y contacta a la agencia responsable o a un profesional calificado para plazos urgentes o asesoramiento personal."] },
+      ],
+    },
+  },
+};
+
 export function getLegalDocument(pageId: LegalPageId, language: LanguageCode) {
-  return legalDocuments[language][pageId];
+  const document = TRUST_PAGE_IDS.includes(pageId as TrustPageId)
+    ? trustDocuments[language][pageId as TrustPageId]
+    : legalDocuments[language][pageId as PolicyPageId];
+
+  return {
+    ...document,
+    lastUpdatedDate: document.lastUpdatedDate ?? LAST_UPDATED_DATE,
+  };
 }

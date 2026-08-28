@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { createServer as createViteServer } from "vite";
 import OpenAI from "openai";
@@ -49,6 +50,16 @@ import {
   getAccountDeleteValidationError,
   getUserMediaPrefix,
 } from "./src/lib/accountDataServer";
+import {
+  buildRobotsText,
+  buildSitemapXml,
+  getPageMetadata,
+  getPageMetadataFromPath,
+  getPublicSitemapPaths,
+  injectPageMetadata,
+} from "./src/lib/pageMetadata";
+import { buildSecurityHeaders } from "./src/lib/securityHeaders";
+import { normalizeClientErrorReport } from "./src/lib/clientErrorReport";
 
 dotenv.config();
 
@@ -63,6 +74,9 @@ const pendingMemoryByUserId = new Map<string, Array<{ content: string; createdAt
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  const securityHeaders = buildSecurityHeaders({
+    production: process.env.NODE_ENV === "production",
+  });
   const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS ?? "", 10);
   if (Number.isInteger(trustProxyHops) && trustProxyHops > 0) {
     app.set("trust proxy", trustProxyHops);
@@ -71,6 +85,13 @@ async function startServer() {
   const imageUploadBodyParser = express.raw({
     type: ["image/png", "image/jpeg", "image/webp", "image/gif"],
     limit: "8mb",
+  });
+
+  app.use((_req, res, next) => {
+    for (const [name, value] of Object.entries(securityHeaders)) {
+      res.setHeader(name, value);
+    }
+    next();
   });
 
   app.use((req, res, next) => {
@@ -130,6 +151,16 @@ async function startServer() {
       : null;
 
   // API routes
+  app.post("/api/client-errors", (req, res) => {
+    const report = normalizeClientErrorReport(req.body);
+    if (!report) {
+      return res.status(400).json({ error: "Invalid error report" });
+    }
+
+    console.error("[client-error]", JSON.stringify(report));
+    return res.status(204).end();
+  });
+
   app.post("/api/uploads/sign", async (req, res) => {
     if (!supabaseAdmin || !r2Config || !r2Client) {
       return res.status(500).json({ error: "Supabase and Cloudflare R2 must be configured" });
@@ -1177,6 +1208,15 @@ async function startServer() {
     }
   });
 
+  const publicSiteOrigin = (process.env.PUBLIC_SITE_URL?.trim() || "https://www.caliguide.org")
+    .replace(/\/+$/, "");
+  app.get("/sitemap.xml", (_req, res) => {
+    res.type("application/xml").send(buildSitemapXml(getPublicSitemapPaths(), publicSiteOrigin));
+  });
+  app.get("/robots.txt", (_req, res) => {
+    res.type("text/plain").send(buildRobotsText(publicSiteOrigin));
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -1186,9 +1226,18 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+    const appShell = await readFile(path.join(distPath, 'index.html'), 'utf8');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      const metadata = getPageMetadataFromPath(req.path) ?? {
+        ...getPageMetadata({ page: 'home' }),
+        canonicalPath: req.path,
+        noIndex: true,
+      };
+      res
+        .status(getPageMetadataFromPath(req.path) ? 200 : 404)
+        .type('html')
+        .send(injectPageMetadata(appShell, metadata, publicSiteOrigin));
     });
   }
 

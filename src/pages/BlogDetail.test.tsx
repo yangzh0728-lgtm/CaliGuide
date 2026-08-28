@@ -6,7 +6,7 @@ import { translate } from "../i18n/translations";
 import { getBlogArticle } from "../lib/blogContent";
 import BlogDetail from "./BlogDetail";
 
-function renderArticle(articleId: string) {
+function renderArticle(articleId: string, isAuthenticated = true) {
   const article = getBlogArticle(articleId);
   if (!article) {
     throw new Error(`Missing fixture article: ${articleId}`);
@@ -15,7 +15,12 @@ function renderArticle(articleId: string) {
   return renderToStaticMarkup(
     <PrivacyConsentProvider>
       <LanguageProvider>
-        <BlogDetail article={article} isSaved={false} onToggleSave={() => {}} />
+        <BlogDetail
+          article={article}
+          isAuthenticated={isAuthenticated}
+          isSaved={false}
+          onToggleSave={() => {}}
+        />
       </LanguageProvider>
     </PrivacyConsentProvider>,
   );
@@ -46,5 +51,11 @@ describe("BlogDetail", () => {
 
     expect(markup).toContain("guide-disclaimer-heading");
     expect(markup).toContain('id="guide-references"');
+  });
+
+  it("invites signed-out readers to sign in before saving", () => {
+    const markup = renderArticle("category-dmv", false);
+
+    expect(markup).toContain(translate("en", "auth.signInToSave"));
   });
 });

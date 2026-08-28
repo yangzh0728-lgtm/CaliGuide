@@ -17,12 +17,42 @@ describe("translations", () => {
     expect(translate("es", "profile.signOutConfirmBody")).toBe("Tendrás que iniciar sesión de nuevo para acceder a guías, publicaciones y configuración guardadas.");
   });
 
+  it("translates public browsing and sign-in gates", () => {
+    const languages = ["en", "zh-CN", "zh-TW", "yue", "es"] as const;
+    const keys = ["auth.signIn", "auth.signInToSave", "auth.continueBrowsing"];
+
+    for (const language of languages) {
+      for (const key of keys) {
+        expect(translate(language, key)).toBeTruthy();
+        expect(translate(language, key)).not.toBe(key);
+      }
+    }
+  });
+
+  it("translates the application loading state", () => {
+    for (const language of ["en", "zh-CN", "yue", "zh-TW", "es"] as const) {
+      expect(translate(language, "app.loading")).toBeTruthy();
+      expect(translate(language, "app.loading")).not.toBe("app.loading");
+    }
+  });
+
   it("translates guide reference labels", () => {
     expect(translate("en", "blog.references")).toBe("References");
     expect(translate("zh-CN", "blog.references")).toBe("参考资料");
     expect(translate("zh-TW", "blog.officialSource")).toBe("官方來源");
     expect(translate("yue", "blog.reviewedOn")).toBe("資料覆核日期");
     expect(translate("es", "blog.backToSection")).toBe("Volver a la sección");
+  });
+
+  it("translates trust-page navigation and update labels", () => {
+    const languages = ["en", "zh-CN", "zh-TW", "yue", "es"] as const;
+    const keys = ["legal.about", "legal.editorial", "legal.contact", "legal.lastUpdated", "legal.privacyContact"];
+
+    for (const language of languages) {
+      for (const key of keys) {
+        expect(translate(language, key)).not.toBe(key);
+      }
+    }
   });
 
   it("translates guide disclaimer copy in every supported language", () => {

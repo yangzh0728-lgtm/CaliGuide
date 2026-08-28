@@ -10,6 +10,7 @@
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist server.js",
     "test": "bun test",
+    "test:e2e": "playwright test",
     "bench:chat": "bun scripts/bench-chat.ts",
     "import:guide-content": "bun scripts/import-guide-content.ts",
     "migrate:r2-avatars": "bun scripts/migrate-r2-avatars.ts",
@@ -35,13 +36,14 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
-    "typescript": "~5.8.2",
-    "@types/express": "^4.17.21"
+    "typescript": "~5.8.2"
   },
   "trustedDependencies": []
 }

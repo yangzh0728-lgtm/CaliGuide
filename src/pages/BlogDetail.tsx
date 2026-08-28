@@ -1,5 +1,6 @@
 import { Bookmark, CalendarDays, Clock, ExternalLink, Tag } from 'lucide-react';
 import GuideDisclaimer from '../components/GuideDisclaimer';
+import ResponsiveImage from '../components/ResponsiveImage';
 import { useLanguage } from '../context/LanguageContext';
 import { formatBlogBodyBlock, type BlogBodyTone } from '../lib/blogBodyFormat';
 import type { BlogArticle } from '../lib/blogContent';
@@ -11,11 +12,17 @@ import {
 
 interface BlogDetailProps {
   article: BlogArticle;
+  isAuthenticated?: boolean;
   isSaved: boolean;
   onToggleSave: (articleId: string) => void;
 }
 
-export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetailProps) {
+export default function BlogDetail({
+  article,
+  isAuthenticated = true,
+  isSaved,
+  onToggleSave,
+}: BlogDetailProps) {
   const { t } = useLanguage();
   const bodyBlocks = article.body.map(formatBlogBodyBlock);
   const citationSet = getGuideCitationSet(article.id);
@@ -44,13 +51,20 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
             type="button"
             onClick={() => onToggleSave(article.id)}
             className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors ${
-              isSaved
+              isAuthenticated && isSaved
                 ? 'bg-primary text-white hover:bg-primary/90'
                 : 'border border-primary text-primary hover:bg-surface-container-low'
             }`}
           >
-            <Bookmark size={18} fill={isSaved ? 'currentColor' : 'none'} />
-            {isSaved ? t('blog.saved') : t('blog.saveGuide')}
+            <Bookmark
+              size={18}
+              fill={isAuthenticated && isSaved ? 'currentColor' : 'none'}
+            />
+            {isAuthenticated
+              ? isSaved
+                ? t('blog.saved')
+                : t('blog.saveGuide')
+              : t('auth.signInToSave')}
           </button>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{article.excerpt}</p>
@@ -67,9 +81,11 @@ export default function BlogDetail({ article, isSaved, onToggleSave }: BlogDetai
         </div>
       </header>
 
-      <img
+      <ResponsiveImage
         src={article.image}
         alt={article.title}
+        sizes="(min-width: 768px) 896px, 100vw"
+        fetchPriority="high"
         className="h-64 w-full object-cover md:rounded-2xl"
       />
 

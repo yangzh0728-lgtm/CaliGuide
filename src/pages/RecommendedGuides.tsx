@@ -1,5 +1,6 @@
 import { Clock } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import ResponsiveImage from '../components/ResponsiveImage';
 import { getRecommendedBlogArticles } from '../lib/blogLocalization';
 
 interface RecommendedGuidesProps {
@@ -27,7 +28,13 @@ export default function RecommendedGuides({ onOpenBlog }: RecommendedGuidesProps
             onClick={() => onOpenBlog(guide.id)}
             className="grid min-h-[124px] grid-cols-[112px_1fr] overflow-hidden rounded-2xl border border-outline-variant bg-white text-left shadow-sm transition-shadow hover:shadow-md"
           >
-            <img src={guide.image} alt={guide.title} className="h-full w-full object-cover" />
+            <ResponsiveImage
+              src={guide.image}
+              alt={guide.title}
+              sizes="(min-width: 768px) 320px, 128px"
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
             <div className="flex flex-col gap-1 p-4">
               <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">{guide.category}</span>
               <h2 className="text-base font-bold leading-snug text-on-surface">{guide.title}</h2>

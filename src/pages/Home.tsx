@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import ResponsiveImage from '../components/ResponsiveImage';
 import { getVisibleRecommendedGuides } from '../lib/homeRecommendations';
 import { getLocalizedBlogArticle, getRecommendedBlogArticles, searchLocalizedBlogArticles } from '../lib/blogLocalization';
 
@@ -70,9 +71,11 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
                   onClick={() => onOpenBlog(article.id)}
                   className="flex w-full items-start gap-3 border-b border-outline-variant px-4 py-3 text-left last:border-b-0 hover:bg-surface-container-low"
                 >
-                  <img
+                  <ResponsiveImage
                     src={article.image}
                     alt={article.title}
+                    sizes="48px"
+                    loading="lazy"
                     className="h-12 w-12 shrink-0 rounded-lg object-cover"
                   />
                   <span className="min-w-0">
@@ -128,9 +131,11 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
               onClick={() => onOpenBlog(guide.id)}
               className="min-w-[280px] bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow text-left"
             >
-              <img
+              <ResponsiveImage
                 src={guide.image}
                 alt={guide.title}
+                sizes="280px"
+                loading="lazy"
                 className="w-full h-40 object-cover"
               />
               <div className="p-4 flex flex-col gap-1">

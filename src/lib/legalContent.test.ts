@@ -6,6 +6,16 @@ const languages: LanguageCode[] = ["en", "zh-CN", "yue", "zh-TW", "es"];
 
 describe("legal content", () => {
   test("provides every legal document in every supported content language", () => {
+    expect(LEGAL_PAGE_IDS).toEqual([
+      "about",
+      "editorial",
+      "contact",
+      "privacy",
+      "terms",
+      "cookies",
+      "disclaimer",
+    ]);
+
     for (const pageId of LEGAL_PAGE_IDS) {
       const englishDocument = getLegalDocument(pageId, "en");
 
@@ -23,6 +33,20 @@ describe("legal content", () => {
         }
       }
     }
+  });
+
+  test("explains ownership, editorial standards, and support channels", () => {
+    const aboutText = JSON.stringify(getLegalDocument("about", "en"));
+    const editorialText = JSON.stringify(getLegalDocument("editorial", "en"));
+    const contactText = JSON.stringify(getLegalDocument("contact", "en"));
+
+    expect(aboutText).toContain("independently developed");
+    expect(aboutText).toContain("paid placement");
+    expect(editorialText).toContain("official");
+    expect(editorialText).toContain("section-level citations");
+    expect(editorialText).toContain("No fixed review interval");
+    expect(contactText).toContain("privacy@caliguide.org");
+    expect(contactText).toContain("https://github.com/yangzh0728-lgtm/CaliGuide/issues");
   });
 
   test("discloses active service providers in the privacy policy", () => {

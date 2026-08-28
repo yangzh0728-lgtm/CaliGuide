@@ -3,19 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { lazy, ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { Page } from './types';
 import Navigation from './components/Navigation';
 import TopAppBar from './components/TopAppBar';
+import PageSkeleton from './components/PageSkeleton';
 import Home from './pages/Home';
-import Guide from './pages/Guide';
 import BlogDetail from './pages/BlogDetail';
-import RecommendedGuides from './pages/RecommendedGuides';
-import Forum from './pages/Forum';
-import ForumDetail from './pages/ForumDetail';
-import Chatbot from './pages/Chatbot';
-import Profile from './pages/Profile';
-import AuthPage from './pages/AuthPage';
 import { useAuth } from './context/AuthContext';
 import { useLanguage } from './context/LanguageContext';
 import { getLocalizedBlogArticle, getLocalizedBlogArticles } from './lib/blogLocalization';
@@ -45,21 +39,40 @@ import {
 } from './lib/forumApi';
 import { supabase } from './lib/supabaseClient';
 import { AnimatePresence, motion } from 'motion/react';
-import LegalPage from './pages/LegalPage';
 import { LegalPageId } from './lib/legalContent';
 import LegalFooter from './components/LegalFooter';
 import PrivacyConsentBanner from './components/PrivacyConsentBanner';
 import PrivacyPreferencesDialog from './components/PrivacyPreferencesDialog';
 import { getLegalPageFromPath, getLegalPagePath } from './lib/legalRoutes';
+import {
+  AppRoute,
+  getAppRouteFromPath,
+  getAppRoutePath,
+  getParentAppRoute,
+  shouldRequireAuthentication,
+} from './lib/appRoutes';
+import { getPageMetadata } from './lib/pageMetadata';
+import { reportClientError } from './lib/clientErrorReport';
+
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const Chatbot = lazy(() => import('./pages/Chatbot'));
+const Forum = lazy(() => import('./pages/Forum'));
+const ForumDetail = lazy(() => import('./pages/ForumDetail'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
+const Profile = lazy(() => import('./pages/Profile'));
+const RecommendedGuides = lazy(() => import('./pages/RecommendedGuides'));
 
 type PendingForumDelete =
   | { type: 'post'; discussionId: string; title: string }
   | { type: 'comment'; discussionId: string; commentId: string };
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('home');
-  const [selectedBlogId, setSelectedBlogId] = useState('category-dmv');
-  const [selectedForumId, setSelectedForumId] = useState('post-1');
+  const [appRoute, setAppRoute] = useState<AppRoute>(() =>
+    typeof window === 'undefined'
+      ? { page: 'home' }
+      : getAppRouteFromPath(window.location.pathname) ?? { page: 'home' },
+  );
+  const [authRequested, setAuthRequested] = useState(false);
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
   const [forumSyncError, setForumSyncError] = useState('');
   const [pendingForumDelete, setPendingForumDelete] = useState<PendingForumDelete | null>(null);
@@ -78,6 +91,9 @@ export default function App() {
     savePost,
   } = useAuth();
   const { language, t } = useLanguage();
+  const currentPage: Page = appRoute.page;
+  const selectedBlogId = appRoute.page === 'blog' ? appRoute.articleId : 'category-dmv';
+  const selectedForumId = appRoute.page === 'forumDetail' ? appRoute.discussionId : 'post-1';
   const localizedBlogArticles = getLocalizedBlogArticles(language);
   const selectedBlog = getLocalizedBlogArticle(selectedBlogId, language) ?? getLocalizedBlogArticle('category-dmv', language);
   const selectedForumDiscussion =
@@ -94,6 +110,7 @@ export default function App() {
         setForumDiscussions((currentDiscussions) => mergeForumDiscussions(currentDiscussions, remoteDiscussions));
       }
     } catch (error) {
+      reportClientError('forum.load', error);
       console.warn('Forum Supabase sync skipped:', error);
     }
   }, [currentUser]);
@@ -102,26 +119,69 @@ export default function App() {
     void reloadForumDiscussions();
   }, [reloadForumDiscussions]);
 
+  const navigate = useCallback((route: AppRoute, options?: { replace?: boolean }) => {
+    const path = getAppRoutePath(route);
+    if (window.location.pathname !== path) {
+      const historyMethod = options?.replace ? 'replaceState' : 'pushState';
+      window.history[historyMethod]({ caliguide: true }, '', path);
+    }
+    setLegalPage(null);
+    setAppRoute(route);
+    setAuthRequested(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
+
   useEffect(() => {
-    const handlePopState = () => setLegalPage(getLegalPageFromPath(window.location.pathname));
+    const handlePopState = () => {
+      const nextLegalPage = getLegalPageFromPath(window.location.pathname);
+      setLegalPage(nextLegalPage);
+      if (!nextLegalPage) {
+        setAppRoute(getAppRouteFromPath(window.location.pathname) ?? { page: 'home' });
+      }
+      setAuthRequested(false);
+    };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  useEffect(() => {
+    if (currentUser) {
+      setAuthRequested(false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (legalPage) {
+      return;
+    }
+    const metadata = getPageMetadata(appRoute);
+    const canonicalUrl = `${window.location.origin}${metadata.canonicalPath}`;
+    document.title = metadata.title;
+    setHeadMeta('name', 'description', metadata.description);
+    setHeadMeta('property', 'og:title', metadata.title);
+    setHeadMeta('property', 'og:description', metadata.description);
+    setHeadMeta('property', 'og:type', metadata.type);
+    setHeadMeta('property', 'og:url', canonicalUrl);
+    setHeadMeta('name', 'robots', metadata.noIndex ? 'noindex,nofollow' : 'index,follow');
+    setCanonicalUrl(canonicalUrl);
+  }, [appRoute, legalPage]);
+
   const openLegalPage = useCallback((pageId: LegalPageId) => {
     const path = getLegalPagePath(pageId);
     if (window.location.pathname !== path) {
-      window.history.pushState({}, '', path);
+      window.history.pushState({ caliguide: true }, '', path);
     }
     setLegalPage(pageId);
+    setAuthRequested(false);
   }, []);
 
   const closeLegalPage = useCallback(() => {
-    if (getLegalPageFromPath(window.location.pathname)) {
-      window.history.pushState({}, '', '/');
+    if (window.history.state?.caliguide) {
+      window.history.back();
+      return;
     }
-    setLegalPage(null);
-  }, []);
+    navigate({ page: 'home' }, { replace: true });
+  }, [navigate]);
 
   const pageTitles: Record<Page, string> = {
     home: t('app.title'),
@@ -135,20 +195,17 @@ export default function App() {
   };
 
   const openBlog = (articleId: string) => {
-    setSelectedBlogId(articleId);
-    setCurrentPage('blog');
+    navigate({ page: 'blog', articleId });
   };
 
   const openForumDetail = (discussionId: string) => {
-    setSelectedForumId(discussionId);
-    setCurrentPage('forumDetail');
+    navigate({ page: 'forumDetail', discussionId });
   };
 
   const addForumDiscussion = (discussion: ForumDiscussion) => {
     setForumSyncError('');
     setForumDiscussions((currentDiscussions) => [discussion, ...currentDiscussions]);
-    setSelectedForumId(discussion.id);
-    setCurrentPage('forumDetail');
+    navigate({ page: 'forumDetail', discussionId: discussion.id });
 
     void createForumPostViaApi(supabase, {
       id: discussion.id,
@@ -165,10 +222,11 @@ export default function App() {
           remoteDiscussion,
           ...currentDiscussions.filter((currentDiscussion) => currentDiscussion.id !== discussion.id),
         ]);
-        setSelectedForumId(remoteDiscussion.id);
+        navigate({ page: 'forumDetail', discussionId: remoteDiscussion.id }, { replace: true });
       })
       .catch((error) => {
         setForumSyncError(`Forum post saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+        reportClientError('forum.post.create', error);
         console.warn('Unable to save forum post to Supabase:', error);
       });
   };
@@ -196,6 +254,7 @@ export default function App() {
       .then(reloadForumDiscussions)
       .catch((error) => {
         setForumSyncError(`Comment saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+        reportClientError('forum.comment.create', error);
         console.warn('Unable to save forum comment to Supabase:', error);
       });
   };
@@ -236,13 +295,14 @@ export default function App() {
       await deleteForumPostViaApi(supabase, discussionId);
     } catch (error) {
       setForumSyncError(`Post delete failed: ${getErrorMessage(error)}`);
+      reportClientError('forum.post.delete', error);
       console.warn('Unable to delete forum post from Supabase:', error);
       return;
     }
 
     setForumDiscussions((currentDiscussions) => removeForumDiscussion(currentDiscussions, discussionId, userId));
     if (selectedForumId === discussionId) {
-      setCurrentPage('forum');
+      navigate({ page: 'forum' }, { replace: true });
     }
 
     void reloadForumDiscussions();
@@ -286,6 +346,7 @@ export default function App() {
       await deleteForumCommentViaApi(supabase, commentId);
     } catch (error) {
       setForumSyncError(`Comment delete failed: ${getErrorMessage(error)}`);
+      reportClientError('forum.comment.delete', error);
       console.warn('Unable to delete forum comment from Supabase:', error);
       return;
     }
@@ -329,6 +390,7 @@ export default function App() {
     );
     void setForumVoteViaApi(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
       setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      reportClientError('forum.post.vote', error);
       console.warn('Unable to save forum post vote to Supabase:', error);
     });
   };
@@ -350,6 +412,7 @@ export default function App() {
     );
     void setForumVoteViaApi(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
       setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      reportClientError('forum.comment.vote', error);
       console.warn('Unable to save forum comment vote to Supabase:', error);
     });
   };
@@ -370,6 +433,7 @@ export default function App() {
     );
     void setForumVoteViaApi(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
       setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      reportClientError('forum.post.vote', error);
       console.warn('Unable to save forum post vote to Supabase:', error);
     });
   };
@@ -391,11 +455,17 @@ export default function App() {
     );
     void setForumVoteViaApi(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
       setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      reportClientError('forum.comment.vote', error);
       console.warn('Unable to save forum comment vote to Supabase:', error);
     });
   };
 
   const toggleSavedGuide = (articleId: string) => {
+    if (!currentUser) {
+      setAuthRequested(true);
+      return;
+    }
+
     void (async () => {
       if (isGuideSaved(articleId)) {
         await removeSavedGuide(articleId);
@@ -415,21 +485,23 @@ export default function App() {
       }
     })().catch((error) => {
       setForumSyncError(`Post save failed: ${getErrorMessage(error)}`);
+      reportClientError('forum.post.save', error);
       console.warn('Unable to save forum post:', error);
     });
   };
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => setCurrentPage('recommended')} />;
-      case 'guide': return <Guide />;
+      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
+      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
       case 'blog': return selectedBlog ? (
         <BlogDetail
           article={selectedBlog}
+          isAuthenticated={Boolean(currentUser)}
           isSaved={isGuideSaved(selectedBlog.id)}
           onToggleSave={toggleSavedGuide}
         />
-      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => setCurrentPage('recommended')} />;
+      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
       case 'recommended': return <RecommendedGuides onOpenBlog={openBlog} />;
       case 'forum': return (
         <Forum
@@ -440,7 +512,7 @@ export default function App() {
           onToggleUnuseful={toggleForumDiscussionUnuseful}
           onDeleteDiscussion={requestDeleteForumDiscussion}
           onOpenBlog={openBlog}
-          currentUserId={currentUser.id}
+          currentUserId={currentUser?.id ?? ''}
           syncError={forumSyncError}
           onClearSyncError={() => setForumSyncError('')}
         />
@@ -457,7 +529,7 @@ export default function App() {
           onDeleteComment={requestDeleteForumDiscussionComment}
           isSaved={isPostSaved(selectedForumDiscussion.id)}
           onToggleSave={toggleSavedPost}
-          currentUserId={currentUser.id}
+          currentUserId={currentUser?.id ?? ''}
           syncError={forumSyncError}
           onClearSyncError={() => setForumSyncError('')}
         />
@@ -470,7 +542,7 @@ export default function App() {
           onToggleUnuseful={toggleForumDiscussionUnuseful}
           onDeleteDiscussion={requestDeleteForumDiscussion}
           onOpenBlog={openBlog}
-          currentUserId={currentUser.id}
+          currentUserId={currentUser?.id ?? ''}
           syncError={forumSyncError}
           onClearSyncError={() => setForumSyncError('')}
         />
@@ -484,11 +556,39 @@ export default function App() {
           onOpenForumDetail={openForumDetail}
           onToggleForumUseful={toggleForumDiscussionUseful}
           onToggleForumUnuseful={toggleForumDiscussionUnuseful}
-          currentUserId={currentUser.id}
+          currentUserId={currentUser?.id ?? ''}
         />
       );
-      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => setCurrentPage('recommended')} />;
+      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
     }
+  };
+
+  const handlePageChange = (page: Page) => {
+    switch (page) {
+      case 'forum':
+        navigate({ page: 'forum' });
+        break;
+      case 'chatbot':
+        navigate({ page: 'chatbot' });
+        break;
+      case 'profile':
+        navigate({ page: 'profile' });
+        break;
+      case 'recommended':
+        navigate({ page: 'recommended' });
+        break;
+      case 'home':
+      default:
+        navigate({ page: 'home' });
+    }
+  };
+
+  const handleBack = () => {
+    if (window.history.state?.caliguide) {
+      window.history.back();
+      return;
+    }
+    navigate(getParentAppRoute(appRoute), { replace: true });
   };
 
   const renderWithPrivacyControls = (content: ReactNode) => (
@@ -501,20 +601,37 @@ export default function App() {
 
   if (legalPage) {
     return renderWithPrivacyControls(
-      <LegalPage pageId={legalPage} onBack={closeLegalPage} />,
+      <Suspense fallback={<PageSkeleton fullScreen />}>
+        <LegalPage pageId={legalPage} onBack={closeLegalPage} />
+      </Suspense>,
     );
   }
 
-  if (isLoading) {
+  const authenticationRequired = shouldRequireAuthentication(appRoute, authRequested);
+
+  if (isLoading && authenticationRequired && !isPasswordRecovery) {
     return renderWithPrivacyControls(
-      <div className="flex min-h-screen items-center justify-center bg-background px-4 text-sm font-bold text-on-surface-variant">
-        Loading CaliGuide...
-      </div>
+      <PageSkeleton fullScreen />,
     );
   }
 
-  if (!currentUser || isPasswordRecovery) {
-    return renderWithPrivacyControls(<AuthPage onOpenLegalPage={openLegalPage} />);
+  if (isPasswordRecovery || (!currentUser && authenticationRequired)) {
+    return renderWithPrivacyControls(
+      <Suspense fallback={<PageSkeleton fullScreen />}>
+        <AuthPage
+          onOpenLegalPage={openLegalPage}
+          continueBrowsingHref={
+            shouldRequireAuthentication(appRoute, false) ? '/' : getAppRoutePath(appRoute)
+          }
+          onContinueBrowsing={() => {
+            setAuthRequested(false);
+            if (shouldRequireAuthentication(appRoute, false)) {
+              navigate({ page: 'home' }, { replace: true });
+            }
+          }}
+        />
+      </Suspense>,
+    );
   }
 
   return renderWithPrivacyControls(
@@ -522,19 +639,23 @@ export default function App() {
       <TopAppBar 
         title={pageTitles[currentPage]} 
         showBack={currentPage === 'guide' || currentPage === 'blog' || currentPage === 'recommended' || currentPage === 'forumDetail'}
-        onBack={() => setCurrentPage(currentPage === 'forumDetail' ? 'forum' : 'home')}
+        showSignIn={!currentUser}
+        onBack={handleBack}
+        onSignIn={() => setAuthRequested(true)}
       />
       
       <main className="max-w-4xl mx-auto">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentPage}
+            key={getAppRoutePath(appRoute)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
-            {renderPage()}
+            <Suspense fallback={<PageSkeleton />}>
+              {renderPage()}
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
@@ -543,7 +664,7 @@ export default function App() {
 
       <Navigation 
         currentPage={currentPage} 
-        onPageChange={setCurrentPage} 
+        onPageChange={handlePageChange}
       />
       <ConfirmDeleteDialog
         pendingDelete={pendingForumDelete}
@@ -552,6 +673,26 @@ export default function App() {
       />
     </div>
   );
+}
+
+function setHeadMeta(attribute: 'name' | 'property', key: string, content: string) {
+  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
+  if (!element) {
+    element = document.createElement('meta');
+    element.setAttribute(attribute, key);
+    document.head.appendChild(element);
+  }
+  element.content = content;
+}
+
+function setCanonicalUrl(url: string) {
+  let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!element) {
+    element = document.createElement('link');
+    element.rel = 'canonical';
+    document.head.appendChild(element);
+  }
+  element.href = url;
 }
 
 function ConfirmDeleteDialog({

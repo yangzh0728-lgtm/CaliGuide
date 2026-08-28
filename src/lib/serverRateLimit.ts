@@ -31,8 +31,14 @@ export function createApiRateLimiter({
     max,
     standardHeaders: "draft-8",
     legacyHeaders: false,
-    keyGenerator: (request: Request) =>
-      buildRateLimitKey(request.headers.authorization, request.ip || request.socket.remoteAddress || "unknown"),
+    keyGenerator: (request: Request) => {
+      const authorization = request.headers.authorization;
+      const ip = request.ip || request.socket.remoteAddress || "unknown";
+      if (authorization?.startsWith("Bearer ") && authorization.slice("Bearer ".length).trim()) {
+        return buildRateLimitKey(authorization, ip);
+      }
+      return ipKeyGenerator(ip);
+    },
     handler: (_request, response) => {
       response.status(429).json(rateLimitErrorBody);
     },

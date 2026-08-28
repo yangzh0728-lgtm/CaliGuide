@@ -34,7 +34,7 @@ export default function LegalPage({ pageId, onBack }: LegalPageProps) {
           <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">{document.title}</h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-on-surface-variant">{document.summary}</p>
           <p className="mt-4 text-sm font-semibold text-on-surface-variant">
-            {t("legal.effectiveDate")}: {document.effectiveDate}
+            {t("legal.lastUpdated")}: {document.lastUpdatedDate}
           </p>
         </div>
 
@@ -54,6 +54,24 @@ export default function LegalPage({ pageId, onBack }: LegalPageProps) {
                       ))}
                     </ul>
                   )}
+                  {section.links && (
+                    <div className="flex flex-wrap gap-3 pt-1">
+                      {section.links.map((link) => {
+                        const isExternal = link.href.startsWith("http");
+                        return (
+                          <a
+                            key={link.href}
+                            href={link.href}
+                            target={isExternal ? "_blank" : undefined}
+                            rel={isExternal ? "noreferrer" : undefined}
+                            className="inline-flex rounded-lg border border-outline-variant px-3 py-2 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-surface-container-low"
+                          >
+                            {link.label}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -66,7 +84,7 @@ export default function LegalPage({ pageId, onBack }: LegalPageProps) {
             className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
           >
             <Mail size={18} aria-hidden="true" />
-            {t("legal.contact")}: privacy@caliguide.org
+            {t("legal.privacyContact")}: privacy@caliguide.org
           </a>
         </div>
       </main>
