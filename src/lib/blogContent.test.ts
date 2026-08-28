@@ -86,4 +86,18 @@ describe("blogContent", () => {
       "https://www.irs.gov/tin/itin/individual-taxpayer-identification-number-itin",
     );
   });
+
+  it("publishes the first 30 days guide as an actionable sequencing hub", () => {
+    const article = getBlogArticle("forum-first-30-days");
+
+    expect(article?.title).toBe("First 30 Days in California");
+    expect(article?.readTime).toBe("4 min read");
+    expect(article?.tags).toContain("Sequencing");
+    expect(article?.body).toHaveLength(11);
+    expect(article?.body[1]).toStartWith("What blocks what:");
+    expect(article?.body[2]).toStartWith("Preparation checklist:");
+    expect(article?.body[9]).toStartWith("Common sequencing mistakes:");
+    expect(article?.body[10]).toStartWith("Official reminder:");
+    expect(article?.body.join(" ")).not.toContain("[[guides:");
+  });
 });

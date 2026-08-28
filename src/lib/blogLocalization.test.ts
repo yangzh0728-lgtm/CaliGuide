@@ -145,4 +145,31 @@ describe("blogLocalization", () => {
       }
     }
   });
+
+  it("keeps the first 30 days guide complete and structurally aligned in every language", () => {
+    const expectedTones = [
+      "default",
+      "default",
+      "checklist",
+      "default",
+      "default",
+      "default",
+      "default",
+      "default",
+      "default",
+      "warning",
+      "notice",
+    ];
+
+    for (const language of [...OFFICIAL_CONTENT_LANGUAGES, "yue"] as const) {
+      const article = getLocalizedBlogArticle("forum-first-30-days", language);
+
+      expect(article?.body).toHaveLength(11);
+      expect(article?.readTime).toBe("4 min read");
+      expect(article?.body.map((paragraph) => formatBlogBodyBlock(paragraph).tone)).toEqual(expectedTones);
+      expect(article?.body.every((paragraph) => formatBlogBodyBlock(paragraph).heading.length > 0)).toBe(true);
+      expect(formatBlogBodyBlock(article?.body[2] ?? "").listItems).toHaveLength(7);
+      expect(article?.body.join(" ")).not.toContain("[[guides:");
+    }
+  });
 });
