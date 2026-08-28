@@ -29,6 +29,22 @@ describe("translations", () => {
     }
   });
 
+  it("describes the document checklist without fabricated upload progress", () => {
+    const expected = {
+      en: "Review and organize your important documents",
+      "zh-CN": "查看并整理您的重要文件",
+      yue: "查看同整理你嘅重要文件",
+      "zh-TW": "查看並整理您的重要文件",
+      es: "Revisa y organiza tus documentos importantes",
+    } as const;
+
+    for (const [language, copy] of Object.entries(expected)) {
+      const value = translate(language as keyof typeof expected, "profile.checklistDesc");
+      expect(value).toBe(copy);
+      expect(value).not.toMatch(/\d/);
+    }
+  });
+
   it("translates the application loading state", () => {
     for (const language of ["en", "zh-CN", "yue", "zh-TW", "es"] as const) {
       expect(translate(language, "app.loading")).toBeTruthy();
