@@ -189,7 +189,7 @@ export default function App() {
     home: t('app.title'),
     guide: t('app.title'),
     blog: t('app.title'),
-    recommended: t('home.recommended'),
+    recommended: t('recommended.title'),
     agencies: t('app.title'),
     forum: t('app.title'),
     forumDetail: t('app.title'),
@@ -518,7 +518,11 @@ export default function App() {
           onOpenBlog={openBlog}
         />
       ) : (
-        <Agencies onOpenInstitution={openInstitution} onOpenBlog={openBlog} />
+        <Agencies
+          onOpenGuides={() => navigate({ page: 'recommended' })}
+          onOpenInstitution={openInstitution}
+          onOpenBlog={openBlog}
+        />
       );
       case 'forum': return (
         <Forum

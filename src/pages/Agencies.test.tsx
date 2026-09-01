@@ -11,6 +11,7 @@ function renderAgencies(selectedInstitutionId?: string) {
       <LanguageProvider>
         <Agencies
           selectedInstitutionId={selectedInstitutionId}
+          onOpenGuides={() => {}}
           onOpenInstitution={() => {}}
           onOpenBlog={() => {}}
         />
@@ -30,6 +31,7 @@ describe("Agencies", () => {
     expect(markup).toContain('data-desktop-agency-navigation="true"');
     expect(markup).toContain('data-mobile-agency-navigation="true"');
     expect(markup).toMatch(/data-agency-group="immigration-status"[^>]*aria-current="page"/);
+    expect(markup).toMatch(/data-reference-tab="agencies"[^>]*aria-current="page"/);
   });
 
   it("keeps orientation content inside one expanded row", () => {

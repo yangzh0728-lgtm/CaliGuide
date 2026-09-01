@@ -32,6 +32,23 @@ test("organizes guide and agency discovery without requiring an account", async 
   await expect(page.getByRole("button", { name: /U.S. Citizenship and Immigration Services/ })).toBeVisible();
 });
 
+test("lists and filters the complete public guide library", async ({ page }) => {
+  await page.goto("/guides");
+
+  await expect(page.getByRole("heading", { level: 1, name: "Guides" })).toBeVisible();
+  await expect(page.getByText("Recommended for You", { exact: true })).toHaveCount(0);
+  await expect(page.locator("[data-guide-card]")).toHaveCount(19);
+  await expect(page.locator('[data-guide-card="forum-first-30-days"]')).toBeVisible();
+
+  await page.locator('[data-guide-group="safety"]:visible').click();
+  await expect(page.locator("[data-guide-card]")).toHaveCount(1);
+  await expect(page.locator('[data-guide-card="guide-earthquake-wildfire-preparedness"]')).toBeVisible();
+
+  await page.locator('[data-reference-tab="agencies"]').click();
+  await expect(page).toHaveURL(/\/agencies$/);
+  await expect(page.locator('[data-reference-tab="agencies"]')).toHaveAttribute("aria-current", "page");
+});
+
 for (const privatePath of ["/forum", "/chatbot", "/profile"]) {
   test(`requires an account for ${privatePath}`, async ({ page }) => {
     await page.goto(privatePath);

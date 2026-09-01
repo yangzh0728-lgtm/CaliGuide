@@ -70,6 +70,26 @@ describe("translations", () => {
     }
   });
 
+  it("translates the complete guide directory interface in every supported language", () => {
+    const keys = [
+      "recommended.title",
+      "recommended.libraryNavigation",
+      "recommended.agenciesTab",
+      "recommended.findByTopic",
+      "recommended.allGuides",
+      "recommended.searchPlaceholder",
+      "recommended.noResults",
+      "recommended.group.dmv",
+      "recommended.group.community",
+    ];
+
+    for (const language of LANGUAGES.map(({ code }) => code)) {
+      for (const key of keys) {
+        expect(translate(language, key)).not.toBe(key);
+      }
+    }
+  });
+
   it("translates trust-page navigation and update labels", () => {
     const languages = ["en", "zh-CN", "zh-TW", "yue", "es"] as const;
     const keys = ["legal.about", "legal.editorial", "legal.contact", "legal.lastUpdated", "legal.privacyContact"];

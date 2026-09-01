@@ -1,15 +1,17 @@
 import { Building2 } from "lucide-react";
 import AgencyDirectoryShell from "../components/AgencyDirectoryShell";
+import ReferenceLibraryTabs from "../components/ReferenceLibraryTabs";
 import { useLanguage } from "../context/LanguageContext";
 import { getInstitution } from "../lib/institutions";
 
 interface AgenciesProps {
   selectedInstitutionId?: string;
+  onOpenGuides: () => void;
   onOpenInstitution: (institutionId: string) => void;
   onOpenBlog: (articleId: string) => void;
 }
 
-export default function Agencies({ selectedInstitutionId, onOpenInstitution, onOpenBlog }: AgenciesProps) {
+export default function Agencies({ selectedInstitutionId, onOpenGuides, onOpenInstitution, onOpenBlog }: AgenciesProps) {
   const { t } = useLanguage();
   const selectedInstitution = selectedInstitutionId ? getInstitution(selectedInstitutionId) : undefined;
 
@@ -26,6 +28,14 @@ export default function Agencies({ selectedInstitutionId, onOpenInstitution, onO
           </div>
         </div>
       </header>
+
+      <div className="mb-6">
+        <ReferenceLibraryTabs
+          active="agencies"
+          onOpenGuides={onOpenGuides}
+          onOpenAgencies={() => {}}
+        />
+      </div>
 
       <AgencyDirectoryShell
         initialGroupId={selectedInstitution?.groupId ?? "immigration-status"}
