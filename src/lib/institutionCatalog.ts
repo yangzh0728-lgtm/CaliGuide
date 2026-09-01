@@ -1,6 +1,8 @@
+import type { LanguageCode } from "../i18n/translations";
+
 export type InstitutionGroupId =
   | "immigration-status"
-  | "identity-driving"
+  | "identity-transportation"
   | "money-tax"
   | "work"
   | "health"
@@ -15,7 +17,7 @@ export const INSTITUTION_GROUPS: ReadonlyArray<{
   labelKey: string;
 }> = [
   { id: "immigration-status", labelKey: "agencies.group.immigrationStatus" },
-  { id: "identity-driving", labelKey: "agencies.group.identityDriving" },
+  { id: "identity-transportation", labelKey: "agencies.group.identityTransportation" },
   { id: "money-tax", labelKey: "agencies.group.moneyTax" },
   { id: "work", labelKey: "agencies.group.work" },
   { id: "health", labelKey: "agencies.group.health" },
@@ -28,27 +30,107 @@ export interface Institution {
   id: string;
   name: string;
   shortName: string;
+  officialName: string;
+  acronym: string;
   publisherNames: string[];
   groupId: InstitutionGroupId;
   jurisdiction: InstitutionJurisdiction;
+  priority: number;
+  lastReviewedAt: string;
   purpose: string;
   doesNotDo: string;
   officialUrl: string;
   officialDomain: string;
-  scamNote: string;
+  scamNote?: string;
+  content: Record<LanguageCode, InstitutionContent>;
+  confusionPairs: InstitutionConfusionPair[];
 }
 
+export interface InstitutionContent {
+  purpose: string;
+  doesNotDo: string;
+  languageAccessNote: string;
+  searchTerms: string[];
+  scamWarning?: string;
+}
+
+export interface InstitutionConfusionPair {
+  targetInstitutionId: string;
+  content: Record<LanguageCode, { trigger: string; explanation: string }>;
+}
+
+const REVIEWED_AT = "2026-09-01";
+const groupPriorities = new Map<InstitutionGroupId, number>();
+
+const LANGUAGE_ACCESS_NOTES: Record<LanguageCode, string> = {
+  en: "Check the official website for translated pages and ask the agency what free language assistance is available before your appointment.",
+  "zh-CN": "请查看官方网站上的翻译页面，并在预约前向该机构询问可提供哪些免费的语言协助。",
+  yue: "請查看官方網站嘅翻譯頁面，並喺預約前向該機構查詢可以提供邊啲免費語言協助。",
+  "zh-TW": "請查看官方網站上的翻譯頁面，並在預約前向該機構詢問可提供哪些免費語言協助。",
+  es: "Consulte el sitio web oficial para encontrar páginas traducidas y pregunte qué asistencia lingüística gratuita está disponible antes de su cita.",
+};
+
+type LocalizedContentOverrides = Partial<
+  Record<LanguageCode, Partial<Omit<InstitutionContent, "scamWarning">>>
+>;
+
 function institution(
-  entry: Omit<Institution, "officialDomain" | "scamNote"> & { scamNote?: string },
+  entry: Omit<
+    Institution,
+    | "officialDomain"
+    | "officialName"
+    | "acronym"
+    | "priority"
+    | "lastReviewedAt"
+    | "content"
+    | "confusionPairs"
+  > & {
+    localized?: LocalizedContentOverrides;
+    confusionPairs?: InstitutionConfusionPair[];
+  },
 ): Institution {
-  const officialDomain = new URL(entry.officialUrl).hostname;
+  const { localized = {}, confusionPairs = [], ...baseEntry } = entry;
+  const officialDomain = new URL(baseEntry.officialUrl).hostname;
+  const priority = (groupPriorities.get(baseEntry.groupId) ?? 0) + 1;
+  groupPriorities.set(baseEntry.groupId, priority);
+  const content = Object.fromEntries(
+    (["en", "zh-CN", "yue", "zh-TW", "es"] as LanguageCode[]).map((language) => [
+      language,
+      {
+        purpose: localized[language]?.purpose ?? baseEntry.purpose,
+        doesNotDo: localized[language]?.doesNotDo ?? baseEntry.doesNotDo,
+        languageAccessNote:
+          localized[language]?.languageAccessNote ?? LANGUAGE_ACCESS_NOTES[language],
+        searchTerms: localized[language]?.searchTerms ?? [],
+        ...(baseEntry.scamNote ? { scamWarning: baseEntry.scamNote } : {}),
+      },
+    ]),
+  ) as Record<LanguageCode, InstitutionContent>;
+
   return {
-    ...entry,
+    ...baseEntry,
+    officialName: baseEntry.name,
+    acronym: baseEntry.shortName,
     officialDomain,
-    scamNote:
-      entry.scamNote ??
-      `Use only ${officialDomain} for official information. Independently verify unsolicited messages, links, and payment requests claiming to represent this organization.`,
+    priority,
+    lastReviewedAt: REVIEWED_AT,
+    content,
+    confusionPairs,
   };
+}
+
+function confusionPair(
+  targetInstitutionId: string,
+  trigger: string,
+  explanation: string,
+): InstitutionConfusionPair {
+  const content = Object.fromEntries(
+    (["en", "zh-CN", "yue", "zh-TW", "es"] as LanguageCode[]).map((language) => [
+      language,
+      { trigger, explanation },
+    ]),
+  ) as InstitutionConfusionPair["content"];
+  return { targetInstitutionId, content };
 }
 
 export const INSTITUTION_CATALOG: readonly Institution[] = [
@@ -62,6 +144,36 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
     purpose: "Processes many immigration benefit requests, including applications for status, work authorization, permanent residence, and naturalization.",
     doesNotDo: "It does not issue visas at U.S. embassies abroad, decide immigration-court cases, or provide personal legal representation.",
     officialUrl: "https://www.uscis.gov/",
+    localized: {
+      "zh-CN": {
+        purpose: "处理许多移民福利申请，包括身份、工作许可、永久居留和入籍申请。",
+        doesNotDo: "不签发美国驻外使领馆的签证，不裁决移民法庭案件，也不提供个人法律代理。",
+      },
+      yue: {
+        purpose: "處理多種移民福利申請，包括身份、工作許可、永久居留同入籍申請。",
+        doesNotDo: "唔會簽發美國駐外使領館嘅簽證、裁決移民法庭案件，亦唔提供個人法律代理。",
+      },
+      "zh-TW": {
+        purpose: "處理多種移民福利申請，包括身分、工作許可、永久居留及入籍申請。",
+        doesNotDo: "不簽發美國駐外使領館的簽證、不裁決移民法庭案件，也不提供個人法律代理。",
+      },
+      es: {
+        purpose: "Tramita solicitudes de beneficios migratorios, incluidas las de estatus, autorización de empleo, residencia permanente y naturalización.",
+        doesNotDo: "No emite visas en embajadas estadounidenses, no decide casos de la corte de inmigración ni ofrece representación legal personal.",
+      },
+    },
+    confusionPairs: [
+      confusionPair(
+        "cbp",
+        "At a port of entry or looking for an I-94?",
+        "CBP handles border inspections, ports of entry, and admission records such as the I-94.",
+      ),
+      confusionPair(
+        "us-doj",
+        "Need an immigration court or accredited representative?",
+        "The Department of Justice operates immigration courts and recognizes accredited representatives; USCIS does not provide personal legal representation.",
+      ),
+    ],
   }),
   institution({
     id: "cbp",
@@ -73,6 +185,13 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
     purpose: "Manages U.S. ports of entry, border inspections, admission records, and traveler tools such as the electronic I-94 system.",
     doesNotDo: "It does not decide most immigration-benefit applications filed with USCIS or represent travelers in immigration matters.",
     officialUrl: "https://www.cbp.gov/",
+    confusionPairs: [
+      confusionPair(
+        "uscis",
+        "Applying for status, work authorization, or citizenship?",
+        "USCIS handles most immigration-benefit applications after entry; CBP manages border inspection and admission records.",
+      ),
+    ],
   }),
   institution({
     id: "us-doj",
@@ -91,22 +210,63 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
     name: "California Department of Motor Vehicles",
     shortName: "DMV",
     publisherNames: ["California Department of Motor Vehicles"],
-    groupId: "identity-driving",
+    groupId: "identity-transportation",
     jurisdiction: "california",
     purpose: "Issues California driver licenses and identification cards and administers vehicle registration, title, testing, and related records.",
     doesNotDo: "It does not issue Social Security numbers, grant immigration status, or authorize employment in the United States.",
     officialUrl: "https://www.dmv.ca.gov/portal/",
+    localized: {
+      "zh-CN": {
+        purpose: "签发加州驾驶执照和身份证，并办理车辆登记、产权、考试及相关记录。",
+        doesNotDo: "不签发社会安全号码，不授予移民身份，也不批准在美国工作。",
+        searchTerms: ["驾照", "身份证", "车辆登记"],
+      },
+      yue: {
+        purpose: "簽發加州駕駛執照同身份證，並辦理車輛登記、產權、考試同相關紀錄。",
+        doesNotDo: "唔會簽發社會安全號碼、授予移民身份，亦唔會批准喺美國工作。",
+        searchTerms: ["車牌", "身份證", "車輛登記"],
+      },
+      "zh-TW": {
+        purpose: "核發加州駕駛執照和身分證，並辦理車輛登記、所有權、考試及相關紀錄。",
+        doesNotDo: "不核發社會安全號碼、不授予移民身分，也不核准在美國工作。",
+        searchTerms: ["駕照", "身分證", "車輛登記"],
+      },
+      es: {
+        purpose: "Emite licencias de conducir y tarjetas de identificación de California y administra registros, títulos y pruebas de vehículos.",
+        doesNotDo: "No emite números de Seguro Social, no concede estatus migratorio ni autoriza empleo en Estados Unidos.",
+        searchTerms: ["licencia", "identificación", "registro del vehículo"],
+      },
+    },
+    confusionPairs: [
+      confusionPair(
+        "ssa",
+        "Need a Social Security number or card?",
+        "SSA issues Social Security numbers and cards. DMV issues California driver licenses and identification cards.",
+      ),
+    ],
   }),
   institution({
     id: "ssa",
     name: "Social Security Administration",
     shortName: "SSA",
     publisherNames: ["Social Security Administration"],
-    groupId: "identity-driving",
+    groupId: "identity-transportation",
     jurisdiction: "federal",
     purpose: "Administers Social Security programs and issues Social Security numbers and replacement or corrected Social Security cards.",
     doesNotDo: "It does not grant immigration status, issue work authorization, collect federal income tax, or issue California identification cards.",
     officialUrl: "https://www.ssa.gov/",
+    confusionPairs: [
+      confusionPair(
+        "uscis",
+        "Need work authorization or immigration status?",
+        "USCIS handles work authorization and immigration-benefit requests. SSA issues Social Security numbers and cards.",
+      ),
+      confusionPair(
+        "ca-dmv",
+        "Need a California ID card or driver license?",
+        "DMV issues California identity and driving documents. SSA does not issue state identification cards.",
+      ),
+    ],
   }),
   institution({
     id: "irs",
@@ -118,6 +278,13 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
     purpose: "Administers federal tax law, receives federal tax returns, and issues Individual Taxpayer Identification Numbers for federal tax purposes.",
     doesNotDo: "An ITIN does not provide immigration status, work authorization, Social Security benefits, or identification outside the federal tax system.",
     officialUrl: "https://www.irs.gov/",
+    confusionPairs: [
+      confusionPair(
+        "ssa",
+        "Need a Social Security number instead of a tax-only ITIN?",
+        "SSA issues Social Security numbers to eligible people. The IRS issues ITINs only for federal tax purposes.",
+      ),
+    ],
   }),
   institution({
     id: "fdic",
