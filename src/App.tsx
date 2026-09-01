@@ -62,6 +62,7 @@ const LegalPage = lazy(() => import('./pages/LegalPage'));
 const Profile = lazy(() => import('./pages/Profile'));
 const RecommendedGuides = lazy(() => import('./pages/RecommendedGuides'));
 const Agencies = lazy(() => import('./pages/Agencies'));
+const AgencyDetail = lazy(() => import('./pages/AgencyDetail'));
 
 type PendingForumDelete =
   | { type: 'post'; discussionId: string; title: string }
@@ -509,12 +510,15 @@ export default function App() {
         />
       ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
       case 'recommended': return <RecommendedGuides onOpenBlog={openBlog} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
-      case 'agencies': return (
-        <Agencies
-          selectedInstitutionId={appRoute.page === 'agencies' ? appRoute.institutionId : undefined}
+      case 'agencies': return appRoute.page === 'agencies' && appRoute.institutionId ? (
+        <AgencyDetail
+          institutionId={appRoute.institutionId}
+          onBackToDirectory={() => navigate({ page: 'agencies' })}
           onOpenInstitution={openInstitution}
           onOpenBlog={openBlog}
         />
+      ) : (
+        <Agencies onOpenInstitution={openInstitution} onOpenBlog={openBlog} />
       );
       case 'forum': return (
         <Forum
@@ -660,7 +664,7 @@ export default function App() {
         onSignIn={() => setAuthRequested(true)}
       />
       
-      <main className="max-w-4xl mx-auto">
+      <main className={`mx-auto w-full ${currentPage === 'agencies' || currentPage === 'home' ? 'max-w-7xl' : 'max-w-4xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={getAppRoutePath(appRoute)}

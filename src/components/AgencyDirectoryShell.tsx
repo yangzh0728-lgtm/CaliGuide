@@ -183,6 +183,7 @@ export default function AgencyDirectoryShell({
 }
 
 function GroupButton({ id, label, count, active, mobile, icon: Icon, onSelect }: {
+  key?: string;
   id: DirectoryGroupId;
   label: string;
   count: number;
@@ -207,6 +208,7 @@ function GroupButton({ id, label, count, active, mobile, icon: Icon, onSelect }:
 }
 
 function AgencyRow({ institution, language, expanded, onToggle, onOpenInstitution, onOpenBlog }: {
+  key?: string;
   institution: LocalizedInstitution;
   language: Parameters<typeof getLocalizedBlogArticle>[1];
   expanded: boolean;

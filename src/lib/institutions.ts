@@ -1,5 +1,5 @@
 import { BLOG_ARTICLES } from "./blogContent";
-import { getGuideCitationSet } from "./guideCitations";
+import { GUIDE_REFERENCE_LIBRARY, getGuideCitationSet } from "./guideCitations";
 import {
   INSTITUTION_CATALOG,
   INSTITUTION_GROUPS,
@@ -49,6 +49,12 @@ export function getRelatedGuideIds(institutionId: string) {
       (referenceItem) => referenceItem.institutionId === institutionId,
     ),
   ).map((article) => article.id);
+}
+
+export function getInstitutionReferences(institutionId: string) {
+  return Object.values(GUIDE_REFERENCE_LIBRARY).filter(
+    (referenceItem) => referenceItem.institutionId === institutionId,
+  );
 }
 
 export function searchInstitutions(query: string, language: LanguageCode = "en") {

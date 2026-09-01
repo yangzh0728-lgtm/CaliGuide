@@ -1817,6 +1817,13 @@ Object.assign(translations.en, {
   "agencies.noResultsHelp": "Try a different search or return to all agencies.",
   "agencies.fullDetails": "Full agency details",
   "agencies.group.identityTransportation": "Identity and transportation",
+  "agencies.backToDirectory": "Back to agency directory",
+  "agencies.notFoundTitle": "Agency not found",
+  "agencies.notFoundBody": "This agency page is unavailable. Return to the directory to find the right organization.",
+  "agencies.officialActions": "Official actions",
+  "agencies.oftenConfusedWith": "Often confused with",
+  "agencies.languageAccess": "Language access",
+  "agencies.lastReviewed": "Last reviewed",
 });
 
 Object.assign(translations["zh-CN"], {
@@ -1830,6 +1837,13 @@ Object.assign(translations["zh-CN"], {
   "agencies.noResultsHelp": "请尝试其他关键词，或返回所有机构。",
   "agencies.fullDetails": "查看完整机构信息",
   "agencies.group.identityTransportation": "身份证件与交通",
+  "agencies.backToDirectory": "返回机构目录",
+  "agencies.notFoundTitle": "未找到该机构",
+  "agencies.notFoundBody": "此机构页面不可用。请返回目录查找正确的机构。",
+  "agencies.officialActions": "官方办理入口",
+  "agencies.oftenConfusedWith": "容易混淆的机构",
+  "agencies.languageAccess": "语言协助",
+  "agencies.lastReviewed": "最后审核",
 });
 
 Object.assign(translations.yue, {
@@ -1843,6 +1857,13 @@ Object.assign(translations.yue, {
   "agencies.noResultsHelp": "請試其他關鍵字，或者返回所有機構。",
   "agencies.fullDetails": "查看完整機構資料",
   "agencies.group.identityTransportation": "身份證件同交通",
+  "agencies.backToDirectory": "返回機構目錄",
+  "agencies.notFoundTitle": "搵唔到呢個機構",
+  "agencies.notFoundBody": "呢個機構頁面暫時用唔到。請返回目錄搵合適嘅機構。",
+  "agencies.officialActions": "官方辦理入口",
+  "agencies.oftenConfusedWith": "容易混淆嘅機構",
+  "agencies.languageAccess": "語言協助",
+  "agencies.lastReviewed": "最後審核",
 });
 
 Object.assign(translations["zh-TW"], {
@@ -1856,6 +1877,13 @@ Object.assign(translations["zh-TW"], {
   "agencies.noResultsHelp": "請嘗試其他關鍵字，或返回所有機構。",
   "agencies.fullDetails": "查看完整機構資訊",
   "agencies.group.identityTransportation": "身分證件與交通",
+  "agencies.backToDirectory": "返回機構目錄",
+  "agencies.notFoundTitle": "找不到此機構",
+  "agencies.notFoundBody": "此機構頁面無法使用。請返回目錄尋找正確的機構。",
+  "agencies.officialActions": "官方辦理入口",
+  "agencies.oftenConfusedWith": "容易混淆的機構",
+  "agencies.languageAccess": "語言協助",
+  "agencies.lastReviewed": "最後審核",
 });
 
 Object.assign(translations.es, {
@@ -1869,6 +1897,13 @@ Object.assign(translations.es, {
   "agencies.noResultsHelp": "Pruebe otra búsqueda o vuelva a todas las agencias.",
   "agencies.fullDetails": "Información completa de la agencia",
   "agencies.group.identityTransportation": "Identidad y transporte",
+  "agencies.backToDirectory": "Volver al directorio de agencias",
+  "agencies.notFoundTitle": "Agencia no encontrada",
+  "agencies.notFoundBody": "Esta página de agencia no está disponible. Vuelva al directorio para encontrar la organización correcta.",
+  "agencies.officialActions": "Acciones oficiales",
+  "agencies.oftenConfusedWith": "Suele confundirse con",
+  "agencies.languageAccess": "Acceso lingüístico",
+  "agencies.lastReviewed": "Última revisión",
 });
 
 export function isLanguageCode(value: string | null): value is LanguageCode {
