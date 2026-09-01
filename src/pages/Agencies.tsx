@@ -28,7 +28,7 @@ export default function Agencies({ selectedInstitutionId, onOpenInstitution, onO
       </header>
 
       <AgencyDirectoryShell
-        initialGroupId={selectedInstitution?.groupId ?? "all"}
+        initialGroupId={selectedInstitution?.groupId ?? "immigration-status"}
         initialExpandedInstitutionId={selectedInstitutionId}
         onOpenInstitution={onOpenInstitution}
         onOpenBlog={onOpenBlog}

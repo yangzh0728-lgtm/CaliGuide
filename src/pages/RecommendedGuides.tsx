@@ -13,8 +13,8 @@ export default function RecommendedGuides({ onOpenBlog, onOpenAgencies }: Recomm
   const recommendedGuides = getRecommendedBlogArticles(language);
 
   return (
-    <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
-      <header className="mb-5">
+    <div className="mx-auto max-w-6xl px-4 pb-24 pt-20">
+      <header className="mb-7 border-b border-outline-variant pb-6">
         <h1 className="text-3xl font-bold text-on-surface">{t('home.recommended')}</h1>
         <p className="mt-2 text-sm leading-6 text-on-surface-variant">
           {t('recommended.subtitle')}
@@ -29,13 +29,13 @@ export default function RecommendedGuides({ onOpenBlog, onOpenAgencies }: Recomm
         </button>
       </header>
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {recommendedGuides.map((guide) => (
           <button
             key={guide.id}
             type="button"
             onClick={() => onOpenBlog(guide.id)}
-            className="grid min-h-[124px] grid-cols-[112px_1fr] overflow-hidden rounded-2xl border border-outline-variant bg-white text-left shadow-sm transition-shadow hover:shadow-md"
+            className="grid min-h-[132px] grid-cols-[112px_1fr] overflow-hidden rounded-lg border border-outline-variant bg-white text-left shadow-sm transition-shadow hover:border-primary hover:shadow-md"
           >
             <ResponsiveImage
               src={guide.image}

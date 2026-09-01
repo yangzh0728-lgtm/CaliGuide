@@ -499,8 +499,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
-      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
+      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'blog': return selectedBlog ? (
         <BlogDetail
           article={selectedBlog}
@@ -508,7 +508,7 @@ export default function App() {
           isSaved={isGuideSaved(selectedBlog.id)}
           onToggleSave={toggleSavedGuide}
         />
-      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
+      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'recommended': return <RecommendedGuides onOpenBlog={openBlog} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'agencies': return appRoute.page === 'agencies' && appRoute.institutionId ? (
         <AgencyDetail
@@ -576,7 +576,7 @@ export default function App() {
           currentUserId={currentUser?.id ?? ''}
         />
       );
-      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
+      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
     }
   };
 

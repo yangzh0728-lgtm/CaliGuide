@@ -18,6 +18,20 @@ test("guide navigation writes browser history", async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
 });
 
+test("organizes guide and agency discovery without requiring an account", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("button", { name: "Guides", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Browse guides by topic" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Browse agencies" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Browse agencies" }).click();
+  await expect(page).toHaveURL(/\/agencies$/);
+  await expect(page.getByRole("heading", { name: "Official agencies and services" })).toBeVisible();
+  await expect(page.locator('nav[aria-label="Find by need"]:visible')).toBeVisible();
+  await expect(page.getByRole("button", { name: /U.S. Citizenship and Immigration Services/ })).toBeVisible();
+});
+
 for (const privatePath of ["/forum", "/chatbot", "/profile"]) {
   test(`requires an account for ${privatePath}`, async ({ page }) => {
     await page.goto(privatePath);

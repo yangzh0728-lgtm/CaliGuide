@@ -1,5 +1,6 @@
 import { 
   Home as HomeIcon, 
+  BookOpen,
   MessageSquare, 
   Bot, 
   UserCircle 
@@ -17,22 +18,28 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
   const { t } = useLanguage();
   const tabs = [
     { id: 'home', label: t('nav.home'), icon: HomeIcon },
+    { id: 'recommended', label: t('nav.guides'), icon: BookOpen },
     { id: 'forum', label: t('nav.forum'), icon: MessageSquare },
     { id: 'chatbot', label: t('nav.chatbot'), icon: Bot },
     { id: 'profile', label: t('nav.profile'), icon: UserCircle },
   ] as const;
+  const activeTabId = currentPage === 'blog' || currentPage === 'guide' || currentPage === 'agencies'
+    ? 'recommended'
+    : currentPage;
 
   return (
     <nav className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-outline-variant shadow-lg flex justify-around items-center px-2 py-3 pb-safe">
       {tabs.map((tab) => {
-        const isActive = currentPage === tab.id;
+        const isActive = activeTabId === tab.id;
         const Icon = tab.icon;
         
         return (
           <button
             key={tab.id}
+            data-navigation-tab={tab.id}
+            aria-current={isActive ? 'page' : undefined}
             onClick={() => onPageChange(tab.id)}
-            className={`relative flex flex-col items-center justify-center px-5 py-1 transition-all duration-200 ${
+            className={`relative flex min-w-0 flex-1 flex-col items-center justify-center px-1 py-1 sm:px-5 transition-all duration-200 ${
               isActive ? 'scale-100' : 'scale-90 opacity-70 hover:opacity-100'
             }`}
           >
