@@ -20,25 +20,23 @@ function renderAgencies(selectedInstitutionId?: string) {
 }
 
 describe("Agencies", () => {
-  it("renders the complete grouped public directory", () => {
+  it("renders the task-organized public directory", () => {
     const markup = renderAgencies();
 
     expect(markup).toContain(translate("en", "agencies.title"));
     expect(markup).toContain(translate("en", "agencies.group.immigrationStatus"));
+    expect(markup).toContain(translate("en", "agencies.group.identityTransportation"));
     expect(markup).toContain("U.S. Citizenship and Immigration Services");
-    expect(markup).toContain("California Department of Motor Vehicles");
-    expect(markup).toContain('href="/agencies/ca-dmv"');
-    expect(markup).toContain('href="https://www.dmv.ca.gov/portal/"');
+    expect(markup).toContain('data-desktop-agency-navigation="true"');
+    expect(markup).toContain('data-mobile-agency-navigation="true"');
   });
 
-  it("exposes boundaries, scam guidance, and citation-derived guide links", () => {
-    const markup = renderAgencies("ca-dmv");
+  it("keeps orientation content inside one expanded row", () => {
+    const markup = renderAgencies("uscis");
 
     expect(markup).toContain(translate("en", "agencies.doesNotDo"));
-    expect(markup).toContain("It does not issue Social Security numbers");
-    expect(markup).toContain(translate("en", "agencies.scamNote"));
+    expect(markup).toContain("It does not issue visas at U.S. embassies abroad");
     expect(markup).toContain(translate("en", "agencies.relatedGuides"));
-    expect(markup).toContain('href="/guides/california-driver-license-application"');
-    expect(markup).toContain('data-selected="true"');
+    expect(markup).toContain('aria-expanded="true"');
   });
 });

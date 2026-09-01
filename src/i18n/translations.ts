@@ -1806,6 +1806,71 @@ Object.assign(translations.es, {
   "auth.continueBrowsing": "Seguir explorando",
 });
 
+Object.assign(translations.en, {
+  "agencies.findByNeed": "Find by need",
+  "agencies.allAgencies": "All agencies",
+  "agencies.organizationCount": "official organizations",
+  "agencies.safetyTitle": "Use official sources.",
+  "agencies.safetyBody": "Verify the domain before sharing information or paying fees. Government agencies do not request gift cards.",
+  "agencies.clearSearch": "Clear search",
+  "agencies.showAll": "Show all agencies",
+  "agencies.noResultsHelp": "Try a different search or return to all agencies.",
+  "agencies.fullDetails": "Full agency details",
+  "agencies.group.identityTransportation": "Identity and transportation",
+});
+
+Object.assign(translations["zh-CN"], {
+  "agencies.findByNeed": "按需求查找",
+  "agencies.allAgencies": "所有机构",
+  "agencies.organizationCount": "个官方机构",
+  "agencies.safetyTitle": "请使用官方来源。",
+  "agencies.safetyBody": "提交信息或付款前请核对官方网址。政府机构不会要求使用礼品卡付款。",
+  "agencies.clearSearch": "清除搜索",
+  "agencies.showAll": "显示所有机构",
+  "agencies.noResultsHelp": "请尝试其他关键词，或返回所有机构。",
+  "agencies.fullDetails": "查看完整机构信息",
+  "agencies.group.identityTransportation": "身份证件与交通",
+});
+
+Object.assign(translations.yue, {
+  "agencies.findByNeed": "按需要查找",
+  "agencies.allAgencies": "所有機構",
+  "agencies.organizationCount": "個官方機構",
+  "agencies.safetyTitle": "請使用官方資料。",
+  "agencies.safetyBody": "提交資料或者付款之前，請核對官方網址。政府機構唔會要求用禮品卡付款。",
+  "agencies.clearSearch": "清除搜尋",
+  "agencies.showAll": "顯示所有機構",
+  "agencies.noResultsHelp": "請試其他關鍵字，或者返回所有機構。",
+  "agencies.fullDetails": "查看完整機構資料",
+  "agencies.group.identityTransportation": "身份證件同交通",
+});
+
+Object.assign(translations["zh-TW"], {
+  "agencies.findByNeed": "依需求查找",
+  "agencies.allAgencies": "所有機構",
+  "agencies.organizationCount": "個官方機構",
+  "agencies.safetyTitle": "請使用官方來源。",
+  "agencies.safetyBody": "提交資訊或付款前請確認官方網址。政府機構不會要求使用禮品卡付款。",
+  "agencies.clearSearch": "清除搜尋",
+  "agencies.showAll": "顯示所有機構",
+  "agencies.noResultsHelp": "請嘗試其他關鍵字，或返回所有機構。",
+  "agencies.fullDetails": "查看完整機構資訊",
+  "agencies.group.identityTransportation": "身分證件與交通",
+});
+
+Object.assign(translations.es, {
+  "agencies.findByNeed": "Buscar por necesidad",
+  "agencies.allAgencies": "Todas las agencias",
+  "agencies.organizationCount": "organizaciones oficiales",
+  "agencies.safetyTitle": "Use fuentes oficiales.",
+  "agencies.safetyBody": "Verifique el dominio antes de compartir información o pagar tarifas. Las agencias gubernamentales no solicitan tarjetas de regalo.",
+  "agencies.clearSearch": "Borrar búsqueda",
+  "agencies.showAll": "Mostrar todas las agencias",
+  "agencies.noResultsHelp": "Pruebe otra búsqueda o vuelva a todas las agencias.",
+  "agencies.fullDetails": "Información completa de la agencia",
+  "agencies.group.identityTransportation": "Identidad y transporte",
+});
+
 export function isLanguageCode(value: string | null): value is LanguageCode {
   return LANGUAGES.some((language) => language.code === value);
 }
