@@ -183,6 +183,37 @@ CaliGuide is under active development. Before submitting a substantial change, o
 
 Do not include credentials, user data, production exports, or private service configuration in issues or pull requests.
 
+## Security
+
+Report vulnerabilities privately through GitHub's [Security tab](https://github.com/yangzh0728-lgtm/CaliGuide/security), not as a public issue. See [SECURITY.md](SECURITY.md) for scope, testing rules, and response times.
+
 ## License
 
-No open-source license has been granted for this repository yet. The source is publicly visible for evaluation, but reuse and redistribution require permission from the project owner.
+This repository uses two licenses, because code and editorial content are different kinds of work.
+
+**Code — [Apache License 2.0](LICENSE)**
+
+Everything not listed under Content below, including `server.ts`, `src/components/`, `src/pages/`, `src/context/`, `scripts/`, and `supabase/`.
+
+**Content — [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**
+
+The researched guide text, official-source citations, and agency directory entries:
+
+```text
+src/lib/blogContent.ts
+src/lib/blogLocalization.ts
+src/lib/blogBodyTranslations.ts
+src/lib/guideCitations.ts
+content/
+docs/
+```
+
+Reuse is welcome with attribution to CaliGuide and a link to this repository. Derivative content must be shared under the same license.
+
+**Name and mark**
+
+Apache License Section 6 does not grant rights to the CaliGuide name. Forks and derivative works must use a different name. See [NOTICE](NOTICE).
+
+**No warranty**
+
+Both licenses provide this work as is, without warranties. Guide content is general information, not legal, medical, financial, or immigration advice. See the [Content Disclaimer](https://www.caliguide.org/disclaimer).
