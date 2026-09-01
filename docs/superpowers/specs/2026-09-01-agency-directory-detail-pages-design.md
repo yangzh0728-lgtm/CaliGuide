@@ -83,7 +83,11 @@ The directory is grouped by user need rather than alphabetically:
 
 `identity-driving` is renamed to `identity-transportation`. Each group has a localized label in all five supported languages.
 
-Task chips filter groups and agencies. Search operates within the selected filter. Agencies are ordered by an explicit priority value within each group so the most commonly needed agencies appear first.
+On desktop, the directory uses the same organizational pattern as Profile Settings: a persistent left rail labeled "Find by need" and a right results panel. The rail contains All agencies plus every task group, with an agency count beside each label. Selecting a group updates the right panel without navigating away.
+
+On mobile, the left rail becomes a compact horizontally scrollable category selector above the results. The selector must not obscure search or agency rows, and its selected state must remain visible without relying on color alone.
+
+The active task group filters agencies. Search operates within the selected filter. Agencies are ordered by an explicit priority value within each group so the most commonly needed agencies appear first.
 
 One safety notice appears near the top of the directory. It tells users to use verified official domains and warns that government agencies do not demand gift cards or urgent payment. Generic safety copy is not repeated inside every row.
 
