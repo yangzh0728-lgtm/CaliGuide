@@ -1,16 +1,18 @@
 import { useMemo, useState } from 'react';
-import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare } from 'lucide-react';
+import { Search, Car, Landmark, HomeIcon, HeartPulse, Clock, ChevronRight, MessageSquare, Building2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import ResponsiveImage from '../components/ResponsiveImage';
 import { getVisibleRecommendedGuides } from '../lib/homeRecommendations';
 import { getLocalizedBlogArticle, getRecommendedBlogArticles, searchLocalizedBlogArticles } from '../lib/blogLocalization';
+import { searchInstitutions } from '../lib/institutions';
 
 interface HomeProps {
   onOpenBlog: (articleId: string) => void;
   onOpenRecommended: () => void;
+  onOpenInstitution: (institutionId: string) => void;
 }
 
-export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
+export default function Home({ onOpenBlog, onOpenRecommended, onOpenInstitution }: HomeProps) {
   const { language, t } = useLanguage();
   const [searchText, setSearchText] = useState('');
   const categories = [
@@ -24,6 +26,10 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
   const searchResults = useMemo(
     () => searchLocalizedBlogArticles(language, searchText).slice(0, 6),
     [language, searchText],
+  );
+  const institutionSearchResults = useMemo(
+    () => searchText.trim() ? searchInstitutions(searchText).slice(0, 3) : [],
+    [searchText],
   );
   const showSearchResults = searchText.trim().length > 0;
 
@@ -52,8 +58,12 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && searchResults[0]) {
-                onOpenBlog(searchResults[0].id);
+              if (event.key === 'Enter') {
+                if (searchResults[0]) {
+                  onOpenBlog(searchResults[0].id);
+                } else if (institutionSearchResults[0]) {
+                  onOpenInstitution(institutionSearchResults[0].id);
+                }
               }
             }}
             placeholder={t('home.search')}
@@ -63,8 +73,9 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
         </div>
         {showSearchResults && (
           <div className="mt-3 overflow-hidden rounded-xl border border-outline-variant bg-white shadow-sm">
-            {searchResults.length > 0 ? (
-              searchResults.map((article) => (
+            {searchResults.length > 0 || institutionSearchResults.length > 0 ? (
+              <>
+              {searchResults.map((article) => (
                 <button
                   key={article.id}
                   type="button"
@@ -90,7 +101,31 @@ export default function Home({ onOpenBlog, onOpenRecommended }: HomeProps) {
                     </span>
                   </span>
                 </button>
-              ))
+              ))}
+              {institutionSearchResults.map((institution) => (
+                <button
+                  key={institution.id}
+                  type="button"
+                  onClick={() => onOpenInstitution(institution.id)}
+                  className="flex w-full items-start gap-3 border-b border-outline-variant px-4 py-3 text-left last:border-b-0 hover:bg-surface-container-low"
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Building2 size={21} aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[10px] font-bold uppercase text-primary">
+                      {t('agencies.searchResultType')}
+                    </span>
+                    <span className="mt-0.5 block text-sm font-bold leading-snug text-on-surface">
+                      {institution.name}
+                    </span>
+                    <span className="mt-1 block text-xs text-on-surface-variant">
+                      {institution.officialDomain}
+                    </span>
+                  </span>
+                </button>
+              ))}
+              </>
             ) : (
               <div className="px-4 py-3 text-sm text-on-surface-variant">{t('home.noSearchResults')}</div>
             )}

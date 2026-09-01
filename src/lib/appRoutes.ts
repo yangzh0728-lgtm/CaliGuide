@@ -1,9 +1,11 @@
 import { BLOG_ARTICLES } from "./blogContent";
+import { getInstitution } from "./institutions";
 
 export type AppRoute =
   | { page: "home" }
   | { page: "recommended" }
   | { page: "blog"; articleId: string }
+  | { page: "agencies"; institutionId?: string }
   | { page: "forum" }
   | { page: "forumDetail"; discussionId: string }
   | { page: "chatbot" }
@@ -55,6 +57,15 @@ export function getAppRouteFromPath(pathname: string): AppRoute | null {
     const articleId = GUIDE_ID_BY_SLUG[slug];
     return articleId ? { page: "blog", articleId } : { page: "recommended" };
   }
+  if (normalizedPath === "/agencies") {
+    return { page: "agencies" };
+  }
+  if (normalizedPath.startsWith("/agencies/")) {
+    const institutionId = decodePathPart(normalizedPath.slice("/agencies/".length));
+    return getInstitution(institutionId)
+      ? { page: "agencies", institutionId }
+      : { page: "agencies" };
+  }
   if (normalizedPath === "/forum") {
     return { page: "forum" };
   }
@@ -85,6 +96,10 @@ export function getAppRoutePath(route: AppRoute) {
       }
       return `/guides/${slug}`;
     }
+    case "agencies":
+      return route.institutionId && getInstitution(route.institutionId)
+        ? `/agencies/${encodeURIComponent(route.institutionId)}`
+        : "/agencies";
     case "forum":
       return "/forum";
     case "forumDetail":
@@ -97,7 +112,7 @@ export function getAppRoutePath(route: AppRoute) {
 }
 
 export function isPublicAppRoute(route: AppRoute) {
-  return route.page === "home" || route.page === "recommended" || route.page === "blog";
+  return route.page === "home" || route.page === "recommended" || route.page === "blog" || route.page === "agencies";
 }
 
 export function shouldRequireAuthentication(route: AppRoute, accountActionRequested: boolean) {
@@ -107,6 +122,8 @@ export function shouldRequireAuthentication(route: AppRoute, accountActionReques
 export function getParentAppRoute(route: AppRoute): AppRoute {
   switch (route.page) {
     case "blog":
+      return { page: "recommended" };
+    case "agencies":
       return { page: "recommended" };
     case "forumDetail":
       return { page: "forum" };

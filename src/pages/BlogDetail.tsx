@@ -7,6 +7,7 @@ import type { BlogArticle } from '../lib/blogContent';
 import {
   getGuideCitationSet,
   getSectionCitationNumbers,
+  getSectionActions,
   type GuideCitationSet,
 } from '../lib/guideCitations';
 
@@ -125,7 +126,10 @@ export default function BlogDetail({
               ) : null}
 
               {citationSet ? (
-                <CitationMarkers citationSet={citationSet} sectionIndex={index} />
+                <>
+                  <CitationMarkers citationSet={citationSet} sectionIndex={index} />
+                  <GuideSectionActions citationSet={citationSet} sectionIndex={index} />
+                </>
               ) : null}
             </section>
           ))}
@@ -134,6 +138,38 @@ export default function BlogDetail({
 
       {citationSet ? <GuideReferences citationSet={citationSet} /> : null}
     </article>
+  );
+}
+
+function GuideSectionActions({
+  citationSet,
+  sectionIndex,
+}: {
+  citationSet: GuideCitationSet;
+  sectionIndex: number;
+}) {
+  const { t } = useLanguage();
+  const actions = getSectionActions(citationSet, sectionIndex);
+
+  if (!actions.length) {
+    return null;
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2" aria-label={t('blog.officialActions')}>
+      {actions.map((action) => (
+        <a
+          key={`${action.referenceId}-${action.kind}`}
+          href={action.url}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm transition-colors hover:border-primary hover:bg-primary/5"
+        >
+          <span>{t(`blog.action.${action.kind}`)}: {action.title}</span>
+          <ExternalLink size={13} aria-hidden="true" />
+        </a>
+      ))}
+    </div>
   );
 }
 
@@ -206,7 +242,13 @@ function GuideReferences({ citationSet }: { citationSet: GuideCitationSet }) {
                     <ExternalLink className="mt-1 shrink-0" size={14} />
                   </a>
                   <p className="mt-0.5 text-sm font-semibold text-on-surface">
-                    {referenceItem.publisher} · {t('blog.officialSource')}
+                    <a
+                      href={`/agencies/${referenceItem.institutionId}`}
+                      className="text-primary hover:underline"
+                    >
+                      {referenceItem.publisher}
+                    </a>
+                    {' '}· {t('blog.officialSource')}
                   </p>
                   <p className="mt-1 text-sm leading-6 text-on-surface-variant">
                     {referenceItem.purpose}

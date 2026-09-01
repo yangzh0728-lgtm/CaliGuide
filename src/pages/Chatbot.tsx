@@ -28,6 +28,7 @@ import { uploadImagesWithInlineFallback } from '../lib/imageUpload';
 import { resolveApiUrl } from '../lib/apiUrl';
 import { readChatResponseError } from '../lib/chatClient';
 import { usePrivacyConsent } from '../context/PrivacyConsentContext';
+import ChatSafetyNotice from '../components/ChatSafetyNotice';
 
 export default function Chatbot() {
   const { t } = useLanguage();
@@ -565,6 +566,7 @@ export default function Chatbot() {
               </p>
             </div>
           )}
+          <ChatSafetyNotice hasSelectedImages={selectedImagePreviews.length > 0} />
           <div className="bg-white border border-outline-variant rounded-2xl p-2.5 flex items-center gap-2 shadow-xl mb-2">
             <input
               ref={fileInputRef}

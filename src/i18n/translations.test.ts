@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { isLanguageCode, translate } from "./translations";
+import { LANGUAGES, isLanguageCode, translate } from "./translations";
 
 describe("translations", () => {
   it("translates known navigation labels", () => {
@@ -58,6 +58,16 @@ describe("translations", () => {
     expect(translate("zh-TW", "blog.officialSource")).toBe("官方來源");
     expect(translate("yue", "blog.reviewedOn")).toBe("資料覆核日期");
     expect(translate("es", "blog.backToSection")).toBe("Volver a la sección");
+  });
+
+  it("translates the agency directory interface in every supported language", () => {
+    for (const language of LANGUAGES.map(({ code }) => code)) {
+      expect(translate(language, "agencies.title")).not.toBe("agencies.title");
+      expect(translate(language, "agencies.doesNotDo")).not.toBe("agencies.doesNotDo");
+      expect(translate(language, "agencies.group.emergencyLocal")).not.toBe(
+        "agencies.group.emergencyLocal",
+      );
+    }
   });
 
   it("translates trust-page navigation and update labels", () => {

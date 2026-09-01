@@ -4,16 +4,26 @@ import { LEGAL_PAGE_IDS, LegalPageId } from "../lib/legalContent";
 
 interface LegalFooterProps {
   onOpenLegalPage: (pageId: LegalPageId) => void;
+  onOpenAgencies?: () => void;
   compact?: boolean;
 }
 
-export default function LegalFooter({ onOpenLegalPage, compact = false }: LegalFooterProps) {
+export default function LegalFooter({ onOpenLegalPage, onOpenAgencies, compact = false }: LegalFooterProps) {
   const { t } = useLanguage();
   const { openPreferences } = usePrivacyConsent();
 
   return (
     <footer className={`border-t border-outline-variant ${compact ? "mt-8" : "mt-12 bg-white"}`}>
       <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-5 gap-y-3 px-4 py-6 text-xs font-bold text-on-surface-variant">
+        {onOpenAgencies ? (
+          <button
+            type="button"
+            onClick={onOpenAgencies}
+            className="hover:text-primary hover:underline"
+          >
+            {t("agencies.openDirectory")}
+          </button>
+        ) : null}
         {LEGAL_PAGE_IDS.map((pageId) => (
           <button
             key={pageId}

@@ -37,16 +37,6 @@ describe("blogLocalization", () => {
     expect(getLocalizedBlogArticle("category-banking", "yue")?.title).toContain("銀行");
   });
 
-  it("localizes official link purposes for English and Spanish articles", () => {
-    const englishArticle = getLocalizedBlogArticle("guide-1", "en");
-    const spanishArticle = getLocalizedBlogArticle("guide-1", "es");
-
-    expect(englishArticle?.officialLinks?.[0].purpose).toStartWith("Official reference");
-    expect(spanishArticle?.officialLinks?.[0].purpose).toStartWith("Referencia oficial");
-    expect(englishArticle?.officialLinks?.[0].purpose).not.toMatch(/[\u3400-\u9fff]/);
-    expect(spanishArticle?.officialLinks?.[0].purpose).not.toMatch(/[\u3400-\u9fff]/);
-  });
-
   it("keeps recommended card setup aligned across languages", () => {
     const englishCards = getRecommendedBlogArticles("en");
 
@@ -115,11 +105,12 @@ describe("blogLocalization", () => {
     }
   });
 
-  it("searches localized guide content across titles, tags, body text, and official links", () => {
+  it("searches localized guide content across titles, tags, body text, and cited sources", () => {
     expect(searchLocalizedBlogArticles("en", "deposit").map((article) => article.id)).toContain("category-housing");
     expect(searchLocalizedBlogArticles("zh-CN", "押金").map((article) => article.id)).toContain("category-housing");
     expect(searchLocalizedBlogArticles("es", "licencia").map((article) => article.id)).toContain("guide-1");
     expect(searchLocalizedBlogArticles("en", "driver handbook").map((article) => article.id)).toContain("guide-1");
+    expect(searchLocalizedBlogArticles("en", "office locations").map((article) => article.id)).toContain("guide-1");
     expect(searchLocalizedBlogArticles("en", "wage theft").map((article) => article.id)).toContain("guide-workers-rights-wage-theft");
     expect(searchLocalizedBlogArticles("zh-CN", "山火").map((article) => article.id)).toContain("guide-earthquake-wildfire-preparedness");
     expect(searchLocalizedBlogArticles("es", "notario").map((article) => article.id)).toContain("guide-notario-fraud");

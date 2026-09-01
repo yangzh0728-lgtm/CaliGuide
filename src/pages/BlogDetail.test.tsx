@@ -58,4 +58,15 @@ describe("BlogDetail", () => {
 
     expect(markup).toContain(translate("en", "auth.signInToSave"));
   });
+
+  it("renders localized official actions inside the cited guide section", () => {
+    const markup = renderArticle("guide-1");
+
+    expect(markup).toContain(translate("en", "blog.action.apply"));
+    expect(markup).toContain("Online Driver&#x27;s License or ID Application");
+    expect(markup).toContain('href="https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/dl-id-online-app-edl-44/"');
+    expect(markup).toContain('aria-label="Official actions"');
+    expect(markup).toContain('id="guide-references"');
+    expect(markup).toContain('href="/agencies/ca-dmv"');
+  });
 });

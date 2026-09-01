@@ -2,6 +2,7 @@ import { getLocalizedBlogArticle } from "./blogLocalization";
 import { BLOG_ARTICLES } from "./blogContent";
 import { getLegalDocument, LEGAL_PAGE_IDS } from "./legalContent";
 import { getLegalPageFromPath, getLegalPagePath } from "./legalRoutes";
+import { INSTITUTIONS, getInstitution } from "./institutions";
 import {
   type AppRoute,
   getAppRouteFromPath,
@@ -39,6 +40,20 @@ export function getPageMetadata(route: AppRoute): PageMetadata {
       title: "California Newcomer Guides | CaliGuide",
       description: "Browse practical California guides covering documents, housing, health, money, safety, work, and daily life.",
       canonicalPath: "/guides",
+      type: "website",
+    };
+  }
+
+  if (route.page === "agencies") {
+    const institution = route.institutionId ? getInstitution(route.institutionId) : undefined;
+    return {
+      title: institution
+        ? `${institution.shortName === "DMV" ? "California DMV" : institution.shortName}: ${institution.name} | CaliGuide`
+        : "Government Agencies and Official Resources | CaliGuide",
+      description: institution
+        ? `${institution.purpose} Learn what ${institution.shortName} does, what it does not do, and which CaliGuide guides cite it.`
+        : "Find the official federal, California, regional, and community organizations newcomers may need, grouped by task.",
+      canonicalPath: getAppRoutePath(route),
       type: "website",
     };
   }
@@ -85,8 +100,11 @@ export function getPublicSitemapPaths() {
     getAppRoutePath({ page: "blog", articleId: article.id }),
   );
   const legalPaths = LEGAL_PAGE_IDS.map(getLegalPagePath);
+  const institutionPaths = INSTITUTIONS.map((institution) =>
+    getAppRoutePath({ page: "agencies", institutionId: institution.id }),
+  );
 
-  return Array.from(new Set(["/", "/guides", ...guidePaths, ...legalPaths]));
+  return Array.from(new Set(["/", "/guides", "/agencies", ...guidePaths, ...institutionPaths, ...legalPaths]));
 }
 
 export function buildSitemapXml(paths: string[], siteOrigin: string) {

@@ -1,13 +1,14 @@
-import { Clock } from 'lucide-react';
+import { Building2, Clock } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import ResponsiveImage from '../components/ResponsiveImage';
 import { getRecommendedBlogArticles } from '../lib/blogLocalization';
 
 interface RecommendedGuidesProps {
   onOpenBlog: (articleId: string) => void;
+  onOpenAgencies: () => void;
 }
 
-export default function RecommendedGuides({ onOpenBlog }: RecommendedGuidesProps) {
+export default function RecommendedGuides({ onOpenBlog, onOpenAgencies }: RecommendedGuidesProps) {
   const { language, t } = useLanguage();
   const recommendedGuides = getRecommendedBlogArticles(language);
 
@@ -18,6 +19,14 @@ export default function RecommendedGuides({ onOpenBlog }: RecommendedGuidesProps
         <p className="mt-2 text-sm leading-6 text-on-surface-variant">
           {t('recommended.subtitle')}
         </p>
+        <button
+          type="button"
+          onClick={onOpenAgencies}
+          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-primary px-3 py-2 text-sm font-bold text-primary hover:bg-primary/5"
+        >
+          <Building2 size={17} aria-hidden="true" />
+          {t('agencies.openDirectory')}
+        </button>
       </header>
 
       <div className="grid gap-4">

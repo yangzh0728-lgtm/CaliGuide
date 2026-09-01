@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { BLOG_ARTICLES, getBlogArticle } from "./blogContent";
+import { getGuideCitationSet } from "./guideCitations";
 
 describe("blogContent", () => {
   it("provides publishable outline articles for home entry points", () => {
@@ -56,7 +57,7 @@ describe("blogContent", () => {
     expect(getBlogArticle("guide-workers-rights-wage-theft")?.body.join(" ")).toContain("移民身份");
   });
 
-  it("adds the first safety collection with searchable categories and official sources", () => {
+  it("adds the first safety collection with searchable categories and cited sources", () => {
     expect(getBlogArticle("guide-earthquake-wildfire-preparedness")?.category).toBe("Safety");
     expect(getBlogArticle("guide-notario-fraud")?.category).toBe("Legal");
     expect(getBlogArticle("guide-workers-rights-wage-theft")?.category).toBe("Jobs");
@@ -67,24 +68,15 @@ describe("blogContent", () => {
       "guide-workers-rights-wage-theft",
     ]) {
       const article = getBlogArticle(id);
-      expect(article?.officialLinks?.length).toBeGreaterThanOrEqual(3);
+      expect(getGuideCitationSet(id)?.references.length).toBeGreaterThanOrEqual(3);
       expect(article?.body.length).toBe(8);
     }
   });
 
-  it("adds official links to DMV and Banking guide articles", () => {
-    expect(getBlogArticle("guide-1")?.officialLinks?.map((link) => link.url)).toContain(
-      "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-licenses-dl/",
-    );
-    expect(getBlogArticle("guide-real-id-documents")?.officialLinks?.map((link) => link.url)).toContain(
-      "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/real-id-checklist/",
-    );
-    expect(getBlogArticle("category-banking")?.officialLinks?.map((link) => link.url)).toContain(
-      "https://www.fdic.gov/getbanked",
-    );
-    expect(getBlogArticle("trending-banking")?.officialLinks?.map((link) => link.url)).toContain(
-      "https://www.irs.gov/tin/itin/individual-taxpayer-identification-number-itin",
-    );
+  it("keeps official sources out of the legacy article model", () => {
+    for (const article of BLOG_ARTICLES) {
+      expect("officialLinks" in article).toBe(false);
+    }
   });
 
   it("publishes the first 30 days guide as an actionable sequencing hub", () => {

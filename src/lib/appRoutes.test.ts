@@ -29,6 +29,15 @@ describe("application routes", () => {
     expect(getAppRouteFromPath("/guides/not-a-real-guide")).toEqual({ page: "recommended" });
   });
 
+  test("parses public institution directory routes", () => {
+    expect(getAppRouteFromPath("/agencies")).toEqual({ page: "agencies" });
+    expect(getAppRouteFromPath("/agencies/ca-dmv")).toEqual({
+      page: "agencies",
+      institutionId: "ca-dmv",
+    });
+    expect(getAppRouteFromPath("/agencies/not-real")).toEqual({ page: "agencies" });
+  });
+
   test("parses private application routes", () => {
     expect(getAppRouteFromPath("/forum")).toEqual({ page: "forum" });
     expect(getAppRouteFromPath("/forum/7c91af10-5af9-4b70-8b12-47bca05a9712")).toEqual({
@@ -49,12 +58,17 @@ describe("application routes", () => {
     expect(getAppRoutePath({ page: "forumDetail", discussionId: "post-1" })).toBe("/forum/post-1");
     expect(getAppRoutePath({ page: "chatbot" })).toBe("/chatbot");
     expect(getAppRoutePath({ page: "profile" })).toBe("/profile");
+    expect(getAppRoutePath({ page: "agencies" })).toBe("/agencies");
+    expect(getAppRoutePath({ page: "agencies", institutionId: "ca-dmv" })).toBe(
+      "/agencies/ca-dmv",
+    );
   });
 
   test("keeps reading routes public and actions private", () => {
     expect(isPublicAppRoute({ page: "home" })).toBe(true);
     expect(isPublicAppRoute({ page: "recommended" })).toBe(true);
     expect(isPublicAppRoute({ page: "blog", articleId: "category-dmv" })).toBe(true);
+    expect(isPublicAppRoute({ page: "agencies", institutionId: "ca-dmv" })).toBe(true);
     expect(isPublicAppRoute({ page: "forum" })).toBe(false);
     expect(isPublicAppRoute({ page: "chatbot" })).toBe(false);
     expect(isPublicAppRoute({ page: "profile" })).toBe(false);
@@ -80,6 +94,9 @@ describe("application routes", () => {
       page: "forum",
     });
     expect(getParentAppRoute({ page: "profile" })).toEqual({ page: "home" });
+    expect(getParentAppRoute({ page: "agencies", institutionId: "ca-dmv" })).toEqual({
+      page: "recommended",
+    });
   });
 
   test("returns null for paths owned by legal routes or unknown features", () => {

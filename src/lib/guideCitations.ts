@@ -1,7 +1,9 @@
 import type { BlogArticle } from "./blogContent";
+import { getInstitutionIdForPublisher } from "./institutionCatalog";
 
 export interface GuideReference {
   id: string;
+  institutionId: string;
   title: string;
   publisher: string;
   url: string;
@@ -12,6 +14,20 @@ export interface GuideReference {
 export interface GuideCitationSet {
   references: GuideReference[];
   sectionCitationIds: string[][];
+  sectionActions: GuideActionConfig[][];
+}
+
+export type GuideActionKind = "apply" | "book" | "find" | "read" | "download" | "verify";
+
+interface GuideActionConfig {
+  referenceId: string;
+  kind: GuideActionKind;
+}
+
+export interface GuideSectionAction extends GuideActionConfig {
+  sectionIndex: number;
+  title: string;
+  url: string;
 }
 
 interface GuideCitationConfig {
@@ -28,7 +44,15 @@ function reference(
   url: string,
   purpose: string,
 ): GuideReference {
-  return { id, title, publisher, url, purpose, lastReviewedAt: REVIEWED_AT };
+  return {
+    id,
+    institutionId: getInstitutionIdForPublisher(publisher),
+    title,
+    publisher,
+    url,
+    purpose,
+    lastReviewedAt: REVIEWED_AT,
+  };
 }
 
 export const GUIDE_REFERENCE_LIBRARY: Record<string, GuideReference> = {
@@ -417,6 +441,48 @@ export const GUIDE_REFERENCE_LIBRARY: Record<string, GuideReference> = {
     "https://www.dir.ca.gov/dlse/HowToReportViolationtoBOFE.htm",
     "Reporting widespread wage theft and labor-law violations affecting groups of workers.",
   ),
+  "dmv-handbooks-languages": reference(
+    "dmv-handbooks-languages",
+    "Driver Handbooks in Multiple Languages",
+    "California Department of Motor Vehicles",
+    "https://www.dmv.ca.gov/portal/driver-handbooks/",
+    "Official California driver handbooks available in multiple languages.",
+  ),
+  "dmv-office-locator": reference(
+    "dmv-office-locator",
+    "DMV Office Locations",
+    "California Department of Motor Vehicles",
+    "https://www.dmv.ca.gov/portal/locations/",
+    "Official locator for California DMV offices and available services.",
+  ),
+  "dmv-real-id-apply": reference(
+    "dmv-real-id-apply",
+    "Apply for REAL ID",
+    "California Department of Motor Vehicles",
+    "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/",
+    "Official California REAL ID application information and online starting point.",
+  ),
+  "dmv-real-id-document-list-pdf": reference(
+    "dmv-real-id-document-list-pdf",
+    "REAL ID Document List PDF",
+    "California Department of Motor Vehicles",
+    "https://www.dmv.ca.gov/portal/uploads/2020/06/List_of_Docs_REALID.pdf",
+    "Printable official list of documents used for California REAL ID applications.",
+  ),
+  "irs-itin-apply": reference(
+    "irs-itin-apply",
+    "How to Apply for an ITIN",
+    "Internal Revenue Service",
+    "https://www.irs.gov/tin/itin/how-to-apply-for-an-itin",
+    "Official ITIN application options, document requirements, and submission instructions.",
+  ),
+  "irs-form-w7": reference(
+    "irs-form-w7",
+    "Form W-7",
+    "Internal Revenue Service",
+    "https://www.irs.gov/forms-pubs/about-form-w-7",
+    "Official application form and instructions for an IRS Individual Taxpayer Identification Number.",
+  ),
 };
 
 const GUIDE_CITATION_CONFIGS: Record<string, GuideCitationConfig> = {
@@ -469,23 +535,23 @@ const GUIDE_CITATION_CONFIGS: Record<string, GuideCitationConfig> = {
     ],
   },
   "guide-1": {
-    referenceIds: ["dmv-driver-licenses", "dmv-real-id", "dmv-online-application", "dmv-handbook", "dmv-appointments"],
+    referenceIds: ["dmv-driver-licenses", "dmv-real-id", "dmv-online-application", "dmv-handbook", "dmv-handbooks-languages", "dmv-appointments", "dmv-office-locator"],
     sectionCitationIds: [
       ["dmv-driver-licenses", "dmv-real-id"],
       ["dmv-driver-licenses", "dmv-real-id"],
       ["dmv-driver-licenses", "dmv-real-id"],
       ["dmv-online-application", "dmv-driver-licenses"],
-      ["dmv-handbook", "dmv-driver-licenses"],
-      ["dmv-appointments", "dmv-handbook"],
+      ["dmv-handbook", "dmv-handbooks-languages", "dmv-driver-licenses"],
+      ["dmv-appointments", "dmv-office-locator", "dmv-handbook"],
       ["dmv-driver-licenses", "dmv-real-id", "dmv-handbook"],
       ["dmv-driver-licenses", "dmv-handbook"],
     ],
   },
   "guide-real-id-documents": {
-    referenceIds: ["dmv-real-id", "dmv-real-id-checklist", "dmv-real-id-noncitizens", "dmv-appointments"],
+    referenceIds: ["dmv-real-id", "dmv-real-id-apply", "dmv-real-id-checklist", "dmv-real-id-document-list-pdf", "dmv-real-id-noncitizens", "dmv-appointments"],
     sectionCitationIds: [
-      ["dmv-real-id", "dmv-real-id-noncitizens"],
-      ["dmv-real-id-checklist"],
+      ["dmv-real-id", "dmv-real-id-apply", "dmv-real-id-noncitizens"],
+      ["dmv-real-id-checklist", "dmv-real-id-document-list-pdf"],
       ["dmv-real-id"],
       ["dmv-real-id-checklist", "dmv-real-id-noncitizens"],
       ["dmv-real-id", "dmv-real-id-checklist"],
@@ -563,11 +629,11 @@ const GUIDE_CITATION_CONFIGS: Record<string, GuideCitationConfig> = {
     ],
   },
   "trending-banking": {
-    referenceIds: ["cfpb-bank-accounts", "fdic-getbanked", "irs-itin", "fdic-bankfind", "fdic-deposit-insurance"],
+    referenceIds: ["cfpb-bank-accounts", "fdic-getbanked", "irs-itin", "irs-itin-apply", "irs-form-w7", "fdic-bankfind", "fdic-deposit-insurance"],
     sectionCitationIds: [
       ["cfpb-bank-accounts", "fdic-getbanked"],
       ["fdic-getbanked"],
-      ["irs-itin"],
+      ["irs-itin", "irs-itin-apply", "irs-form-w7"],
       ["cfpb-bank-accounts", "fdic-getbanked"],
       ["cfpb-bank-accounts", "fdic-deposit-insurance"],
       ["cfpb-bank-accounts"],
@@ -681,6 +747,82 @@ const GUIDE_CITATION_CONFIGS: Record<string, GuideCitationConfig> = {
   },
 };
 
+const GUIDE_SECTION_ACTIONS: Record<string, Record<number, GuideActionConfig[]>> = {
+  "category-dmv": {
+    2: [{ referenceId: "dmv-new-residents", kind: "read" }],
+  },
+  "category-banking": {
+    4: [{ referenceId: "fdic-bankfind", kind: "verify" }],
+  },
+  "category-housing": {
+    3: [{ referenceId: "ftc-rental-scams", kind: "read" }],
+  },
+  "category-health": {
+    4: [{ referenceId: "covered-special-enrollment", kind: "apply" }],
+  },
+  "guide-1": {
+    3: [{ referenceId: "dmv-online-application", kind: "apply" }],
+    4: [{ referenceId: "dmv-handbooks-languages", kind: "read" }],
+    5: [
+      { referenceId: "dmv-appointments", kind: "book" },
+      { referenceId: "dmv-office-locator", kind: "find" },
+    ],
+  },
+  "guide-real-id-documents": {
+    0: [{ referenceId: "dmv-real-id-apply", kind: "apply" }],
+    1: [
+      { referenceId: "dmv-real-id-checklist", kind: "verify" },
+      { referenceId: "dmv-real-id-document-list-pdf", kind: "download" },
+    ],
+    6: [{ referenceId: "dmv-appointments", kind: "book" }],
+  },
+  "guide-2": {
+    2: [{ referenceId: "ftc-rental-scams", kind: "read" }],
+  },
+  "guide-rental-scams": {
+    5: [{ referenceId: "ca-doj-tenants", kind: "read" }],
+  },
+  "forum-first-30-days": {
+    10: [{ referenceId: "211-california", kind: "find" }],
+  },
+  "trending-ssn": {
+    2: [{ referenceId: "ssa-office-locator", kind: "find" }],
+  },
+  "trending-banking": {
+    2: [
+      { referenceId: "irs-itin-apply", kind: "apply" },
+      { referenceId: "irs-form-w7", kind: "download" },
+    ],
+  },
+  "guide-first-doctor-visit": {
+    3: [{ referenceId: "covered-providers", kind: "find" }],
+  },
+  "guide-legal-30-day-documents": {
+    1: [{ referenceId: "cbp-i94", kind: "verify" }],
+  },
+  "guide-newcomer-job-search": {
+    4: [{ referenceId: "caljobs", kind: "find" }],
+  },
+  "guide-school-esl-resources": {
+    0: [{ referenceId: "cde-newcomer-students", kind: "read" }],
+  },
+  "guide-california-transportation": {
+    0: [
+      { referenceId: "bay-area-511", kind: "find" },
+      { referenceId: "southern-california-511", kind: "find" },
+    ],
+  },
+  "guide-earthquake-wildfire-preparedness": {
+    0: [{ referenceId: "earthquake-warning-ca", kind: "verify" }],
+  },
+  "guide-notario-fraud": {
+    3: [{ referenceId: "uscis-legal-services", kind: "find" }],
+  },
+  "guide-workers-rights-wage-theft": {
+    5: [{ referenceId: "dlse-wage-claim", kind: "apply" }],
+  },
+};
+
 export function getGuideCitationSet(articleId: string): GuideCitationSet | undefined {
   const config = GUIDE_CITATION_CONFIGS[articleId];
   if (!config) {
@@ -692,7 +834,33 @@ export function getGuideCitationSet(articleId: string): GuideCitationSet | undef
       .map((referenceId) => GUIDE_REFERENCE_LIBRARY[referenceId])
       .filter((item): item is GuideReference => Boolean(item)),
     sectionCitationIds: config.sectionCitationIds,
+    sectionActions: config.sectionCitationIds.map(
+      (_citationIds, sectionIndex) => GUIDE_SECTION_ACTIONS[articleId]?.[sectionIndex] ?? [],
+    ),
   };
+}
+
+export function getSectionActions(
+  citationSet: GuideCitationSet,
+  sectionIndex: number,
+): GuideSectionAction[] {
+  const referenceById = new Map(
+    citationSet.references.map((referenceItem) => [referenceItem.id, referenceItem]),
+  );
+
+  return (citationSet.sectionActions[sectionIndex] ?? []).flatMap((action) => {
+    const referenceItem = referenceById.get(action.referenceId);
+    if (!referenceItem) {
+      return [];
+    }
+
+    return [{
+      ...action,
+      sectionIndex,
+      title: referenceItem.title,
+      url: referenceItem.url,
+    }];
+  });
 }
 
 export function getSectionCitationNumbers(citationSet: GuideCitationSet, sectionIndex: number): number[] {
@@ -726,6 +894,17 @@ export function validateGuideCitationCoverage(articles: BlogArticle[]): string[]
       citationIds.forEach((citationId) => {
         if (!referenceIds.has(citationId)) {
           errors.push(`${article.id}: section ${sectionIndex + 1} cites unknown source ${citationId}`);
+        }
+      });
+    });
+
+    citationSet.sectionActions.forEach((actions, sectionIndex) => {
+      actions.forEach((action) => {
+        if (!referenceIds.has(action.referenceId)) {
+          errors.push(`${article.id}: section ${sectionIndex + 1} links unknown source ${action.referenceId}`);
+        }
+        if (!citationSet.sectionCitationIds[sectionIndex]?.includes(action.referenceId)) {
+          errors.push(`${article.id}: section ${sectionIndex + 1} action ${action.referenceId} is not cited there`);
         }
       });
     });

@@ -1,14 +1,13 @@
 import type { LanguageCode } from "../i18n/translations";
 import { ENGLISH_BLOG_BODIES, SPANISH_BLOG_BODIES } from "./blogBodyTranslations";
-import { BLOG_ARTICLES, BlogArticle, OfficialLink, getBlogArticle } from "./blogContent";
+import { BLOG_ARTICLES, BlogArticle, getBlogArticle } from "./blogContent";
+import { getGuideCitationSet } from "./guideCitations";
 
 export type OfficialContentLanguage = "en" | "zh-CN" | "zh-TW" | "es";
 
 type BlogArticleTranslation = Partial<
   Pick<BlogArticle, "title" | "category" | "readTime" | "tags" | "excerpt" | "body">
-> & {
-  officialLinks?: Array<Partial<OfficialLink> & Pick<OfficialLink, "url">>;
-};
+>;
 
 export const OFFICIAL_CONTENT_LANGUAGES: OfficialContentLanguage[] = ["en", "zh-CN", "zh-TW", "es"];
 
@@ -562,6 +561,7 @@ export function searchLocalizedBlogArticles(language: LanguageCode, searchText: 
   }
 
   return getLocalizedBlogArticles(language).filter((article) => {
+    const citedSources = getGuideCitationSet(article.id)?.references ?? [];
     const searchableText = normalizeSearchText(
       [
         article.title,
@@ -569,7 +569,7 @@ export function searchLocalizedBlogArticles(language: LanguageCode, searchText: 
         article.excerpt,
         article.tags.join(" "),
         article.body.join(" "),
-        article.officialLinks?.map((link) => `${link.title} ${link.purpose} ${link.url}`).join(" ") ?? "",
+        citedSources.map((reference) => `${reference.title} ${reference.purpose} ${reference.url}`).join(" "),
       ].join(" "),
     );
 
@@ -593,12 +593,10 @@ function localizeBlogArticle(article: BlogArticle, language: OfficialContentLang
   }
 
   const translation = withDefaultBody(article, language, translationByLanguage[language][article.id]);
-  const mergedLinks = mergeOfficialLinks(article.officialLinks, translation?.officialLinks);
 
   return {
     ...article,
     ...translation,
-    officialLinks: localizeOfficialLinks(mergedLinks, language),
   };
 }
 
@@ -655,50 +653,6 @@ function buildDefaultBody(
   ];
 }
 
-function mergeOfficialLinks(sourceLinks?: OfficialLink[], translatedLinks?: BlogArticleTranslation["officialLinks"]) {
-  if (!sourceLinks?.length) {
-    return undefined;
-  }
-
-  if (!translatedLinks?.length) {
-    return sourceLinks;
-  }
-
-  return sourceLinks.map((link) => {
-    const translation = translatedLinks.find((item) => item.url === link.url);
-    return {
-      ...link,
-      ...translation,
-    };
-  });
-}
-
-function localizeOfficialLinks(links: OfficialLink[] | undefined, language: OfficialContentLanguage) {
-  if (!links?.length) {
-    return undefined;
-  }
-
-  if (language === "en") {
-    return links.map((link) => ({
-      ...link,
-      purpose: hasCjk(link.purpose) ? `Official reference for ${link.title}.` : link.purpose,
-    }));
-  }
-
-  if (language === "es") {
-    return links.map((link) => ({
-      ...link,
-      purpose: `Referencia oficial para ${link.title}.`,
-    }));
-  }
-
-  return links;
-}
-
-function hasCjk(value: string) {
-  return /[\u3400-\u9fff]/.test(value);
-}
-
 function toTraditionalArticle(article: BlogArticle): BlogArticle {
   return {
     ...article,
@@ -708,11 +662,6 @@ function toTraditionalArticle(article: BlogArticle): BlogArticle {
     tags: article.tags.map(toTraditional),
     excerpt: toTraditional(article.excerpt),
     body: article.body.map(toTraditional),
-    officialLinks: article.officialLinks?.map((link) => ({
-      ...link,
-      title: toTraditional(link.title),
-      purpose: toTraditional(link.purpose),
-    })),
   };
 }
 

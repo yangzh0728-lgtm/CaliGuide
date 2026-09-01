@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { BLOG_ARTICLES } from "./blogContent";
 import { LEGAL_PAGE_IDS } from "./legalContent";
+import { INSTITUTIONS } from "./institutions";
 import { getLegalPagePath } from "./legalRoutes";
 import {
   buildRobotsText,
@@ -24,6 +25,7 @@ describe("public page metadata", () => {
   it("resolves metadata for public legal paths and rejects unknown paths", () => {
     expect(getPageMetadataFromPath("/privacy")?.title).toContain("Privacy Policy");
     expect(getPageMetadataFromPath("/guides/california-real-id-documents")?.type).toBe("article");
+    expect(getPageMetadataFromPath("/agencies/ca-dmv")?.title).toContain("California DMV");
     expect(getPageMetadataFromPath("/not-a-page")).toBeNull();
   });
 
@@ -50,6 +52,10 @@ describe("public page metadata", () => {
 
     expect(paths).toContain("/");
     expect(paths).toContain("/guides");
+    expect(paths).toContain("/agencies");
+    for (const institution of INSTITUTIONS) {
+      expect(paths).toContain(`/agencies/${institution.id}`);
+    }
     expect(paths.filter((path) => path.startsWith("/guides/")).length).toBe(BLOG_ARTICLES.length);
     for (const pageId of LEGAL_PAGE_IDS) {
       expect(paths).toContain(getLegalPagePath(pageId));

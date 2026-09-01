@@ -61,6 +61,7 @@ const ForumDetail = lazy(() => import('./pages/ForumDetail'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
 const Profile = lazy(() => import('./pages/Profile'));
 const RecommendedGuides = lazy(() => import('./pages/RecommendedGuides'));
+const Agencies = lazy(() => import('./pages/Agencies'));
 
 type PendingForumDelete =
   | { type: 'post'; discussionId: string; title: string }
@@ -188,6 +189,7 @@ export default function App() {
     guide: t('app.title'),
     blog: t('app.title'),
     recommended: t('home.recommended'),
+    agencies: t('app.title'),
     forum: t('app.title'),
     forumDetail: t('app.title'),
     chatbot: t('app.title'),
@@ -196,6 +198,10 @@ export default function App() {
 
   const openBlog = (articleId: string) => {
     navigate({ page: 'blog', articleId });
+  };
+
+  const openInstitution = (institutionId: string) => {
+    navigate({ page: 'agencies', institutionId });
   };
 
   const openForumDetail = (discussionId: string) => {
@@ -492,8 +498,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
-      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
+      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
+      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
       case 'blog': return selectedBlog ? (
         <BlogDetail
           article={selectedBlog}
@@ -501,8 +507,15 @@ export default function App() {
           isSaved={isGuideSaved(selectedBlog.id)}
           onToggleSave={toggleSavedGuide}
         />
-      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
-      case 'recommended': return <RecommendedGuides onOpenBlog={openBlog} />;
+      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
+      case 'recommended': return <RecommendedGuides onOpenBlog={openBlog} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'agencies': return (
+        <Agencies
+          selectedInstitutionId={appRoute.page === 'agencies' ? appRoute.institutionId : undefined}
+          onOpenInstitution={openInstitution}
+          onOpenBlog={openBlog}
+        />
+      );
       case 'forum': return (
         <Forum
           discussions={forumDiscussions}
@@ -559,7 +572,7 @@ export default function App() {
           currentUserId={currentUser?.id ?? ''}
         />
       );
-      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} />;
+      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} />;
     }
   };
 
@@ -576,6 +589,9 @@ export default function App() {
         break;
       case 'recommended':
         navigate({ page: 'recommended' });
+        break;
+      case 'agencies':
+        navigate({ page: 'agencies' });
         break;
       case 'home':
       default:
@@ -638,7 +654,7 @@ export default function App() {
     <div className="min-h-screen bg-background pb-20">
       <TopAppBar 
         title={pageTitles[currentPage]} 
-        showBack={currentPage === 'guide' || currentPage === 'blog' || currentPage === 'recommended' || currentPage === 'forumDetail'}
+        showBack={currentPage === 'guide' || currentPage === 'blog' || currentPage === 'recommended' || currentPage === 'agencies' || currentPage === 'forumDetail'}
         showSignIn={!currentUser}
         onBack={handleBack}
         onSignIn={() => setAuthRequested(true)}
@@ -660,7 +676,10 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <LegalFooter onOpenLegalPage={openLegalPage} />
+      <LegalFooter
+        onOpenLegalPage={openLegalPage}
+        onOpenAgencies={() => navigate({ page: 'agencies' })}
+      />
 
       <Navigation 
         currentPage={currentPage} 

@@ -8,13 +8,6 @@ export interface BlogArticle {
   tags: string[];
   excerpt: string;
   body: string[];
-  officialLinks?: OfficialLink[];
-}
-
-export interface OfficialLink {
-  title: string;
-  url: string;
-  purpose: string;
 }
 
 export const BLOG_ARTICLES: BlogArticle[] = [
@@ -52,33 +45,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "新移民材料较复杂时，前往分行通常更容易确认文件是否被接受。银行通常需要政府签发身份证件，并可能要求 SSN、ITIN 或其他身份识别信息；不同机构的文件政策可能不同。",
       "开户后设置强密码、双重验证、交易提醒和银行卡锁定功能。保存开户协议、费用表、routing number、account number 和银行联系方式，但不要把账号信息发给不可信的人。",
       "官方提醒：银行必须核验客户身份，但每家银行接受的文件和开户政策不同。开户前直接联系银行，并索取正式费用表和账户协议。不要通过社交媒体上的开户代理提交护照或银行信息。",
-    ],
-    officialLinks: [
-      {
-        title: "FDIC GetBanked",
-        url: "https://www.fdic.gov/getbanked",
-        purpose: "了解开户准备、低费用账户和非美国公民开户信息。",
-      },
-      {
-        title: "FDIC BankFind Suite",
-        url: "https://banks.data.fdic.gov/bankfind-suite/bankfind",
-        purpose: "核实一家银行是否属于 FDIC-insured bank。",
-      },
-      {
-        title: "FDIC Deposit Insurance",
-        url: "https://www.fdic.gov/resources/deposit-insurance",
-        purpose: "了解哪些存款受到 FDIC 保障以及保障的基本规则。",
-      },
-      {
-        title: "Consumer Financial Protection Bureau — Bank Accounts",
-        url: "https://www.consumerfinance.gov/consumer-tools/bank-accounts/",
-        purpose: "了解银行账户、费用、开户被拒及消费者权利。",
-      },
-      {
-        title: "CFPB — Submit a Complaint",
-        url: "https://www.consumerfinance.gov/complaint/",
-        purpose: "遇到银行账户或金融服务问题时提交消费者投诉。",
-      },
     ],
   },
   {
@@ -140,38 +106,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "常见错误：没有先确认申请普通驾照、REAL ID 还是 AB 60，携带复印件但没有原件或认证文件，居住证明姓名或地址不一致，路考当天车辆没有有效保险或注册，把外国驾照自动视为可以免除加州考试，以及申请后搬家却没有及时更新邮寄地址。",
       "官方提醒：驾照要求会因年龄、身份文件和申请类型而不同。提交申请前应使用加州 DMV 官方文件清单，并查看最新版驾驶手册。不要仅依赖驾校、论坛或社交媒体信息。",
     ],
-    officialLinks: [
-      {
-        title: "California DMV — Driver's Licenses",
-        url: "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-licenses-dl/",
-        purpose: "查看加州驾照申请条件、主要材料和办理流程。",
-      },
-      {
-        title: "DMV — Online Driver's License or ID Application",
-        url: "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/dl-id-online-app-edl-44/",
-        purpose: "在线填写驾照或身份证申请表。",
-      },
-      {
-        title: "California Driver's Handbook",
-        url: "https://www.dmv.ca.gov/portal/handbook/california-driver-handbook/",
-        purpose: "学习笔试、交通法规和安全驾驶内容。",
-      },
-      {
-        title: "DMV Driver's Handbooks in Different Languages",
-        url: "https://www.dmv.ca.gov/portal/driver-handbooks/",
-        purpose: "查找英文、中文、西班牙文等不同语言的驾驶手册。",
-      },
-      {
-        title: "DMV Appointments",
-        url: "https://www.dmv.ca.gov/portal/appointments/",
-        purpose: "预约 DMV 办公室服务或路考。",
-      },
-      {
-        title: "DMV Office Locations",
-        url: "https://www.dmv.ca.gov/portal/locations/",
-        purpose: "按照城市或邮政编码查找附近 DMV 办公室。",
-      },
-    ],
   },
   {
     id: "guide-real-id-documents",
@@ -192,38 +126,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "填写申请并前往 DMV。即使已经在线上传文件，也应携带要求的文件前往办公室。DMV 核实材料后完成照片、指纹及相关申请程序，并在收到正式证件前提供收据或临时文件。",
       "常见错误包括只准备一份住址证明、使用只有邮政信箱没有实际居住地址的文件、两份住址证明显示不同地址、姓名与申请表不一致、用普通复印件代替原件或认证副本、认为所有非美国公民都不能申请 REAL ID，或认为 AB 60 驾照可以直接升级为 REAL ID。",
       "官方提醒：申请 REAL ID 通常需要身份证明、SSN 信息以及两份加州住址证明；某些申请人可能适用例外。AB 60 驾照申请人不符合 REAL ID 资格。最终材料要求以 DMV REAL ID Checklist 为准。",
-    ],
-    officialLinks: [
-      {
-        title: "California DMV — Apply for REAL ID",
-        url: "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/",
-        purpose: "查看 REAL ID 办理入口和基本说明。",
-      },
-      {
-        title: "DMV REAL ID Interactive Checklist",
-        url: "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/real-id-checklist/",
-        purpose: "根据个人情况生成需要携带的材料清单。",
-      },
-      {
-        title: "DMV — What Is REAL ID?",
-        url: "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/what-is-real-id/",
-        purpose: "了解 REAL ID 与普通驾照或身份证的区别。",
-      },
-      {
-        title: "REAL ID Information for Non-U.S. Citizens",
-        url: "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/real-id/what-is-real-id/real-id-info-non-u-s-citizens/",
-        purpose: "查看非美国公民可使用的身份和居住证明。",
-      },
-      {
-        title: "DMV REAL ID Document List PDF",
-        url: "https://www.dmv.ca.gov/portal/uploads/2020/06/List_of_Docs_REALID.pdf",
-        purpose: "下载可打印的官方材料清单。",
-      },
-      {
-        title: "DMV Appointments",
-        url: "https://www.dmv.ca.gov/portal/appointments/",
-        purpose: "预约前往 DMV 提交材料。",
-      },
     ],
   },
   {
@@ -321,38 +223,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "建立文件记录，保存银行人员姓名、沟通日期、要求的材料及申请结果。以后获得 SSN 或 ITIN 时，询问银行是否需要更新客户资料。",
       "常见错误包括认为没有 SSN 就一定不能开任何银行账户、认为所有银行都必须接受外国护照、为了开户提交虚假 SSN、向收费中介购买所谓的 SSN、把 ITIN 误认为工作许可，以及长期使用他人银行账户收工资或存放个人资金。",
       "官方提醒：CFPB 明确说明，没有 SSN 并不一定代表不能取得银行或信用合作社账户，但金融机构仍需核验身份，而且各机构政策不同。申请人必须如实提供信息，不得使用虚假或他人的号码。",
-    ],
-    officialLinks: [
-      {
-        title: "CFPB — Bank Accounts and Services",
-        url: "https://www.consumerfinance.gov/consumer-tools/bank-accounts/",
-        purpose: "查看没有 SSN 时的银行账户基本权利和准备方式。",
-      },
-      {
-        title: "FDIC GetBanked",
-        url: "https://www.fdic.gov/getbanked",
-        purpose: "查看银行可能接受的外国护照、领事身份证或 ITIN 等材料。",
-      },
-      {
-        title: "IRS — Individual Taxpayer Identification Number",
-        url: "https://www.irs.gov/tin/itin/individual-taxpayer-identification-number-itin",
-        purpose: "了解 ITIN 的用途、资格和限制。",
-      },
-      {
-        title: "IRS — How to Apply for an ITIN",
-        url: "https://www.irs.gov/tin/itin/how-to-apply-for-an-itin",
-        purpose: "查看 Form W-7、证明文件和申请方式。",
-      },
-      {
-        title: "IRS Form W-7",
-        url: "https://www.irs.gov/forms-pubs/about-form-w-7",
-        purpose: "下载或查看 ITIN 申请表及说明。",
-      },
-      {
-        title: "FDIC BankFind Suite",
-        url: "https://banks.data.fdic.gov/bankfind-suite/bankfind",
-        purpose: "核实准备开户的银行是否受 FDIC 保障。",
-      },
     ],
   },
   {
@@ -474,23 +344,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "常见错误包括地震时跑到门框或玻璃附近、把预警当作一定有很长准备时间、只规划一条撤离路线、等到强制命令后才收拾物品、忘记药物或宠物、在没有官方许可时返回火区，以及只凭肉眼判断烟雾风险。",
       "官方提醒：灾害情况会快速变化。应以当地政府、消防部门和紧急警报为准；收到撤离命令后立即离开。出现危及生命的紧急情况请拨打 911。",
     ],
-    officialLinks: [
-      {
-        title: "California Earthquake Early Warning",
-        url: "https://www.earthquake.ca.gov/",
-        purpose: "查看加州地震预警方式和趴下、掩护、抓牢的官方说明。",
-      },
-      {
-        title: "CAL FIRE Go Evacuation Guide",
-        url: "https://www.readyforwildfire.org/prepare-for-wildfire/go-evacuation-guide",
-        purpose: "制定山火撤离路线、应急包和家庭撤离步骤。",
-      },
-      {
-        title: "AirNow Fire and Smoke Map",
-        url: "https://www.airnow.gov/fasm-v4/",
-        purpose: "查看火点、烟雾和当地细颗粒物空气质量。",
-      },
-    ],
   },
   {
     id: "guide-notario-fraud",
@@ -511,23 +364,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "常见错误包括把 notario público 直接理解为美国律师、只看社交媒体评价不核实执照、允许对方使用自己的邮箱或电话号码控制案件、支付现金没有收据、签署不理解或空白的表格，以及相信保证获批或可以跳过正式流程的承诺。",
       "官方提醒：本文不能判断个人移民资格或案件策略。移民决定可能影响身份、工作许可和移除程序；采取行动前应向持牌律师或经 DOJ 认可机构服务的合格代表确认。",
     ],
-    officialLinks: [
-      {
-        title: "DOJ — Can Someone Represent You Before EOIR?",
-        url: "https://www.justice.gov/eoir/can-someone-represent-you-eoir",
-        purpose: "确认哪些律师和认可代表可以提供移民法律代理。",
-      },
-      {
-        title: "USCIS — Find Legal Services",
-        url: "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/find-legal-services",
-        purpose: "查找合格法律服务并了解如何避开无权执业者。",
-      },
-      {
-        title: "DOJ — Notario National Notice",
-        url: "https://www.justice.gov/eoir/notario-national-notice",
-        purpose: "了解 notario、签署文件和付款收据相关的官方防骗提醒。",
-      },
-    ],
   },
   {
     id: "guide-workers-rights-wage-theft",
@@ -547,28 +383,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "需要追讨个人欠薪时，可以向 Labor Commissioner 提交 wage claim；如果观察到影响多名工人的广泛违法行为，可以提交 labor law violation report。尽早整理证据，并确认适用于具体申诉的时限。",
       "常见错误包括没有独立记录工时、现金工资没有记录、丢弃工资单、认为没有 SSN 就没有劳动权利、因雇主称自己为承包商就不再核实分类、等到离职很久后才查时限，以及在没有保存证据前与雇主发生无法记录的争执。",
       "官方提醒：工资、加班、休息和员工分类规则会因行业和事实而不同。本文不是法律意见；应使用 California Department of Industrial Relations 的最新资料，或向劳动专员办公室和合格法律服务机构咨询。",
-    ],
-    officialLinks: [
-      {
-        title: "California DIR — All Workers Are Protected",
-        url: "https://www.dir.ca.gov/california-worker/",
-        purpose: "了解不论移民身份均适用的工资、安全和反报复保护。",
-      },
-      {
-        title: "California DIR — Worker FAQ",
-        url: "https://www.dir.ca.gov/California-Worker/FAQ-for-California-Workers.html",
-        purpose: "查看工资记录、报复、工伤和获取多语言帮助的常见问题。",
-      },
-      {
-        title: "Labor Commissioner — File a Wage Claim",
-        url: "https://www.dir.ca.gov/dlse/HowToFileWageClaim.htm",
-        purpose: "了解欠薪申诉流程、所需材料和后续程序。",
-      },
-      {
-        title: "Labor Commissioner — Report a Labor Law Violation",
-        url: "https://www.dir.ca.gov/dlse/HowToReportViolationtoBOFE.htm",
-        purpose: "报告影响多名工人的工资盗窃或其他劳动法违法行为。",
-      },
     ],
   },
 ];
