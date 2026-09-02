@@ -35,13 +35,13 @@ import {
 } from "./src/lib/forumSupabase";
 import { isSupabaseUuid } from "./src/lib/uuid";
 import {
-  buildForumTranslationMessages,
-  parseForumTranslationCompletion,
-} from "./src/lib/forumTranslationServer";
-import {
   normalizeForumTranslationLanguage,
   type ForumTranslationInput,
 } from "./src/lib/forumTranslation";
+import {
+  getAzureTranslatorConfig,
+  translateForumContentWithAzure,
+} from "./src/lib/azureTranslator";
 import { validateForumReportInput } from "./src/lib/forumModeration";
 import { createApiRateLimiter } from "./src/lib/serverRateLimit";
 import {
@@ -66,7 +66,6 @@ dotenv.config();
 const QIANFAN_BASE_URL = "https://qianfan.baidubce.com/v2";
 const CHAT_MODEL = process.env.CHAT_MODEL?.trim() || "deepseek-v4-flash";
 const CHAT_VISION_MODEL = process.env.CHAT_VISION_MODEL?.trim() || "";
-const TRANSLATION_MODEL = process.env.TRANSLATION_MODEL?.trim() || CHAT_MODEL;
 const PENDING_MEMORY_TTL_MS = 10 * 60 * 1000;
 
 const pendingMemoryByUserId = new Map<string, Array<{ content: string; createdAt: number }>>();
@@ -111,6 +110,7 @@ async function startServer() {
   const apiKey = process.env.API_KEY;
   const appId = process.env.APP_ID;
   const mem0ApiKey = process.env.MEM0_API_KEY;
+  const azureTranslatorConfig = getAzureTranslatorConfig(process.env);
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const supabaseAdmin =
@@ -984,8 +984,8 @@ async function startServer() {
   );
 
   app.post("/api/forum/translate", async (req, res) => {
-    if (!supabaseAdmin || !aiClient) {
-      return res.status(500).json({ error: "Supabase service role and AI translation must be configured" });
+    if (!supabaseAdmin || !azureTranslatorConfig) {
+      return res.status(500).json({ error: "Supabase and Azure Translator must be configured" });
     }
 
     const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
@@ -1062,22 +1062,7 @@ async function startServer() {
     }
 
     try {
-      const completion = await aiClient.chat.completions.create({
-        model: TRANSLATION_MODEL,
-        messages: buildForumTranslationMessages(input),
-        temperature: 0,
-      });
-      const content = completion.choices[0]?.message?.content;
-      if (typeof content !== "string" || !content.trim()) {
-        throw new Error("Translation service returned an empty response");
-      }
-
-      const translation = parseForumTranslationCompletion(content, {
-        bodyCount: body.length,
-        includeTitle: title !== undefined,
-        includeExcerpt: excerpt !== undefined,
-        requireExactBodyCount: sourceType === "comment",
-      });
+      const translation = await translateForumContentWithAzure(input, azureTranslatorConfig);
       const { error: cacheWriteError } = await supabaseAdmin.from("forum_translations").upsert(
         {
           source_type: sourceType,
@@ -1099,7 +1084,7 @@ async function startServer() {
       res.json({ translation, cached: false });
     } catch (error) {
       console.error(`[forum-translation:${authResult.user.id}] failed`, error);
-      res.status(502).json({ error: error instanceof Error ? error.message : "Unable to translate forum content" });
+      res.status(502).json({ error: "Unable to translate forum content" });
     }
   });
 

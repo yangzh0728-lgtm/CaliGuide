@@ -94,8 +94,6 @@ following is transmitted there:
 - The user's chatbot message text (`server.ts` chat route).
 - Prior conversation history sent as context.
 - **Uploaded images**, routed to `CHAT_VISION_MODEL` (`server.ts:898`).
-- Forum post and comment text submitted for translation (`/api/forum/translate`
-  uses the same client per handoff section 4).
 
 **Implication.** A user asking CaliBot about their immigration case, or
 uploading a photo of an immigration document, has that content sent to a
@@ -107,7 +105,14 @@ transfer that a privacy policy must state plainly.
 This is a product decision, not just a legal one. It is worth deciding
 deliberately whether this is the right provider for this audience.
 
-### 2.2 Mem0 — long-term memory extraction
+### 2.2 Microsoft Azure Translator — requested forum translations
+
+When a signed-in user requests a forum translation, the server sends the
+forum title, excerpt, and body paragraphs to Microsoft Azure Translator. The
+Azure subscription key remains server-only, and translated results are cached
+in Supabase using a hash of the source content.
+
+### 2.3 Mem0 — long-term memory extraction
 
 `src/lib/mem0Memory.ts:1`:
 
@@ -120,13 +125,13 @@ to Mem0 with a `user_id`, and Mem0 extracts durable facts about the user
 (`server.ts:938`). Optional — the app works without it — but when enabled it
 creates a second copy of conversation-derived personal facts outside Supabase.
 
-### 2.3 Infrastructure processors
+### 2.4 Infrastructure processors
 
 - **Supabase** — auth and database.
 - **Cloudflare R2** — media storage.
 - **Google** — OAuth sign-in.
 
-### 2.4 Image hosts (incidental)
+### 2.5 Image hosts (incidental)
 
 Guide hero images load from `images.unsplash.com` and
 `lh3.googleusercontent.com` (`src/lib/blogContent.ts`). These hosts observe

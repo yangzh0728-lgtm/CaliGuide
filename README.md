@@ -42,7 +42,8 @@ The product is designed for people preparing to move to California as well as re
 | Application API | Express 4 | Authentication-aware APIs, uploads, forum actions, translation, and chat streaming |
 | Authentication and database | Supabase Auth and PostgreSQL | Users, profiles, guides, forum data, chat history, saved content, and moderation records |
 | Object storage | Cloudflare R2 | Avatars, forum images, chatbot images, and platform media |
-| AI | OpenAI SDK with Baidu Qianfan's OpenAI-compatible endpoint | CaliBot text, vision, and on-demand forum translation |
+| Chat AI | OpenAI SDK with Baidu Qianfan's OpenAI-compatible endpoint | CaliBot text and vision |
+| Translation | Microsoft Azure AI Translator | On-demand forum translation |
 | Long-term memory | Mem0 | Optional cross-conversation user memory for CaliBot |
 | Runtime and tooling | Bun, Node.js, esbuild | Dependency management, tests, local development, and production builds |
 
@@ -55,7 +56,7 @@ The frontend and Express API are deployed as one full-stack application by defau
 - [Bun](https://bun.sh/)
 - Node.js 20 or newer for the production server
 - A Supabase project for authentication and persistent data
-- Optional service credentials for CaliBot, Mem0, and Cloudflare R2
+- Service credentials for Azure AI Translator and optional credentials for CaliBot, Mem0, and Cloudflare R2
 
 ### Local Development
 
@@ -80,11 +81,13 @@ Never commit `.env` or server credentials. Browser variables prefixed with `VITE
 | `VITE_SUPABASE_URL` | Supabase Auth and browser data access | Browser |
 | `VITE_SUPABASE_ANON_KEY` | Supabase Auth and browser data access | Browser |
 | `SUPABASE_SERVICE_ROLE_KEY` | Protected server operations, translation cache, account export/deletion | Server only |
-| `API_KEY` | CaliBot and model-backed forum translation | Server only |
+| `API_KEY` | CaliBot text and vision | Server only |
 | `APP_ID` | Qianfan OpenAI-compatible API endpoint | Server only |
 | `CHAT_MODEL` | Optional text-model override | Server only |
 | `CHAT_VISION_MODEL` | Optional vision-model override | Server only |
-| `TRANSLATION_MODEL` | Optional forum-translation model override | Server only |
+| `AZURE_TRANSLATOR_KEY` | Azure AI Translator authentication | Server only |
+| `AZURE_TRANSLATOR_ENDPOINT` | Azure AI Translator API endpoint | Server only |
+| `AZURE_TRANSLATOR_REGION` | Required for regional Azure Translator resources; blank for Global | Server only |
 | `MEM0_API_KEY` | Optional cross-session CaliBot memory | Server only |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare R2 uploads | Server only |
 | `R2_ACCESS_KEY_ID` | Cloudflare R2 uploads | Server only |

@@ -76,6 +76,7 @@ into the server and introduce route-level or vendor code splitting.
 - TypeScript executed with `tsx` in development
 - Bundled with esbuild for production
 - OpenAI SDK pointed at a Qianfan-compatible API
+- Microsoft Azure AI Translator for forum translation
 
 ### Data and infrastructure
 
@@ -118,10 +119,10 @@ tested fallback.
 
 ### Translation provider
 
-Forum translation currently uses the same Qianfan-compatible OpenAI client as
-the chatbot, with `TRANSLATION_MODEL` optionally overriding `CHAT_MODEL`.
-Azure Translator was selected as a possible cheaper dedicated replacement, but
-it has not been wired into the current server route.
+Forum translation uses Microsoft Azure AI Translator through the authenticated
+`/api/forum/translate` route. The server sends only the requested forum title,
+excerpt, and body paragraphs. Qianfan remains the provider for CaliBot text and
+vision, but is no longer a forum-translation fallback.
 
 ### Supabase availability
 
@@ -207,11 +208,13 @@ access through each provider and place secrets in the deployment secret store.
 
 | Variable | Exposure | Purpose |
 | --- | --- | --- |
-| `API_KEY` | Server only | Qianfan-compatible chat and translation credential |
+| `API_KEY` | Server only | Qianfan-compatible CaliBot credential |
 | `APP_ID` | Server only | Qianfan application identifier |
 | `CHAT_MODEL` | Server only | Optional text chat model override |
 | `CHAT_VISION_MODEL` | Server only | Vision model used for chatbot images |
-| `TRANSLATION_MODEL` | Server only | Optional forum translation model override |
+| `AZURE_TRANSLATOR_KEY` | Server only | Azure AI Translator subscription key |
+| `AZURE_TRANSLATOR_ENDPOINT` | Server only | Azure AI Translator API endpoint |
+| `AZURE_TRANSLATOR_REGION` | Server only | Azure resource region; optional for Global resources |
 | `MEM0_API_KEY` | Server only | Optional cross-session CaliBot memory |
 
 ### Application and API routing
@@ -245,16 +248,6 @@ with `VITE_`.
 | `R2_MOCK_USER_ID` | Script only | Optional structure seed identifier |
 | `R2_MOCK_POST_ID` | Script only | Optional structure seed identifier |
 | `R2_MOCK_GUIDE_ID` | Script only | Optional structure seed identifier |
-
-### Planned Azure Translator variables
-
-These are not consumed by the current application yet:
-
-```text
-AZURE_TRANSLATOR_KEY
-AZURE_TRANSLATOR_REGION
-AZURE_TRANSLATOR_ENDPOINT
-```
 
 ## 8. External Service Access To Transfer
 

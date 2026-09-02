@@ -52,11 +52,6 @@ export async function requestForumTranslation(
     body: JSON.stringify(input),
   });
   const responseText = await response.text();
-
-  if (response.status === 404 || response.status === 405) {
-    return requestForumTranslationThroughChat(input, apiBaseUrl, fetcher);
-  }
-
   const payload = parseJsonObject(responseText);
 
   if (!response.ok) {
@@ -69,75 +64,6 @@ export async function requestForumTranslation(
 
   const translation = payload.translation;
   return parseTranslationResult(translation, input);
-}
-
-async function requestForumTranslationThroughChat(
-  input: ForumTranslationInput,
-  apiBaseUrl: string,
-  fetcher: typeof fetch,
-) {
-  const targetLanguage = {
-    en: "English",
-    "zh-CN": "Simplified Chinese",
-    "zh-TW": "Traditional Chinese",
-    es: "Spanish",
-  }[input.targetLanguage];
-  const source = {
-    ...(input.title !== undefined ? { title: input.title } : {}),
-    ...(input.excerpt !== undefined ? { excerpt: input.excerpt } : {}),
-    body: input.body,
-  };
-  const message = [
-    `Translate the following community forum content into ${targetLanguage}.`,
-    "Preserve names, numbers, URLs, meaning, and paragraph order.",
-    `Return only valid JSON with ${input.title !== undefined ? "title, " : ""}${input.excerpt !== undefined ? "excerpt, " : ""}and body.`,
-    `The body array must contain exactly ${input.body.length} items. Do not add advice or commentary.`,
-    JSON.stringify(source),
-  ].join("\n");
-  const response = await fetcher(resolveApiUrl("/api/chat", apiBaseUrl), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message,
-      history: [],
-      userId: `forum-translation:${input.sourceType}:${input.sourceId}:${input.targetLanguage}`,
-    }),
-  });
-  const responseText = await response.text();
-
-  if (!response.ok) {
-    const payload = parseJsonObject(responseText);
-    throw new Error(
-      typeof payload.error === "string"
-        ? payload.error
-        : `Translation fallback failed with HTTP ${response.status}`,
-    );
-  }
-
-  const normalized = responseText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  try {
-    return parseTranslationResult(parseJsonObject(normalized), input);
-  } catch (error) {
-    if (input.sourceType !== "comment" || input.body.length < 2) {
-      throw error;
-    }
-
-    const translations = await Promise.all(
-      input.body.map((paragraph, index) =>
-        requestForumTranslationThroughChat(
-          {
-            sourceType: "comment",
-            sourceId: `${input.sourceId}:${index}`,
-            targetLanguage: input.targetLanguage,
-            body: [paragraph],
-          },
-          apiBaseUrl,
-          fetcher,
-        ),
-      ),
-    );
-    return { body: translations.map((translation) => translation.body[0]) };
-  }
 }
 
 function parseTranslationResult(value: unknown, input: ForumTranslationInput): ForumTranslationResult {

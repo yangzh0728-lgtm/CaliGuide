@@ -50,13 +50,16 @@ describe("legal content", () => {
   });
 
   test("discloses active service providers in the privacy policy", () => {
-    const privacyText = JSON.stringify(getLegalDocument("privacy", "en"));
+    for (const language of languages) {
+      const privacyText = JSON.stringify(getLegalDocument("privacy", language));
 
-    expect(privacyText).toContain("Supabase");
-    expect(privacyText).toContain("Cloudflare R2");
-    expect(privacyText).toContain("Baidu Qianfan");
-    expect(privacyText).toContain("Mem0");
-    expect(privacyText).toContain("Google OAuth");
+      expect(privacyText).toContain("Supabase");
+      expect(privacyText).toContain("Cloudflare R2");
+      expect(privacyText).toContain("Baidu Qianfan");
+      expect(privacyText).toContain("Microsoft Azure Translator");
+      expect(privacyText).toContain("Mem0");
+      expect(privacyText).toContain("Google OAuth");
+    }
   });
 
   test("lists the known CaliGuide browser-storage keys", () => {
