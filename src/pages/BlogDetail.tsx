@@ -25,9 +25,9 @@ export default function BlogDetail({
   isSaved,
   onToggleSave,
 }: BlogDetailProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const bodyBlocks = article.body.map(formatBlogBodyBlock);
-  const citationSet = getGuideCitationSet(article.id);
+  const citationSet = getGuideCitationSet(article.id, language);
 
   return (
     <article className="pt-20 pb-24 max-w-2xl mx-auto">

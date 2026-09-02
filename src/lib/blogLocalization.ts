@@ -615,7 +615,7 @@ export function searchLocalizedBlogArticles(language: LanguageCode, searchText: 
   }
 
   return getLocalizedBlogArticles(language).filter((article) => {
-    const citedSources = getGuideCitationSet(article.id)?.references ?? [];
+    const citedSources = getGuideCitationSet(article.id, language)?.references ?? [];
     const searchableText = normalizeSearchText(
       [
         article.title,

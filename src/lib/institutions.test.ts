@@ -86,6 +86,13 @@ describe("institution directory", () => {
         expect(localized?.purpose.length).toBeGreaterThan(20);
         expect(localized?.doesNotDo.length).toBeGreaterThan(20);
         expect(localized?.languageAccessNote.length).toBeGreaterThan(15);
+        if (code !== "en") {
+          expect(localized?.purpose).not.toBe(institution.content.en.purpose);
+          expect(localized?.doesNotDo).not.toBe(institution.content.en.doesNotDo);
+          if (institution.content.en.scamWarning) {
+            expect(localized?.scamNote).not.toBe(institution.content.en.scamWarning);
+          }
+        }
       }
     }
   });
@@ -100,6 +107,10 @@ describe("institution directory", () => {
         for (const { code } of LANGUAGES) {
           expect(pair.content[code].trigger.length).toBeGreaterThan(5);
           expect(pair.content[code].explanation.length).toBeGreaterThan(10);
+          if (code !== "en") {
+            expect(pair.content[code].trigger).not.toBe(pair.content.en.trigger);
+            expect(pair.content[code].explanation).not.toBe(pair.content.en.explanation);
+          }
         }
       }
     }

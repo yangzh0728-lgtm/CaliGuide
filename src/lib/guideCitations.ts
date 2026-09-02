@@ -1,5 +1,13 @@
 import type { BlogArticle } from "./blogContent";
-import { getInstitutionIdForPublisher } from "./institutionCatalog";
+import type { LanguageCode } from "../i18n/translations";
+import {
+  getInstitutionIdForPublisher,
+  toTraditionalInstitutionText,
+} from "./institutionCatalog";
+import {
+  GUIDE_REFERENCE_PURPOSES,
+  GUIDE_REFERENCE_TITLE_TRANSLATIONS,
+} from "./guideReferenceTranslations";
 
 export interface GuideReference {
   id: string;
@@ -926,7 +934,34 @@ const GUIDE_SECTION_ACTIONS: Record<string, Record<number, GuideActionConfig[]>>
   },
 };
 
-export function getGuideCitationSet(articleId: string): GuideCitationSet | undefined {
+export function getLocalizedGuideReference(
+  referenceItem: GuideReference,
+  language: LanguageCode,
+): GuideReference {
+  if (language === "en") {
+    return referenceItem;
+  }
+  const translation = GUIDE_REFERENCE_TITLE_TRANSLATIONS[referenceItem.id];
+  if (!translation) {
+    throw new Error(`Missing guide-reference translations for ${referenceItem.id}`);
+  }
+  const title = language === "es"
+    ? translation.es
+    : language === "zh-CN"
+      ? translation["zh-CN"]
+      : toTraditionalInstitutionText(translation["zh-CN"]);
+
+  return {
+    ...referenceItem,
+    title,
+    purpose: GUIDE_REFERENCE_PURPOSES[language],
+  };
+}
+
+export function getGuideCitationSet(
+  articleId: string,
+  language: LanguageCode = "en",
+): GuideCitationSet | undefined {
   const config = GUIDE_CITATION_CONFIGS[articleId];
   if (!config) {
     return undefined;
@@ -935,7 +970,8 @@ export function getGuideCitationSet(articleId: string): GuideCitationSet | undef
   return {
     references: config.referenceIds
       .map((referenceId) => GUIDE_REFERENCE_LIBRARY[referenceId])
-      .filter((item): item is GuideReference => Boolean(item)),
+      .filter((item): item is GuideReference => Boolean(item))
+      .map((referenceItem) => getLocalizedGuideReference(referenceItem, language)),
     sectionCitationIds: config.sectionCitationIds,
     sectionActions: config.sectionCitationIds.map(
       (_citationIds, sectionIndex) => GUIDE_SECTION_ACTIONS[articleId]?.[sectionIndex] ?? [],

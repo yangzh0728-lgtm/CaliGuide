@@ -1,7 +1,15 @@
 import { describe, expect, it } from "bun:test";
-import { LANGUAGES, isLanguageCode, translate } from "./translations";
+import { LANGUAGES, isLanguageCode, translate, translations } from "./translations";
 
 describe("translations", () => {
+  it("defines every interface key in every supported language", () => {
+    const englishKeys = Object.keys(translations.en).sort();
+
+    for (const { code } of LANGUAGES) {
+      expect(Object.keys(translations[code]).sort()).toEqual(englishKeys);
+    }
+  });
+
   it("translates known navigation labels", () => {
     expect(translate("es", "nav.home")).toBe("Inicio");
     expect(translate("zh-CN", "nav.profile")).toBe("个人资料");

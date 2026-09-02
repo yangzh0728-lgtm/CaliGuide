@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { BLOG_ARTICLES } from "./blogContent";
+import { LANGUAGES } from "../i18n/translations";
 import {
   GUIDE_REFERENCE_LIBRARY,
   getGuideCitationSet,
@@ -87,6 +88,20 @@ describe("guide citations", () => {
       "ca-insurance-garaging-address",
     ]) {
       expect(GUIDE_REFERENCE_LIBRARY[id]?.lastReviewedAt).toBe("2026-09-01");
+    }
+  });
+
+  it("localizes every official resource title and description", () => {
+    for (const article of BLOG_ARTICLES) {
+      for (const { code } of LANGUAGES.filter(({ code }) => code !== "en")) {
+        const citationSet = getGuideCitationSet(article.id, code);
+        expect(citationSet).toBeDefined();
+        for (const referenceItem of citationSet?.references ?? []) {
+          const englishReference = GUIDE_REFERENCE_LIBRARY[referenceItem.id];
+          expect(referenceItem.title.length).toBeGreaterThan(2);
+          expect(referenceItem.purpose).not.toBe(englishReference.purpose);
+        }
+      }
     }
   });
 });

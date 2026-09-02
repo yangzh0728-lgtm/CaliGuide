@@ -1,4 +1,9 @@
 import type { LanguageCode } from "../i18n/translations";
+import {
+  CONFUSION_TRANSLATIONS,
+  INSTITUTION_TRANSLATIONS,
+  type InstitutionTranslationSeed,
+} from "./institutionTranslations";
 
 export type InstitutionGroupId =
   | "immigration-status"
@@ -74,6 +79,40 @@ type LocalizedContentOverrides = Partial<
   Record<LanguageCode, Partial<Omit<InstitutionContent, "scamWarning">>>
 >;
 
+const TRADITIONAL_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/处理/g, "處理"], [/申请/g, "申請"], [/许/g, "許"], [/签/g, "簽"], [/发/g, "發"],
+  [/驻/g, "駐"], [/领/g, "領"], [/馆/g, "館"], [/证/g, "證"], [/决/g, "決"],
+  [/个/g, "個"], [/务/g, "務"], [/录/g, "錄"], [/边/g, "邊"], [/检/g, "檢"],
+  [/查/g, "查"], [/电/g, "電"], [/认/g, "認"], [/关/g, "關"], [/过/g, "過"],
+  [/组织/g, "組織"], [/获/g, "獲"], [/讼/g, "訟"], [/律师/g, "律師"], [/员/g, "員"],
+  [/顾问/g, "顧問"], [/资/g, "資"], [/格/g, "格"], [/驾驶/g, "駕駛"], [/车辆/g, "車輛"],
+  [/登记/g, "登記"], [/产权/g, "產權"], [/考试/g, "考試"], [/号码/g, "號碼"], [/社会/g, "社會"],
+  [/批准/g, "核准"], [/项目/g, "計畫"], [/补/g, "補"], [/更正/g, "更正"], [/税/g, "稅"],
+  [/联邦/g, "聯邦"], [/身份/g, "身分"], [/邮/g, "郵"], [/转寄/g, "轉寄"], [/不会/g, "不會"],
+  [/银行/g, "銀行"], [/保险/g, "保險"], [/机构/g, "機構"], [/费/g, "費"], [/执/g, "執"],
+  [/报/g, "報"], [/给/g, "給"], [/钱/g, "錢"], [/诈/g, "詐"], [/盗/g, "盜"],
+  [/监/g, "監"], [/专业/g, "專業"], [/选择/g, "選擇"], [/带薪/g, "帶薪"], [/劳/g, "勞"],
+  [/场/g, "場"], [/赔/g, "賠"], [/学徒/g, "學徒"], [/纠纷/g, "糾紛"], [/医疗/g, "醫療"],
+  [/经济/g, "經濟"], [/领袖/g, "領袖"], [/卫生/g, "衛生"], [/协调/g, "協調"], [/质量/g, "品質"],
+  [/烟/g, "煙"], [/规则/g, "規則"], [/房地产/g, "房地產"], [/实/g, "實"], [/诉/g, "訴"],
+  [/法院/g, "法院"], [/表格/g, "表格"], [/钱/g, "錢"], [/学校/g, "學校"], [/数据/g, "資料"],
+  [/应急/g, "緊急"], [/响应/g, "應變"], [/复/g, "復"], [/警报/g, "警報"], [/县/g, "縣"],
+  [/护/g, "護"], [/山火/g, "野火"], [/间/g, "間"], [/与/g, "與"], [/为/g, "為"],
+  [/这/g, "這"], [/后/g, "後"], [/会/g, "會"], [/应/g, "應"], [/从/g, "從"],
+  [/无/g, "無"], [/万/g, "萬"], [/网/g, "網"], [/门/g, "門"], [/书/g, "書"],
+  [/开/g, "開"], [/对/g, "對"], [/买/g, "買"], [/卖/g, "賣"], [/级/g, "級"],
+  [/东/g, "東"], [/湾/g, "灣"], [/区/g, "區"], [/旧/g, "舊"], [/车/g, "車"],
+  [/内/g, "內"], [/台/g, "臺"], [/别/g, "別"], [/经/g, "經"], [/达/g, "達"],
+  [/类/g, "類"], [/线/g, "線"], [/体/g, "體"], [/项/g, "項"], [/总/g, "總"],
+];
+
+export function toTraditionalInstitutionText(value: string) {
+  return TRADITIONAL_REPLACEMENTS.reduce(
+    (text, [pattern, replacement]) => text.replace(pattern, replacement),
+    value,
+  );
+}
+
 function institution(
   entry: Omit<
     Institution,
@@ -90,22 +129,72 @@ function institution(
   },
 ): Institution {
   const { localized = {}, confusionPairs = [], ...baseEntry } = entry;
+  const translations = INSTITUTION_TRANSLATIONS[baseEntry.id];
+  if (!translations) {
+    throw new Error(`Missing institution translations for ${baseEntry.id}`);
+  }
   const officialDomain = new URL(baseEntry.officialUrl).hostname;
   const priority = (groupPriorities.get(baseEntry.groupId) ?? 0) + 1;
   groupPriorities.set(baseEntry.groupId, priority);
+  const simplifiedContent = {
+    ...translations["zh-CN"],
+    ...localized["zh-CN"],
+  };
+  const traditionalContent = {
+    purpose: toTraditionalInstitutionText(simplifiedContent.purpose),
+    doesNotDo: toTraditionalInstitutionText(simplifiedContent.doesNotDo),
+    scamWarning: simplifiedContent.scamWarning
+      ? toTraditionalInstitutionText(simplifiedContent.scamWarning)
+      : undefined,
+    searchTerms: simplifiedContent.searchTerms?.map(toTraditionalInstitutionText) ?? [],
+  };
+  const localizedSeeds: Record<LanguageCode, InstitutionTranslationSeed & { searchTerms?: string[] }> = {
+    en: {
+      purpose: baseEntry.purpose,
+      doesNotDo: baseEntry.doesNotDo,
+      scamWarning: baseEntry.scamNote,
+      searchTerms: localized.en?.searchTerms ?? [],
+    },
+    "zh-CN": simplifiedContent,
+    "zh-TW": { ...traditionalContent, ...localized["zh-TW"] },
+    yue: { ...traditionalContent, ...localized.yue },
+    es: { ...translations.es, ...localized.es },
+  };
   const content = Object.fromEntries(
-    (["en", "zh-CN", "yue", "zh-TW", "es"] as LanguageCode[]).map((language) => [
-      language,
-      {
-        purpose: localized[language]?.purpose ?? baseEntry.purpose,
-        doesNotDo: localized[language]?.doesNotDo ?? baseEntry.doesNotDo,
+    (["en", "zh-CN", "yue", "zh-TW", "es"] as LanguageCode[]).map((language) => {
+      const contentSeed = localizedSeeds[language];
+      return [language, {
+        purpose: contentSeed.purpose,
+        doesNotDo: contentSeed.doesNotDo,
         languageAccessNote:
           localized[language]?.languageAccessNote ?? LANGUAGE_ACCESS_NOTES[language],
-        searchTerms: localized[language]?.searchTerms ?? [],
-        ...(baseEntry.scamNote ? { scamWarning: baseEntry.scamNote } : {}),
-      },
-    ]),
+        searchTerms: contentSeed.searchTerms ?? [],
+        ...(contentSeed.scamWarning ? { scamWarning: contentSeed.scamWarning } : {}),
+      }];
+    }),
   ) as Record<LanguageCode, InstitutionContent>;
+  const localizedConfusionPairs = confusionPairs.map((pair) => {
+    const pairTranslations = CONFUSION_TRANSLATIONS[`${baseEntry.id}:${pair.targetInstitutionId}`];
+    if (!pairTranslations) {
+      throw new Error(
+        `Missing confusion-pair translations for ${baseEntry.id}:${pair.targetInstitutionId}`,
+      );
+    }
+    const traditionalPair = {
+      trigger: toTraditionalInstitutionText(pairTranslations["zh-CN"].trigger),
+      explanation: toTraditionalInstitutionText(pairTranslations["zh-CN"].explanation),
+    };
+    return {
+      ...pair,
+      content: {
+        en: pair.content.en,
+        "zh-CN": pairTranslations["zh-CN"],
+        "zh-TW": traditionalPair,
+        yue: traditionalPair,
+        es: pairTranslations.es,
+      },
+    };
+  });
 
   return {
     ...baseEntry,
@@ -115,7 +204,7 @@ function institution(
     priority,
     lastReviewedAt: REVIEWED_AT,
     content,
-    confusionPairs,
+    confusionPairs: localizedConfusionPairs,
   };
 }
 
@@ -144,24 +233,6 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
     purpose: "Processes many immigration benefit requests, including applications for status, work authorization, permanent residence, and naturalization.",
     doesNotDo: "It does not issue visas at U.S. embassies abroad, decide immigration-court cases, or provide personal legal representation.",
     officialUrl: "https://www.uscis.gov/",
-    localized: {
-      "zh-CN": {
-        purpose: "处理许多移民福利申请，包括身份、工作许可、永久居留和入籍申请。",
-        doesNotDo: "不签发美国驻外使领馆的签证，不裁决移民法庭案件，也不提供个人法律代理。",
-      },
-      yue: {
-        purpose: "處理多種移民福利申請，包括身份、工作許可、永久居留同入籍申請。",
-        doesNotDo: "唔會簽發美國駐外使領館嘅簽證、裁決移民法庭案件，亦唔提供個人法律代理。",
-      },
-      "zh-TW": {
-        purpose: "處理多種移民福利申請，包括身分、工作許可、永久居留及入籍申請。",
-        doesNotDo: "不簽發美國駐外使領館的簽證、不裁決移民法庭案件，也不提供個人法律代理。",
-      },
-      es: {
-        purpose: "Tramita solicitudes de beneficios migratorios, incluidas las de estatus, autorización de empleo, residencia permanente y naturalización.",
-        doesNotDo: "No emite visas en embajadas estadounidenses, no decide casos de la corte de inmigración ni ofrece representación legal personal.",
-      },
-    },
     confusionPairs: [
       confusionPair(
         "cbp",
@@ -217,23 +288,15 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
     officialUrl: "https://www.dmv.ca.gov/portal/",
     localized: {
       "zh-CN": {
-        purpose: "签发加州驾驶执照和身份证，并办理车辆登记、产权、考试及相关记录。",
-        doesNotDo: "不签发社会安全号码，不授予移民身份，也不批准在美国工作。",
         searchTerms: ["驾照", "身份证", "车辆登记"],
       },
       yue: {
-        purpose: "簽發加州駕駛執照同身份證，並辦理車輛登記、產權、考試同相關紀錄。",
-        doesNotDo: "唔會簽發社會安全號碼、授予移民身份，亦唔會批准喺美國工作。",
         searchTerms: ["車牌", "身份證", "車輛登記"],
       },
       "zh-TW": {
-        purpose: "核發加州駕駛執照和身分證，並辦理車輛登記、所有權、考試及相關紀錄。",
-        doesNotDo: "不核發社會安全號碼、不授予移民身分，也不核准在美國工作。",
         searchTerms: ["駕照", "身分證", "車輛登記"],
       },
       es: {
-        purpose: "Emite licencias de conducir y tarjetas de identificación de California y administra registros, títulos y pruebas de vehículos.",
-        doesNotDo: "No emite números de Seguro Social, no concede estatus migratorio ni autoriza empleo en Estados Unidos.",
         searchTerms: ["licencia", "identificación", "registro del vehículo"],
       },
     },
@@ -284,23 +347,15 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
         searchTerms: ["mail forwarding", "moving", "change of address"],
       },
       "zh-CN": {
-        purpose: "投递美国邮件，并为搬家人士提供官方地址变更和邮件转寄服务。",
-        doesNotDo: "USPS 转寄不会更新 USCIS、DMV、银行、保险公司或其他机构，部分政府邮件也可能不会转寄。",
         searchTerms: ["邮件转寄", "搬家", "改地址"],
       },
       yue: {
-        purpose: "派遞美國郵件，並為搬屋人士提供官方地址更改同郵件轉寄服務。",
-        doesNotDo: "USPS 轉寄唔會更新 USCIS、DMV、銀行、保險公司或其他機構，部分政府郵件亦可能唔會轉寄。",
         searchTerms: ["郵件轉寄", "搬屋", "改地址"],
       },
       "zh-TW": {
-        purpose: "遞送美國郵件，並為搬家人士提供官方地址變更和郵件轉寄服務。",
-        doesNotDo: "USPS 轉寄不會更新 USCIS、DMV、銀行、保險公司或其他機構，部分政府郵件也可能不會轉寄。",
         searchTerms: ["郵件轉寄", "搬家", "改地址"],
       },
       es: {
-        purpose: "Entrega correo en Estados Unidos y ofrece el cambio de domicilio y reenvío oficial cuando una persona se muda.",
-        doesNotDo: "El reenvío de USPS no actualiza USCIS, DMV, bancos, aseguradoras ni otras organizaciones, y parte del correo oficial puede no reenviarse.",
         searchTerms: ["reenvío de correo", "mudanza", "cambio de domicilio"],
       },
     },

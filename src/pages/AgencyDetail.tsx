@@ -57,7 +57,7 @@ export default function AgencyDetail({
     );
   }
 
-  const references = getInstitutionReferences(institution.id);
+  const references = getInstitutionReferences(institution.id, language);
   const relatedGuides = getRelatedGuideIds(institution.id)
     .map((guideId) => getLocalizedBlogArticle(guideId, language))
     .filter((guide): guide is NonNullable<typeof guide> => Boolean(guide));
