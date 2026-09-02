@@ -44,7 +44,7 @@ describe("AgencyDirectoryShell", () => {
     const markup = renderShell();
 
     expect(markup).toContain('data-visible-related-guides="2"');
-    expect(markup).toContain('data-remaining-related-guides="2"');
-    expect(markup).toContain("+2");
+    expect(markup).toContain('data-remaining-related-guides="3"');
+    expect(markup).toContain("+3");
   });
 });

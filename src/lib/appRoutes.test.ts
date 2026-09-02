@@ -17,14 +17,28 @@ describe("application routes", () => {
     );
     expect(new Set(Object.values(GUIDE_SLUG_BY_ID)).size).toBe(BLOG_ARTICLES.length);
     expect(getGuideSlug("guide-real-id-documents")).toBe("california-real-id-documents");
+    expect(getGuideSlug("trending-ssn")).toBe("apply-for-social-security-number");
+    expect(getGuideSlug("guide-moving-address-checklist")).toBe("california-moving-address-checklist");
   });
 
   test("parses public guide routes and normalizes trailing slashes", () => {
     expect(getAppRouteFromPath("/")).toEqual({ page: "home" });
     expect(getAppRouteFromPath("/guides/")).toEqual({ page: "recommended" });
+    expect(getAppRouteFromPath("/guides/topics/housing")).toEqual({
+      page: "recommended",
+      groupId: "housing",
+    });
     expect(getAppRouteFromPath("/guides/california-real-id-documents")).toEqual({
       page: "blog",
       articleId: "guide-real-id-documents",
+    });
+    expect(getAppRouteFromPath("/guides/san-jose-ssn-appointment")).toEqual({
+      page: "blog",
+      articleId: "trending-ssn",
+    });
+    expect(getAppRouteFromPath("/guides/california-moving-address-checklist")).toEqual({
+      page: "blog",
+      articleId: "guide-moving-address-checklist",
     });
     expect(getAppRouteFromPath("/guides/not-a-real-guide")).toEqual({ page: "recommended" });
   });
@@ -51,6 +65,9 @@ describe("application routes", () => {
   test("generates paths for every route", () => {
     expect(getAppRoutePath({ page: "home" })).toBe("/");
     expect(getAppRoutePath({ page: "recommended" })).toBe("/guides");
+    expect(getAppRoutePath({ page: "recommended", groupId: "housing" })).toBe(
+      "/guides/topics/housing",
+    );
     expect(getAppRoutePath({ page: "blog", articleId: "guide-real-id-documents" })).toBe(
       "/guides/california-real-id-documents",
     );

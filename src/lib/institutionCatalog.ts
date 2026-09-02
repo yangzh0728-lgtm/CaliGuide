@@ -269,6 +269,55 @@ export const INSTITUTION_CATALOG: readonly Institution[] = [
     ],
   }),
   institution({
+    id: "usps",
+    name: "United States Postal Service",
+    shortName: "USPS",
+    publisherNames: ["United States Postal Service"],
+    groupId: "housing-consumer",
+    jurisdiction: "federal",
+    purpose: "Delivers U.S. mail and provides official change-of-address and mail-forwarding services when people move.",
+    doesNotDo: "A USPS forwarding order does not update USCIS, DMV, banks, insurers, or other organizations, and some government mail may not be forwarded.",
+    officialUrl: "https://www.usps.com/manage/forward.htm",
+    scamNote: "Use USPS.com or a Post Office for change-of-address service. Unaffiliated websites may charge much higher fees and cannot update other agencies for you.",
+    localized: {
+      en: {
+        searchTerms: ["mail forwarding", "moving", "change of address"],
+      },
+      "zh-CN": {
+        purpose: "投递美国邮件，并为搬家人士提供官方地址变更和邮件转寄服务。",
+        doesNotDo: "USPS 转寄不会更新 USCIS、DMV、银行、保险公司或其他机构，部分政府邮件也可能不会转寄。",
+        searchTerms: ["邮件转寄", "搬家", "改地址"],
+      },
+      yue: {
+        purpose: "派遞美國郵件，並為搬屋人士提供官方地址更改同郵件轉寄服務。",
+        doesNotDo: "USPS 轉寄唔會更新 USCIS、DMV、銀行、保險公司或其他機構，部分政府郵件亦可能唔會轉寄。",
+        searchTerms: ["郵件轉寄", "搬屋", "改地址"],
+      },
+      "zh-TW": {
+        purpose: "遞送美國郵件，並為搬家人士提供官方地址變更和郵件轉寄服務。",
+        doesNotDo: "USPS 轉寄不會更新 USCIS、DMV、銀行、保險公司或其他機構，部分政府郵件也可能不會轉寄。",
+        searchTerms: ["郵件轉寄", "搬家", "改地址"],
+      },
+      es: {
+        purpose: "Entrega correo en Estados Unidos y ofrece el cambio de domicilio y reenvío oficial cuando una persona se muda.",
+        doesNotDo: "El reenvío de USPS no actualiza USCIS, DMV, bancos, aseguradoras ni otras organizaciones, y parte del correo oficial puede no reenviarse.",
+        searchTerms: ["reenvío de correo", "mudanza", "cambio de domicilio"],
+      },
+    },
+    confusionPairs: [
+      confusionPair(
+        "uscis",
+        "Need to update an immigration record?",
+        "USCIS requires its own address update. USPS forwarding does not update USCIS and does not forward USCIS mail.",
+      ),
+      confusionPair(
+        "ca-dmv",
+        "Need to update a California license, ID, or vehicle?",
+        "California DMV records require their own address update. USPS forwarding does not change DMV records.",
+      ),
+    ],
+  }),
+  institution({
     id: "irs",
     name: "Internal Revenue Service",
     shortName: "IRS",

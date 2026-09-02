@@ -13,8 +13,8 @@ import { LANGUAGES } from "../i18n/translations";
 
 describe("institution directory", () => {
   test("defines one stable entry for every cited institution", () => {
-    expect(INSTITUTIONS).toHaveLength(26);
-    expect(new Set(INSTITUTIONS.map((institution) => institution.id)).size).toBe(26);
+    expect(INSTITUTIONS).toHaveLength(27);
+    expect(new Set(INSTITUTIONS.map((institution) => institution.id)).size).toBe(27);
 
     for (const referenceItem of Object.values(GUIDE_REFERENCE_LIBRARY)) {
       const institution = getInstitution(referenceItem.institutionId);
@@ -52,6 +52,7 @@ describe("institution directory", () => {
 
   test("searches names, domains, purpose, and agency boundaries", () => {
     expect(searchInstitutions("driver license", "en")[0]?.id).toBe("ca-dmv");
+    expect(searchInstitutions("mail forwarding", "en").map(({ id }) => id)).toContain("usps");
     expect(searchInstitutions("irs.gov", "en")[0]?.id).toBe("irs");
     expect(searchInstitutions("does not issue social security numbers", "en").map(({ id }) => id)).toContain(
       "ca-dmv",

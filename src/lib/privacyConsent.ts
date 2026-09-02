@@ -1,5 +1,6 @@
 import { LANGUAGE_STORAGE_KEY } from "../i18n/translations";
 import { CHAT_MEMORY_STORAGE_KEY } from "./chatMemory";
+import { MOVING_CHECKLIST_STORAGE_KEY } from "./movingChecklist";
 
 export const CONSENT_STORAGE_KEY = "caliguide-privacy-consent";
 export const CONSENT_VERSION = 1;
@@ -22,6 +23,7 @@ export type ConsentSelection =
 
 const OPTIONAL_PREFERENCE_STORAGE_KEYS = [
   CHAT_MEMORY_STORAGE_KEY,
+  MOVING_CHECKLIST_STORAGE_KEY,
 ] as const;
 
 function isNecessaryFunctionalStorageKey(key: string) {

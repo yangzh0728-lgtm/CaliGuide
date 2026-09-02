@@ -65,6 +65,7 @@ describe("legal content", () => {
     expect(cookieText).toContain("caliguide-privacy-consent");
     expect(cookieText).toContain("caliguide-language");
     expect(cookieText).toContain("caliguide-chat-memory");
+    expect(cookieText).toContain("caliguide-moving-checklist");
     expect(cookieText).toContain("caliguide-google-profile-draft");
     expect(cookieText).toContain("Supabase authentication");
     expect(cookieText).toContain("necessary functional storage");

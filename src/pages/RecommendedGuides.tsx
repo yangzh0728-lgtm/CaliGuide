@@ -27,6 +27,8 @@ import {
 } from "../lib/guideDirectory";
 
 interface RecommendedGuidesProps {
+  activeGroupId: GuideDirectoryFilterId;
+  onSelectGroup: (groupId: GuideDirectoryFilterId) => void;
   onOpenBlog: (articleId: string) => void;
   onOpenAgencies: () => void;
 }
@@ -44,9 +46,13 @@ const GROUP_ICONS: Record<Exclude<GuideDirectoryFilterId, "all">, LucideIcon> = 
   community: Users,
 };
 
-export default function RecommendedGuides({ onOpenBlog, onOpenAgencies }: RecommendedGuidesProps) {
+export default function RecommendedGuides({
+  activeGroupId,
+  onSelectGroup,
+  onOpenBlog,
+  onOpenAgencies,
+}: RecommendedGuidesProps) {
   const { language, t } = useLanguage();
-  const [activeGroupId, setActiveGroupId] = useState<GuideDirectoryFilterId>("all");
   const [query, setQuery] = useState("");
   const guides = useMemo(
     () => getGuideDirectoryArticles(language, activeGroupId, query),
@@ -68,7 +74,7 @@ export default function RecommendedGuides({ onOpenBlog, onOpenAgencies }: Recomm
         active={activeGroupId === "all"}
         mobile={mobile}
         icon={BookOpen}
-        onSelect={setActiveGroupId}
+        onSelect={onSelectGroup}
       />
       {GUIDE_DIRECTORY_GROUPS.map((group) => (
         <GuideGroupButton
@@ -79,7 +85,7 @@ export default function RecommendedGuides({ onOpenBlog, onOpenAgencies }: Recomm
           active={activeGroupId === group.id}
           mobile={mobile}
           icon={GROUP_ICONS[group.id]}
-          onSelect={setActiveGroupId}
+          onSelect={onSelectGroup}
         />
       ))}
     </nav>
@@ -172,7 +178,7 @@ export default function RecommendedGuides({ onOpenBlog, onOpenAgencies }: Recomm
                   <button type="button" onClick={() => setQuery("")} className="rounded-lg border border-outline-variant px-3 py-2 text-sm font-bold text-primary">{t("recommended.clearSearch")}</button>
                 ) : null}
                 {activeGroupId !== "all" ? (
-                  <button type="button" onClick={() => setActiveGroupId("all")} className="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white">{t("recommended.showAll")}</button>
+                  <button type="button" onClick={() => onSelectGroup("all")} className="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white">{t("recommended.showAll")}</button>
                 ) : null}
               </div>
             </div>

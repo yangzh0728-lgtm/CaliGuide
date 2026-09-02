@@ -163,4 +163,51 @@ describe("blogLocalization", () => {
       expect(article?.body.join(" ")).not.toContain("[[guides:");
     }
   });
+
+  it("localizes the statewide SSN guide without limiting it to one city", () => {
+    const locationNames = /San Jose|San José|圣何塞|聖荷西/;
+
+    for (const language of [...OFFICIAL_CONTENT_LANGUAGES, "yue"] as const) {
+      const article = getLocalizedBlogArticle("trending-ssn", language);
+
+      expect(article).toBeDefined();
+      expect(article?.title).not.toMatch(locationNames);
+      expect(article?.tags.join(" ")).not.toMatch(locationNames);
+      expect(article?.body.join(" ")).not.toMatch(locationNames);
+      expect(article?.body).toHaveLength(9);
+    }
+
+    const englishChecklist = formatBlogBodyBlock(
+      getLocalizedBlogArticle("trending-ssn", "en")?.body[3] ?? "",
+    );
+    expect(englishChecklist.tone).toBe("checklist");
+    expect(englishChecklist.listItems).toHaveLength(6);
+    expect(englishChecklist.listItems.some((item) => item.startsWith("not ordinary"))).toBe(false);
+    expect(englishChecklist.listItems.some((item) => item.includes("The exact documents"))).toBe(false);
+  });
+
+  it("keeps the California moving checklist aligned in every language", () => {
+    const expectedTones = [
+      "default",
+      "default",
+      "default",
+      "default",
+      "default",
+      "default",
+      "default",
+      "default",
+      "warning",
+      "notice",
+    ];
+
+    for (const language of [...OFFICIAL_CONTENT_LANGUAGES, "yue"] as const) {
+      const article = getLocalizedBlogArticle("guide-moving-address-checklist", language);
+
+      expect(article?.body).toHaveLength(10);
+      expect(article?.body.map((paragraph) => formatBlogBodyBlock(paragraph).tone)).toEqual(
+        expectedTones,
+      );
+      expect(article?.body.every((paragraph) => formatBlogBodyBlock(paragraph).heading.length > 0)).toBe(true);
+    }
+  });
 });

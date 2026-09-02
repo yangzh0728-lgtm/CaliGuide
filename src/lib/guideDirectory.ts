@@ -69,6 +69,10 @@ export function getGuideDirectoryCount(groupId: GuideDirectoryFilterId): number 
   return BLOG_ARTICLES.filter((article) => groupByArticleId.get(article.id) === groupId).length;
 }
 
+export function isGuideDirectoryGroupId(value: string): value is GuideDirectoryGroupId {
+  return GUIDE_DIRECTORY_GROUPS.some((group) => group.id === value);
+}
+
 function findGroupForCategory(category: string): GuideDirectoryGroupId {
   const group = GUIDE_DIRECTORY_GROUPS.find(({ categories }) => categories.includes(category));
 

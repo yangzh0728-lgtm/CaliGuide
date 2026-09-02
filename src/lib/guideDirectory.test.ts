@@ -5,8 +5,8 @@ describe("guide directory", () => {
   it("returns every published guide exactly once", () => {
     const guides = getGuideDirectoryArticles("en", "all", "");
 
-    expect(guides).toHaveLength(19);
-    expect(new Set(guides.map(({ id }) => id)).size).toBe(19);
+    expect(guides).toHaveLength(20);
+    expect(new Set(guides.map(({ id }) => id)).size).toBe(20);
     expect(guides.map(({ id }) => id)).toContain("forum-first-30-days");
     expect(guides.map(({ id }) => id)).toContain("category-dmv");
     expect(guides.map(({ id }) => id)).toContain("trending-ssn");
@@ -17,8 +17,8 @@ describe("guide directory", () => {
       getGuideDirectoryArticles("en", id, "").map((guide) => guide.id),
     );
 
-    expect(groupedIds).toHaveLength(19);
-    expect(new Set(groupedIds).size).toBe(19);
+    expect(groupedIds).toHaveLength(20);
+    expect(new Set(groupedIds).size).toBe(20);
     expect(getGuideDirectoryArticles("en", "community", "")).toHaveLength(3);
   });
 

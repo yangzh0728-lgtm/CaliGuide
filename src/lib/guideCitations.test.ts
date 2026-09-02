@@ -76,4 +76,17 @@ describe("guide citations", () => {
       expect(urls.has(url)).toBe(true);
     }
   });
+
+  it("records the verification date for the moving guide's new official sources", () => {
+    for (const id of [
+      "ssa-address-change",
+      "usps-address-change",
+      "dmv-address-change",
+      "california-voter-address",
+      "irs-address-change",
+      "ca-insurance-garaging-address",
+    ]) {
+      expect(GUIDE_REFERENCE_LIBRARY[id]?.lastReviewedAt).toBe("2026-09-01");
+    }
+  });
 });

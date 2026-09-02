@@ -26,6 +26,7 @@ const GUIDE_DISCLAIMERS: Record<string, GuideDisclaimerKind[]> = {
   "category-housing": ["legal"],
   "guide-2": ["legal"],
   "guide-rental-scams": ["legal", "financial"],
+  "guide-moving-address-checklist": ["legal", "financial"],
 
   // Health — coverage eligibility is both a medical and a cost decision.
   "category-health": ["medical", "financial"],

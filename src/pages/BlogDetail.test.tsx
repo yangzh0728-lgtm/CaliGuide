@@ -69,4 +69,15 @@ describe("BlogDetail", () => {
     expect(markup).toContain('id="guide-references"');
     expect(markup).toContain('href="/agencies/ca-dmv"');
   });
+
+  it("renders the moving deadline table with persistent checklist controls", () => {
+    const markup = renderArticle("guide-moving-address-checklist");
+
+    expect(markup).toContain('aria-label="Moving address checklist"');
+    expect(markup).toContain('type="checkbox"');
+    expect(markup).toContain("USCIS address");
+    expect(markup).toContain("DMV driver license or ID");
+    expect(markup).toContain("Federal");
+    expect(markup).toContain("California");
+  });
 });

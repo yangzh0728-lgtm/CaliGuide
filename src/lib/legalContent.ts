@@ -129,6 +129,7 @@ const legalDocuments: Record<LanguageCode, LegalDocumentsById> = {
           ],
           items: [
             "caliguide-chat-memory: keeps a local chatbot cache for faster continuity on this device. Signed-in chat history may also be stored in Supabase as part of the account service.",
+            "caliguide-moving-checklist: remembers completed items in the moving address checklist on this device.",
           ],
         },
         {

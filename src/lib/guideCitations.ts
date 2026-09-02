@@ -43,6 +43,7 @@ function reference(
   publisher: string,
   url: string,
   purpose: string,
+  lastReviewedAt = REVIEWED_AT,
 ): GuideReference {
   return {
     id,
@@ -51,7 +52,7 @@ function reference(
     publisher,
     url,
     purpose,
-    lastReviewedAt: REVIEWED_AT,
+    lastReviewedAt,
   };
 }
 
@@ -259,12 +260,74 @@ export const GUIDE_REFERENCE_LIBRARY: Record<string, GuideReference> = {
     "https://www.ssa.gov/number-card",
     "Official SSN application, replacement-card, and required-document guidance.",
   ),
+  "ssa-card-types": reference(
+    "ssa-card-types",
+    "Types of Social Security Cards",
+    "Social Security Administration",
+    "https://www.ssa.gov/ssnumber/cards.htm",
+    "Official explanation of unrestricted, work-authorized, and nonwork Social Security cards.",
+  ),
+  "ssa-card-documents": reference(
+    "ssa-card-documents",
+    "Documents Needed for a Social Security Card",
+    "Social Security Administration",
+    "https://www.ssa.gov/ssnumber/ss5doc.htm",
+    "Official document requirements for original, replacement, and corrected Social Security cards.",
+  ),
   "ssa-office-locator": reference(
     "ssa-office-locator",
     "Social Security Office Locator",
     "Social Security Administration",
     "https://www.ssa.gov/locator/",
     "Official locator for nearby Social Security offices and contact details.",
+  ),
+  "ssa-address-change": reference(
+    "ssa-address-change",
+    "How Do I Change My Address on My Social Security Card?",
+    "Social Security Administration",
+    "https://www.ssa.gov/faqs/en/questions/KA-02244.html",
+    "Official distinction between Social Security card records and address updates for benefits, SSI, and Medicare.",
+    "2026-09-01",
+  ),
+  "usps-address-change": reference(
+    "usps-address-change",
+    "Change of Address: The Basics",
+    "United States Postal Service",
+    "https://faq.usps.com/s/article/Change-of-Address-The-Basics",
+    "Official mail-forwarding options, identity verification, fees, timing, and third-party website warnings.",
+    "2026-09-01",
+  ),
+  "dmv-address-change": reference(
+    "dmv-address-change",
+    "Submit a Change of Address Online",
+    "California Department of Motor Vehicles",
+    "https://www.dmv.ca.gov/portal/online-change-of-address-coa-system/",
+    "Official California address-change process for driver license, identification, vehicle, and vessel records.",
+    "2026-09-01",
+  ),
+  "california-voter-address": reference(
+    "california-voter-address",
+    "Registering to Vote",
+    "State of California",
+    "https://www.sos.ca.gov/elections/voting-resources/voting-california/registering-vote",
+    "Official California address-update and election-registration deadline guidance.",
+    "2026-09-01",
+  ),
+  "irs-address-change": reference(
+    "irs-address-change",
+    "About Form 8822, Change of Address",
+    "Internal Revenue Service",
+    "https://www.irs.gov/forms-pubs/about-form-8822",
+    "Official form for notifying the IRS of a home mailing-address change.",
+    "2026-09-01",
+  ),
+  "ca-insurance-garaging-address": reference(
+    "ca-insurance-garaging-address",
+    "Private Passenger Auto Data Reporting Guidelines",
+    "California Department of Insurance",
+    "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0600-research-studies/auto-class-plan/circular-ppa-drg.cfm",
+    "California insurance guidance identifying the vehicle garaging ZIP code as a required auto-policy rating record.",
+    "2026-09-01",
   ),
   "cbp-i94": reference(
     "cbp-i94",
@@ -620,12 +683,40 @@ const GUIDE_CITATION_CONFIGS: Record<string, GuideCitationConfig> = {
     ],
   },
   "trending-ssn": {
-    referenceIds: ["ssa-number-card", "ssa-office-locator"],
+    referenceIds: ["ssa-number-card", "ssa-card-types", "ssa-card-documents", "ssa-office-locator"],
     sectionCitationIds: [
-      ["ssa-number-card", "ssa-office-locator"],
       ["ssa-number-card"],
+      ["ssa-card-types", "ssa-number-card"],
+      ["ssa-number-card", "ssa-card-documents"],
+      ["ssa-card-documents"],
       ["ssa-office-locator"],
       ["ssa-number-card"],
+      ["ssa-number-card"],
+      ["ssa-number-card", "ssa-card-documents"],
+      ["ssa-number-card", "ssa-card-documents"],
+    ],
+  },
+  "guide-moving-address-checklist": {
+    referenceIds: [
+      "usps-address-change",
+      "uscis-address-change",
+      "dmv-address-change",
+      "california-voter-address",
+      "irs-address-change",
+      "ssa-address-change",
+      "ca-insurance-garaging-address",
+    ],
+    sectionCitationIds: [
+      ["usps-address-change", "uscis-address-change", "dmv-address-change"],
+      ["usps-address-change", "uscis-address-change", "dmv-address-change", "california-voter-address", "ssa-address-change"],
+      ["usps-address-change"],
+      ["uscis-address-change", "dmv-address-change", "california-voter-address"],
+      ["irs-address-change", "ca-insurance-garaging-address"],
+      ["usps-address-change"],
+      ["ssa-address-change"],
+      ["usps-address-change"],
+      ["usps-address-change", "uscis-address-change", "dmv-address-change", "ca-insurance-garaging-address"],
+      ["usps-address-change", "uscis-address-change", "dmv-address-change", "california-voter-address", "irs-address-change", "ssa-address-change"],
     ],
   },
   "trending-banking": {
@@ -786,7 +877,19 @@ const GUIDE_SECTION_ACTIONS: Record<string, Record<number, GuideActionConfig[]>>
     10: [{ referenceId: "211-california", kind: "find" }],
   },
   "trending-ssn": {
-    2: [{ referenceId: "ssa-office-locator", kind: "find" }],
+    2: [{ referenceId: "ssa-number-card", kind: "apply" }],
+    3: [{ referenceId: "ssa-card-documents", kind: "read" }],
+    4: [{ referenceId: "ssa-office-locator", kind: "find" }],
+  },
+  "guide-moving-address-checklist": {
+    2: [{ referenceId: "usps-address-change", kind: "apply" }],
+    3: [
+      { referenceId: "uscis-address-change", kind: "apply" },
+      { referenceId: "dmv-address-change", kind: "apply" },
+      { referenceId: "california-voter-address", kind: "verify" },
+    ],
+    4: [{ referenceId: "irs-address-change", kind: "download" }],
+    6: [{ referenceId: "ssa-address-change", kind: "read" }],
   },
   "trending-banking": {
     2: [

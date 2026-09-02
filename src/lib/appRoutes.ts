@@ -1,9 +1,10 @@
 import { BLOG_ARTICLES } from "./blogContent";
+import { isGuideDirectoryGroupId, type GuideDirectoryGroupId } from "./guideDirectory";
 import { getInstitution } from "./institutions";
 
 export type AppRoute =
   | { page: "home" }
-  | { page: "recommended" }
+  | { page: "recommended"; groupId?: GuideDirectoryGroupId }
   | { page: "blog"; articleId: string }
   | { page: "agencies"; institutionId?: string }
   | { page: "forum" }
@@ -21,7 +22,8 @@ export const GUIDE_SLUG_BY_ID: Record<string, string> = {
   "guide-2": "california-rental-handbook",
   "guide-rental-scams": "avoid-california-rental-scams",
   "forum-first-30-days": "first-30-days-in-california",
-  "trending-ssn": "san-jose-ssn-appointment",
+  "trending-ssn": "apply-for-social-security-number",
+  "guide-moving-address-checklist": "california-moving-address-checklist",
   "trending-banking": "open-bank-account-with-passport",
   "guide-first-doctor-visit": "first-doctor-visit-california",
   "guide-legal-30-day-documents": "newcomer-document-plan",
@@ -36,6 +38,10 @@ export const GUIDE_SLUG_BY_ID: Record<string, string> = {
 const GUIDE_ID_BY_SLUG = Object.fromEntries(
   Object.entries(GUIDE_SLUG_BY_ID).map(([articleId, slug]) => [slug, articleId]),
 );
+
+const LEGACY_GUIDE_ID_BY_SLUG: Record<string, string> = {
+  "san-jose-ssn-appointment": "trending-ssn",
+};
 
 const BLOG_ARTICLE_IDS = new Set(BLOG_ARTICLES.map((article) => article.id));
 
@@ -52,9 +58,15 @@ export function getAppRouteFromPath(pathname: string): AppRoute | null {
   if (normalizedPath === "/guides") {
     return { page: "recommended" };
   }
+  if (normalizedPath.startsWith("/guides/topics/")) {
+    const groupId = decodePathPart(normalizedPath.slice("/guides/topics/".length));
+    return isGuideDirectoryGroupId(groupId)
+      ? { page: "recommended", groupId }
+      : { page: "recommended" };
+  }
   if (normalizedPath.startsWith("/guides/")) {
     const slug = decodePathPart(normalizedPath.slice("/guides/".length));
-    const articleId = GUIDE_ID_BY_SLUG[slug];
+    const articleId = GUIDE_ID_BY_SLUG[slug] ?? LEGACY_GUIDE_ID_BY_SLUG[slug];
     return articleId ? { page: "blog", articleId } : { page: "recommended" };
   }
   if (normalizedPath === "/agencies") {
@@ -88,7 +100,7 @@ export function getAppRoutePath(route: AppRoute) {
     case "home":
       return "/";
     case "recommended":
-      return "/guides";
+      return route.groupId ? `/guides/topics/${encodeURIComponent(route.groupId)}` : "/guides";
     case "blog": {
       const slug = getGuideSlug(route.articleId);
       if (!slug || !BLOG_ARTICLE_IDS.has(route.articleId)) {

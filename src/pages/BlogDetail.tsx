@@ -1,5 +1,6 @@
 import { Bookmark, CalendarDays, Clock, ExternalLink, Tag } from 'lucide-react';
 import GuideDisclaimer from '../components/GuideDisclaimer';
+import MovingDeadlineChecklist from '../components/MovingDeadlineChecklist';
 import ResponsiveImage from '../components/ResponsiveImage';
 import { useLanguage } from '../context/LanguageContext';
 import { formatBlogBodyBlock, type BlogBodyTone } from '../lib/blogBodyFormat';
@@ -110,6 +111,10 @@ export default function BlogDetail({
                 <p className={getBodyContentClassName(block.tone)}>
                   {block.content}
                 </p>
+              ) : null}
+
+              {article.id === 'guide-moving-address-checklist' && index === 1 ? (
+                <MovingDeadlineChecklist />
               ) : null}
 
               {block.listItems.length ? (

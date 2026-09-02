@@ -53,6 +53,7 @@ import {
 } from './lib/appRoutes';
 import { getPageMetadata } from './lib/pageMetadata';
 import { reportClientError } from './lib/clientErrorReport';
+import type { GuideDirectoryGroupId } from './lib/guideDirectory';
 
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const Chatbot = lazy(() => import('./pages/Chatbot'));
@@ -199,6 +200,10 @@ export default function App() {
 
   const openBlog = (articleId: string) => {
     navigate({ page: 'blog', articleId });
+  };
+
+  const openRecommended = (groupId?: GuideDirectoryGroupId) => {
+    navigate(groupId ? { page: 'recommended', groupId } : { page: 'recommended' });
   };
 
   const openInstitution = (institutionId: string) => {
@@ -499,8 +504,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
-      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'blog': return selectedBlog ? (
         <BlogDetail
           article={selectedBlog}
@@ -508,8 +513,15 @@ export default function App() {
           isSaved={isGuideSaved(selectedBlog.id)}
           onToggleSave={toggleSavedGuide}
         />
-      ) : <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
-      case 'recommended': return <RecommendedGuides onOpenBlog={openBlog} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      ) : <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'recommended': return (
+        <RecommendedGuides
+          activeGroupId={appRoute.page === 'recommended' ? appRoute.groupId ?? 'all' : 'all'}
+          onSelectGroup={(groupId) => openRecommended(groupId === 'all' ? undefined : groupId)}
+          onOpenBlog={openBlog}
+          onOpenAgencies={() => navigate({ page: 'agencies' })}
+        />
+      );
       case 'agencies': return appRoute.page === 'agencies' && appRoute.institutionId ? (
         <AgencyDetail
           institutionId={appRoute.institutionId}
@@ -580,7 +592,7 @@ export default function App() {
           currentUserId={currentUser?.id ?? ''}
         />
       );
-      default: return <Home onOpenBlog={openBlog} onOpenRecommended={() => navigate({ page: 'recommended' })} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      default: return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
     }
   };
 

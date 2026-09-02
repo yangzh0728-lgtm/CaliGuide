@@ -15,6 +15,7 @@ describe("blogContent", () => {
       "guide-rental-scams",
       "forum-first-30-days",
       "trending-ssn",
+      "guide-moving-address-checklist",
       "trending-banking",
       "guide-legal-30-day-documents",
       "guide-newcomer-job-search",
@@ -91,5 +92,29 @@ describe("blogContent", () => {
     expect(article?.body[9]).toStartWith("Common sequencing mistakes:");
     expect(article?.body[10]).toStartWith("Official reminder:");
     expect(article?.body.join(" ")).not.toContain("[[guides:");
+  });
+
+  it("publishes statewide SSN application guidance instead of a San Jose-only article", () => {
+    const article = getBlogArticle("trending-ssn");
+
+    expect(article?.title).toBe("How to Apply for a Social Security Number (SSN)");
+    expect(article?.tags).not.toContain("San Jose");
+    expect(article?.body.join(" ")).not.toContain("San Jose");
+    expect(article?.body.join(" ")).toContain("work authorization");
+    expect(article?.body.join(" ")).toContain("original documents");
+  });
+
+  it("publishes a timing-first California moving and address checklist", () => {
+    const article = getBlogArticle("guide-moving-address-checklist");
+
+    expect(article?.title).toBe("Moving in California: Every Address and Account to Update");
+    expect(article?.body).toHaveLength(10);
+    expect(article?.body[1]).toStartWith("Deadline table:");
+    expect(article?.body[3]).toStartWith("Within 10 days:");
+    expect(article?.body[6]).toContain("Social Security card");
+    expect(article?.body[8]).toStartWith("Common sequencing mistakes:");
+    expect(article?.body[9]).toStartWith("Official reminder:");
+    expect(article?.body.join(" ")).toContain("USPS forwarding does not update USCIS");
+    expect(article?.body.join(" ")).toContain("driver license or ID and each vehicle");
   });
 });

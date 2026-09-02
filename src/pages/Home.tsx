@@ -25,7 +25,7 @@ import { getHomeTopics, type HomeTopicId } from '../lib/homeTopics';
 
 interface HomeProps {
   onOpenBlog: (articleId: string) => void;
-  onOpenRecommended: () => void;
+  onOpenRecommended: (groupId?: HomeTopicId) => void;
   onOpenInstitution: (institutionId: string) => void;
   onOpenAgencies: () => void;
 }
@@ -173,7 +173,7 @@ export default function Home({ onOpenBlog, onOpenRecommended, onOpenInstitution,
               type="button"
               data-home-topic={topic.id}
               aria-label={t(topic.labelKey)}
-              onClick={() => onOpenBlog(topic.leadArticleId)}
+              onClick={() => onOpenRecommended(topic.id)}
               className="group flex min-h-[104px] items-center gap-3 rounded-lg border border-outline-variant bg-white p-3 text-left shadow-sm transition hover:border-primary hover:shadow-md"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">

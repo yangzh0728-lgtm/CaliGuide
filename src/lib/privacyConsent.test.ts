@@ -94,6 +94,7 @@ describe("privacy consent", () => {
     const storage = new MemoryStorage();
     storage.setItem("caliguide-language", "es");
     storage.setItem("caliguide-chat-memory", "cached-chat");
+    storage.setItem("caliguide-moving-checklist", "[\"usps\"]");
     storage.setItem("caliguide-google-profile-draft", "oauth-draft");
     storage.setItem("sb-project-auth-token", "session");
     storage.setItem(CONSENT_STORAGE_KEY, "consent-record");
@@ -102,6 +103,7 @@ describe("privacy consent", () => {
 
     expect(storage.getItem("caliguide-language")).toBe("es");
     expect(storage.getItem("caliguide-chat-memory")).toBeNull();
+    expect(storage.getItem("caliguide-moving-checklist")).toBeNull();
     expect(storage.getItem("caliguide-google-profile-draft")).toBe("oauth-draft");
     expect(storage.getItem("sb-project-auth-token")).toBe("session");
     expect(storage.getItem(CONSENT_STORAGE_KEY)).toBe("consent-record");
