@@ -51,7 +51,7 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
               />
             )}
             <div className={`relative z-10 flex flex-col items-center justify-center ${isActive ? 'text-on-secondary-container' : 'text-on-surface-variant'}`}>
-              <Icon size={24} fill={isActive ? "currentColor" : "none"} />
+              <Icon size={24} />
               <span className="text-xs font-medium mt-1">{tab.label}</span>
             </div>
           </button>

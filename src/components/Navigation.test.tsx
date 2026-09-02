@@ -4,7 +4,7 @@ import { LanguageProvider } from "../context/LanguageContext";
 import { PrivacyConsentProvider } from "../context/PrivacyConsentContext";
 import Navigation from "./Navigation";
 
-function renderNavigation(currentPage: "home" | "blog" | "agencies") {
+function renderNavigation(currentPage: "home" | "blog" | "agencies" | "chatbot" | "profile") {
   return renderToStaticMarkup(
     <PrivacyConsentProvider>
       <LanguageProvider>
@@ -30,5 +30,15 @@ describe("Navigation", () => {
 
     expect(guideMarkup).toContain('data-navigation-tab="recommended" aria-current="page"');
     expect(agencyMarkup).toContain('data-navigation-tab="recommended" aria-current="page"');
+  });
+
+  it("keeps active Profile and Chatbot icons recognizable as outlines", () => {
+    const profileMarkup = renderNavigation("profile");
+    const chatbotMarkup = renderNavigation("chatbot");
+
+    expect(profileMarkup).toContain('data-navigation-tab="profile" aria-current="page"');
+    expect(chatbotMarkup).toContain('data-navigation-tab="chatbot" aria-current="page"');
+    expect(profileMarkup).not.toContain('fill="currentColor"');
+    expect(chatbotMarkup).not.toContain('fill="currentColor"');
   });
 });

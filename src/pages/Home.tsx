@@ -42,10 +42,12 @@ const TOPIC_ICONS: Record<HomeTopicId, LucideIcon> = {
   banking: Landmark,
 };
 
+const HOME_TOPIC_PREVIEW_LIMIT = 4;
+
 export default function Home({ onOpenBlog, onOpenRecommended, onOpenInstitution, onOpenAgencies }: HomeProps) {
   const { language, t } = useLanguage();
   const [searchText, setSearchText] = useState('');
-  const topics = getHomeTopics();
+  const topics = getHomeTopics().slice(0, HOME_TOPIC_PREVIEW_LIMIT);
 
   const recommendedGuides = getVisibleRecommendedGuides(getRecommendedBlogArticles(language), false);
   const searchResults = useMemo(
@@ -162,7 +164,7 @@ export default function Home({ onOpenBlog, onOpenRecommended, onOpenInstitution,
             {t('home.seeAll')}
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {topics.map((topic) => {
             const Icon = TOPIC_ICONS[topic.id];
             return (

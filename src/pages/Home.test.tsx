@@ -20,7 +20,7 @@ function renderHome() {
 }
 
 describe("Home", () => {
-  it("organizes every true guide topic with article counts", () => {
+  it("previews the four priority topics and leaves the full library to See all", () => {
     const markup = renderHome();
     const topicIds = Array.from(markup.matchAll(/data-home-topic="([^"]+)"/g), (match) => match[1]);
 
@@ -29,15 +29,10 @@ describe("Home", () => {
       "dmv",
       "legal",
       "jobs",
-      "health",
-      "transportation",
-      "safety",
-      "education",
-      "banking",
     ]);
     expect(markup).toContain("3 guides");
     expect(markup).toContain("2 guides");
-    expect(markup).toContain("1 guide");
+    expect(markup).toContain("See all");
     expect(markup).not.toContain("Community Guide</span>");
     expect(markup).not.toContain("Forum Question</span>");
   });
