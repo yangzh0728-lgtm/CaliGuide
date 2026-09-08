@@ -9,8 +9,6 @@
 <p align="center">
   <a href="https://www.caliguide.org"><strong>Visit CaliGuide</strong></a>
   ·
-  <a href="docs/CALIGUIDE_HANDOFF.md">Engineering documentation</a>
-  ·
   <a href="docs/DATA_INVENTORY.md">Data inventory</a>
 </p>
 
@@ -24,14 +22,16 @@ The product is designed for people preparing to move to California as well as re
 
 ## Key Features
 
-- **Source-backed guides** with section-level citations, official links, review dates, and topic-specific disclaimers.
+- **Public guide library** with shareable URLs, topic filters, section-level citations, official action links, review dates, and topic-specific disclaimers. Reading does not require an account.
+- **Agency directory** organized by need, with agency responsibilities, common points of confusion, official resources, and related guides.
 - **Multilingual interface** supporting English, Simplified Chinese, Traditional Chinese, Cantonese, and Spanish modes.
 - **Community forum** with posts, comments, voting, saved posts, image attachments, reporting, and on-demand translation.
 - **CaliBot assistant** with streamed responses, image understanding, conversation history, and optional user-level memory through Mem0.
-- **Personalized library** for saved guides, saved forum posts, account information, and user activity.
-- **Secure accounts** powered by Supabase Auth, including email/password and Google sign-in flows.
+- **Personal dashboard** with saved resources, recent conversations, arrival-stage guide suggestions, and an account-synced moving checklist.
+- **Minimal registration** using email/password or Google sign-in through Supabase Auth. Optional, dismissible prompts let users choose a public nickname before posting or personalize guide suggestions later.
 - **Media storage** in Cloudflare R2 for profile photos, forum images, and chatbot attachments.
 - **Privacy controls** for consent preferences, account-data export, and account deletion.
+- **Guide correction reporting** for outdated information, factual errors, broken links, translation problems, and unclear guidance, with no account required to submit a report.
 - **Responsive experience** designed for both mobile and desktop use.
 
 ## Architecture
@@ -40,7 +40,7 @@ The product is designed for people preparing to move to California as well as re
 | --- | --- | --- |
 | Frontend | React 19, TypeScript, Vite 6, Tailwind CSS 4 | Interface, routing, localization, and client state |
 | Application API | Express 4 | Authentication-aware APIs, uploads, forum actions, translation, and chat streaming |
-| Authentication and database | Supabase Auth and PostgreSQL | Users, profiles, guides, forum data, chat history, saved content, and moderation records |
+| Authentication and database | Supabase Auth and PostgreSQL | Accounts, profiles, checklist progress, forum data, chat history, saved content, report queues, and imported content records |
 | Object storage | Cloudflare R2 | Avatars, forum images, chatbot images, and platform media |
 | Chat AI | OpenAI SDK with Baidu Qianfan's OpenAI-compatible endpoint | CaliBot text and vision |
 | Translation | Microsoft Azure AI Translator | On-demand forum translation |
@@ -107,6 +107,7 @@ See [.env.example](.env.example) for descriptions and example values.
 | --- | --- |
 | `bun run dev` | Start the Express API and Vite development server |
 | `bun test` | Run the automated test suite |
+| `bun run test:e2e` | Run Playwright browser tests on desktop and mobile Chromium |
 | `bun run typecheck` | Run TypeScript validation without emitting files |
 | `bun run lint` | Compatibility alias for the current typecheck command; a dedicated linter is not configured yet |
 | `bun run build` | Build the frontend and bundle the production server into `dist/` |
@@ -123,10 +124,13 @@ See [.env.example](.env.example) for descriptions and example values.
 src/
   components/       Shared interface components
   context/          Authentication, language, and privacy state
+  hooks/            Shared stateful behavior, including checklist synchronization
+  i18n/             Interface translations and localized workflow copy
   lib/              Data access, integrations, validation, and domain logic
   pages/            Main application views
 content/            Structured guide content and import documentation
-docs/               Engineering handoff, privacy inventory, and design plans
+e2e/                Browser-level workflow tests
+docs/               Privacy inventory and design documentation
 schemas/            JSON schemas for content validation
 scripts/            Content, storage, migration, and benchmark utilities
 supabase/           Versioned SQL setup and repair scripts
@@ -135,7 +139,9 @@ server.ts           Express API and production application server
 
 ## Data and Media Model
 
-Supabase is the source of truth for user accounts, profiles, guides, forum activity, saved content, chat history, and moderation data. Cloudflare R2 stores binary media rather than database blobs.
+Supabase stores user accounts, profiles, signed-in checklist progress, forum activity, saved content, chat history, and moderation data. Profile and checklist access is scoped to the account owner; report queues are not exposed to browser roles. Cloudflare R2 stores binary media rather than database blobs.
+
+The public guide library currently renders bundled content from `src/lib/blogContent.ts` and its localization modules. The separate structured-content import workflow writes normalized records to Supabase; importing content alone does not update the bundled guide pages.
 
 ```text
 assets/users/{user_id}/profile/{file}
@@ -157,11 +163,23 @@ bun run typecheck
 bun run build
 ```
 
-The test suite covers localization parity, guide citations and disclaimers, authentication helpers, forum behavior, moderation, account-data controls, uploads, chat memory, and server integrations.
+The test suite covers localization parity, guide formatting and citations, authentication helpers, forum behavior, moderation, account-data controls, checklist synchronization, uploads, chat memory, and server integrations.
+
+For browser checks, install Chromium and run with placeholder Supabase configuration:
+
+```bash
+bunx playwright install chromium
+VITE_SUPABASE_URL=https://example.supabase.co \
+VITE_SUPABASE_ANON_KEY=sb_publishable_ci \
+bun run test:e2e
+```
+
+Leave port 3000 available so Playwright starts its own application server with this configuration instead of reusing a running development server. Account workflow tests mock external services; they do not create real accounts or verify production OAuth.
+
+[GitHub Actions](.github/workflows/ci.yml) runs unit tests, TypeScript checks, production builds, desktop/mobile browser tests, and database-permission assertions against disposable PostgreSQL. Browser coverage includes public navigation, minimal signup, optional profile prompts, guide reporting, saved guides, and checklist persistence. The SQL fixtures under `supabase/tests/` are for testing only, not production setup.
 
 ## Documentation
 
-- [Engineering handoff](docs/CALIGUIDE_HANDOFF.md): architecture, service ownership, database model, API routes, deployment considerations, and regression checks.
 - [Data inventory](docs/DATA_INVENTORY.md): collected data, subprocessors, browser storage, public exposure, and available user controls.
 - [Content workflow](content/README.md): guide JSON structure, validation, and Supabase import.
 - [Supabase migrations](supabase/): database tables, policies, permissions, translations, moderation, and repair scripts.
