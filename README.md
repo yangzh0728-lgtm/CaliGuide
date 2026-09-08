@@ -3,24 +3,73 @@
 </p>
 
 <p align="center">
-  Multilingual, source-backed guidance and community support for newcomers to California.
+  <strong>A clearer start in California, in a language you read.</strong>
 </p>
 
 <p align="center">
   <a href="https://www.caliguide.org"><strong>Visit CaliGuide</strong></a>
   ·
-  <a href="docs/DATA_INVENTORY.md">Data inventory</a>
+  <a href="#why-this-exists">Why this exists</a>
+  ·
+  <a href="#what-makes-it-different">What makes it different</a>
+  ·
+  <a href="#getting-started">Run it locally</a>
 </p>
 
-## About CaliGuide
+---
 
-CaliGuide helps newcomers navigate everyday life in California through practical guides, community discussions, and AI-assisted answers. The platform brings together cited official information, multilingual content, saved resources, and personalized support in one accessible experience.
+An appointment can become a wasted trip when you bring the wrong documents. A move
+can mean updating several agencies and accounts, each with a different process.
+Finding the right instructions should not be the hardest part of starting over.
 
-The product is designed for people preparing to move to California as well as recent arrivals who need help understanding unfamiliar systems such as transportation, housing, banking, healthcare, employment, and public services.
+Moving to California means learning unfamiliar systems for housing, transportation,
+banking, healthcare, employment, and public services. The information exists, but it
+is often spread across agencies and difficult to navigate in an unfamiliar language.
+
+CaliGuide brings practical guides, official-source links, community discussions,
+and AI-assisted answers into one multilingual starting point.
+
+## Why this exists
+
+The moving and address-change guide captures the problem CaliGuide aims to solve:
+what needs updating, in what order, and which steps have deadlines? Forwarding mail,
+updating government records, and changing utility accounts are connected tasks, but
+their instructions rarely live together.
+
+CaliGuide organizes information around those everyday tasks, helping people find
+the right agency, prepare their next step, and check the source before acting.
+
+## What makes it different
+
+**20 guides · 69 cited references · 27 agencies · 5 interface languages**
+
+**Sources alongside the guidance.** Guide sections link to references with a
+publisher, a description of what the source supports, and a recorded review date.
+Readers can consult the original guidance instead of relying on a summary alone.
+
+**Five interface languages.** English, Simplified Chinese, Traditional Chinese,
+Cantonese, and Spanish. Guide content is maintained in the repository rather than
+translated on demand; Cantonese mode currently shares Traditional Chinese guide
+content. Community posts can be translated on demand through Azure Translator.
+
+**No behavioral analytics.** The app does not include Google Analytics, Segment,
+PostHog, or advertising tracking pixels. Operational error reporting and external
+services still process some data; the [data inventory](docs/DATA_INVENTORY.md)
+explains those flows.
+
+**Read first, register when needed.** Guides and the agency directory are public.
+Accounts are for saving, posting, chat, and synced progress, not for reading public
+government information.
+
+**Sensitive topics are clearly marked.** Guides covering legal, medical, or
+financial topics include notices explaining the limits of general information.
+
+**Anyone can report a correction.** No account is needed to flag outdated guidance,
+broken links, or translation problems. Reports enter a private review queue.
 
 > CaliGuide provides general educational information, not legal, medical, or financial advice. Sensitive guides include topic-specific notices and links to official sources.
 
-## Key Features
+## Features
 
 - **Public guide library** with shareable URLs, topic filters, section-level citations, official action links, review dates, and topic-specific disclaimers. Reading does not require an account.
 - **Agency directory** organized by need, with agency responsibilities, common points of confusion, official resources, and related guides.
@@ -48,6 +97,9 @@ The product is designed for people preparing to move to California as well as re
 | Runtime and tooling | Bun, Node.js, esbuild | Dependency management, tests, local development, and production builds |
 
 The frontend and Express API are deployed as one full-stack application by default. A static frontend deployment must configure `VITE_API_BASE_URL` to point to a separately deployed API; otherwise routes such as `/api/chat` and `/api/uploads/*` will not exist.
+
+Data handling, including which third parties receive user content, is documented
+in the [data inventory](docs/DATA_INVENTORY.md).
 
 ## Getting Started
 
@@ -202,11 +254,19 @@ Confirm the R2 credentials, bucket name, and public media URL are present on the
 
 CaliGuide is under active development. Before submitting a substantial change, open an issue describing the problem, intended behavior, and any database or privacy impact. Changes should include focused tests and preserve behavior across all supported interface languages.
 
+Native speakers can help by flagging unclear or unnatural translations. Use the
+guide's correction form or open an issue with the language, guide link, and
+suggested wording.
+
 Do not include credentials, user data, production exports, or private service configuration in issues or pull requests.
 
 ## Security
 
 Report vulnerabilities privately through GitHub's [Security tab](https://github.com/yangzh0728-lgtm/CaliGuide/security), not as a public issue. See [SECURITY.md](SECURITY.md) for scope, testing rules, and response times.
+
+Authorization relies on server checks, database permissions, and Supabase Row Level
+Security, not on keeping the source code or publishable key secret. Report suspected
+cross-account access privately and follow the testing rules in the security policy.
 
 ## License
 
