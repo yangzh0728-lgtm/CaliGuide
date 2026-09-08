@@ -77,7 +77,7 @@ broken links, or translation problems. Reports enter a private review queue.
 - **Community forum** with posts, comments, voting, saved posts, image attachments, reporting, and on-demand translation.
 - **CaliBot assistant** with streamed responses, image understanding, conversation history, and optional user-level memory through Mem0.
 - **Personal dashboard** with saved resources, recent conversations, arrival-stage guide suggestions, and an account-synced moving checklist.
-- **Minimal registration** using email/password or Google sign-in through Supabase Auth. Optional, dismissible prompts let users choose a public nickname before posting or personalize guide suggestions later.
+- **Flexible registration** through Supabase Auth: email and password are required; the separately labeled profile fields can all be left blank. Google sign-in is also available. A later sign-in can offer a dismissible reminder for missing details, with a 30-day pause or a permanent opt-out.
 - **Media storage** in Cloudflare R2 for profile photos, forum images, and chatbot attachments.
 - **Privacy controls** for consent preferences, account-data export, and account deletion.
 - **Guide correction reporting** for outdated information, factual errors, broken links, translation problems, and unclear guidance, with no account required to submit a report.

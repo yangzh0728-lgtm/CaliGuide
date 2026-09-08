@@ -23,11 +23,22 @@ directly. Findings below cite the file and line where the behavior lives.
 
 ### Profile (`public.profiles`)
 
-Email registration requires only email and password. Date of birth, sex,
-nationality, location, and arrival details can be added later in Settings.
-Signup metadata contains a generic public name and an `arrival_status_provided`
-flag set to false, not demographic answers. The legacy database default remains
-`planning`; Profile does not use it as a declared stage for these new accounts.
+Email registration requires only email and password. Display name, date of birth,
+sex, nationality, location, and arrival stage remain visible in a separate optional
+section. Blank fields are omitted from signup metadata. An omitted name uses a
+generic public name; an omitted arrival stage sets `arrival_status_provided` false.
+The legacy database default remains `planning`, but is not a declared stage.
+Explicit sex choices (including "Prefer not to say") are tracked with
+`sex_provided` in auth metadata so they are not requested again.
+
+A later explicit password or Google sign-in may offer a missing-details dialog;
+registration, page reloads, and token refreshes do not trigger it. Auth metadata
+stores `profile_reminder_after` (a 30-day snooze after saving or choosing Not now)
+and `profile_reminder_dismissed` (permanent opt-out). These are UX preferences,
+never authorization claims. If a snooze cannot sync, the dialog still closes,
+but the pause is only retained in the current in-memory account state.
+The dialog writes only supplied, still-missing fields. Settings remains available
+for editing existing answers.
 An optional nickname dialog appears when a new member starts a forum post;
 skipping keeps the generic name. Arrival-stage personalization is opened by the
 user from Profile. Each dialog updates only its field in the owner's profile
@@ -83,7 +94,8 @@ The application now separates necessary storage from optional preferences in
 | Key or storage | Category | Purpose |
 | --- | --- | --- |
 | Supabase Auth browser storage | Necessary | Session and refresh-token persistence (`src/lib/supabaseClient.ts`) |
-| `caliguide-google-profile-draft` | Necessary | Temporary profile state for Google OAuth registration (`src/context/AuthContext.tsx`) |
+| `caliguide-google-profile-draft` | Necessary | Legacy temporary profile state for Google OAuth registration (`src/context/AuthContext.tsx`) |
+| `caliguide-oauth-login` (session storage) | Necessary | OAuth sign-in start time; consumed after return, valid for 30 minutes, contains no profile details |
 | `caliguide-privacy-consent` | Necessary | Consent version, optional category choices, and update time |
 | `caliguide-language` | Necessary / functional | Interface language required to preserve an accessible experience (`src/context/LanguageContext.tsx`) |
 | `caliguide-chat-memory` | Preferences | Local chatbot cache (`src/pages/Chatbot.tsx`, `src/lib/chatMemory.ts`) |

@@ -554,7 +554,7 @@ export default function Forum({
         type="button"
         aria-label="Create a forum post"
         onClick={() => {
-          if (currentUser && needsDisplayName(currentUser.name) && !namePromptAsked) {
+          if (currentUser && needsDisplayName(currentUser.name) && !namePromptAsked && !currentUser.profileReminderDismissed && (currentUser.profileReminderAfter ?? 0) <= Date.now()) {
             setNamePromptOpen(true);
             setNamePromptAsked(true);
           } else setIsComposerOpen(true);

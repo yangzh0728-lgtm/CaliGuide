@@ -14,6 +14,7 @@ import { ensureUserMediaStructure } from "../lib/userMediaStructure";
 import { formatNationalities, normalizeNationalities } from "../lib/nationalities";
 import type { ForumTranslationLanguage } from "../lib/forumTranslation";
 import { buildProfileDetailUpdate, minimalSignupMetadata, type ProfileDetailInput } from "../lib/progressiveProfile";
+import { blankOptionalProfile, buildOptionalProfileUpdate, missingProfileFields, reminderPreference, shouldOfferProfileReminder, type OptionalProfileValues } from "../lib/optionalProfile";
 
 type RegistrationProfileInput = {
   name: string;
@@ -28,12 +29,16 @@ interface AuthContextValue {
   currentUser: AuthUser | null;
   isLoading: boolean;
   isPasswordRecovery: boolean;
+  profileReminderUserId: string | null;
+  saveOptionalProfile: (input: OptionalProfileValues) => Promise<void>;
+  dismissProfileReminder: (choice: "later" | "never") => Promise<void>;
   register: (input: {
     email: string;
     password: string;
+    optionalProfile?: OptionalProfileValues;
   }) => Promise<{ confirmationRequired: boolean }>;
   login: (input: { email: string; password: string }) => Promise<void>;
-  loginWithGoogle: (input?: RegistrationProfileInput) => Promise<void>;
+  loginWithGoogle: (input?: RegistrationProfileInput, intent?: "login" | "register") => Promise<void>;
   requestPasswordReset: (input: { email: string }) => Promise<void>;
   resetRecoveredPassword: (input: { newPassword: string }) => Promise<void>;
   logout: () => Promise<void>;
@@ -67,6 +72,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [profileReminderUserId, setProfileReminderUserId] = useState<string | null>(null);
+
+  function offerReminder(user: AuthUser) {
+    setProfileReminderUserId(shouldOfferProfileReminder(user) ? user.id : null);
+  }
+
+  function finishGoogleLogin(user: AuthUser) {
+    try {
+      const value = sessionStorage.getItem("caliguide-oauth-login");
+      if (!value) return;
+      sessionStorage.removeItem("caliguide-oauth-login");
+      const startedAt = Number(value);
+      if (startedAt <= Date.now() && startedAt > Date.now() - 30 * 60 * 1000) offerReminder(user);
+    } catch { /* Storage may be unavailable; never block authentication. */ }
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -83,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const user = await loadAuthUserAndEnsureMediaStructure(data.session.user, data.session.access_token);
         if (!isMounted || revision !== sessionRevision) return;
         setCurrentUser(user);
+        finishGoogleLogin(user);
       } else {
         setCurrentUser(null);
       }
@@ -101,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!session?.user) {
         setCurrentUser(null);
+        setProfileReminderUserId(null);
         setIsLoading(false);
         return;
       }
@@ -108,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       void loadAuthUserAndEnsureMediaStructure(session.user, session.access_token).then((user) => {
         if (isMounted && revision === sessionRevision) {
           setCurrentUser(user);
+          finishGoogleLogin(user);
           setIsLoading(false);
         }
       });
@@ -126,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       currentUser,
       isLoading,
       isPasswordRecovery,
+      profileReminderUserId,
       register: async (input) => {
         const email = input.email.trim().toLowerCase();
         const password = input.password;
@@ -139,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email,
           password,
           options: {
-            data: minimalSignupMetadata(),
+            data: { ...minimalSignupMetadata(), ...buildOptionalProfileUpdate(input.optionalProfile ?? blankOptionalProfile()).metadata },
           },
         });
 
@@ -155,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { confirmationRequired: true };
         }
 
+        setProfileReminderUserId(null);
         setCurrentUser(await loadAuthUserAndEnsureMediaStructure(data.user, data.session?.access_token));
         return { confirmationRequired: false };
       },
@@ -171,9 +196,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("Unable to sign in");
         }
 
-        setCurrentUser(await loadAuthUserAndEnsureMediaStructure(data.user, data.session?.access_token));
+        const user = await loadAuthUserAndEnsureMediaStructure(data.user, data.session?.access_token);
+        setCurrentUser(user);
+        offerReminder(user);
       },
-      loginWithGoogle: async (input) => {
+      loginWithGoogle: async (input, intent = "login") => {
+        try {
+          sessionStorage.removeItem("caliguide-oauth-login");
+          if (intent === "login") sessionStorage.setItem("caliguide-oauth-login", String(Date.now()));
+        } catch { /* Authentication still works when session storage is unavailable. */ }
         if (input) {
           const profileDraft = validateRegistrationProfileInput(input);
           saveGoogleProfileDraft(profileDraft);
@@ -231,12 +262,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error(formatSupabaseAuthError(error));
         }
         setCurrentUser(null);
+        setProfileReminderUserId(null);
         setIsPasswordRecovery(false);
       },
       clearDeletedAccountSession: async () => {
         await supabase.auth.signOut({ scope: "local" });
         setCurrentUser(null);
+        setProfileReminderUserId(null);
         setIsPasswordRecovery(false);
+      },
+      saveOptionalProfile: async (input) => {
+        if (!currentUser) throw new Error("Sign in required");
+        const { data: session, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError || session.user?.id !== currentUser.id) throw new Error("Sign in required");
+        const latest = await loadAuthUser(session.user);
+        const unanswered = missingProfileFields(latest);
+        const supplied = Object.fromEntries(unanswered.map((key) => [key, input[key]]));
+        const update = buildOptionalProfileUpdate({ ...blankOptionalProfile(), ...supplied });
+        if (Object.keys(update.profile).length) {
+          const { error } = await supabase.from("profiles")
+            .update({ ...update.profile, updated_at: new Date().toISOString() })
+            .eq("id", currentUser.id).select("id").single();
+          if (error) throw new Error(error.message);
+        }
+        const { data, error } = await supabase.auth.updateUser({ data: { ...update.metadata, ...reminderPreference("later") } });
+        if (error) throw new Error(formatSupabaseAuthError(error));
+        const updated = await loadAuthUser(data.user);
+        setCurrentUser((active) => active?.id === updated.id ? updated : active);
+        setProfileReminderUserId(null);
+      },
+      dismissProfileReminder: async (choice) => {
+        if (!currentUser) return;
+        const preference = reminderPreference(choice);
+        if (choice === "later") {
+          setProfileReminderUserId(null);
+          setCurrentUser((active) => active?.id === currentUser.id ? { ...active, profileReminderAfter: Date.now() + 30 * 86400000 } : active);
+        }
+        const { data, error } = await supabase.auth.updateUser({ data: preference });
+        if (error) {
+          if (choice === "later") {
+            console.warn("Unable to sync profile reminder preference");
+            return;
+          }
+          throw new Error(formatSupabaseAuthError(error));
+        }
+        const updated = await loadAuthUser(data.user);
+        setCurrentUser((active) => active?.id === updated.id ? updated : active);
+        setProfileReminderUserId(null);
       },
       updateProfileDetail: async (input) => {
         if (!currentUser) throw new Error("Sign in required");
@@ -306,6 +378,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             avatar_url: avatarUrl,
             date_of_birth: dateOfBirth || null,
             sex: input.sex,
+            sex_provided: true,
             nationalities,
             country_nationality: countryNationality,
             current_location: currentLocation,
@@ -438,7 +511,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       isPostSaved: (postId) => currentUser?.savedPostIds.includes(postId) ?? false,
     }),
-    [currentUser, isLoading, isPasswordRecovery],
+    [currentUser, isLoading, isPasswordRecovery, profileReminderUserId],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

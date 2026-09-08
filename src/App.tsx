@@ -12,6 +12,7 @@ import PageSkeleton from './components/PageSkeleton';
 import Home from './pages/Home';
 import BlogDetail from './pages/BlogDetail';
 import { useAuth } from './context/AuthContext';
+import ProfileCompletionReminder from './components/ProfileCompletionReminder';
 import { useLanguage } from './context/LanguageContext';
 import { getLocalizedBlogArticle, getLocalizedBlogArticles } from './lib/blogLocalization';
 import {
@@ -715,6 +716,7 @@ export default function App() {
         onCancel={() => setPendingForumDelete(null)}
         onConfirm={confirmForumDelete}
       />
+      <ProfileCompletionReminder />
     </div>
   );
 }

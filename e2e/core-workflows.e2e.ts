@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PROFILE_PROMPT_COPY } from "../src/i18n/profilePromptCopy";
+import { OPTIONAL_PROFILE_COPY } from "../src/i18n/optionalProfileCopy";
 import type { LanguageCode } from "../src/i18n/translations";
 
 test("anonymous guide reports preserve edits on failure and can be retried", async ({ page }, testInfo) => {
@@ -35,24 +36,27 @@ test("email registration requires no demographic details", async ({ page }, test
   await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
   await page.getByRole("button", { name: "Register", exact: true }).click();
   await page.getByRole("button", { name: /email/i }).click();
-  await expect(page.locator('input[type="date"]')).toHaveCount(0);
-  await expect(page.locator("form select")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Required account information" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Optional profile information" })).toBeVisible();
+  await expect(page.locator('input[type="date"]')).not.toHaveAttribute("required");
+  await expect(page.getByLabel("Sex", { exact: true })).toHaveValue("");
+  await expect(page.getByLabel("Arrival stage", { exact: false })).toHaveValue("");
   await page.getByLabel("Email", { exact: true }).fill("reader@example.com");
   await page.getByLabel("Password", { exact: true }).fill("Test-password-123");
-  await page.screenshot({ path: testInfo.outputPath("registration.png") });
+  await page.screenshot({ path: testInfo.outputPath("registration.png"), fullPage: true });
   await page.locator('button[type="submit"]').click();
   await expect.poll(() => signup?.email).toBe("reader@example.com");
   expect(signup.data).toEqual({ name: "CaliGuide Member", arrival_status_provided: false });
 });
 
-async function mockAccount(page: Page, options: { newMember?: boolean; failProfileOnce?: boolean } = {}) {
+async function mockAccount(page: Page, options: { newMember?: boolean; failProfileOnce?: boolean; signedOut?: boolean; metadata?: Record<string, unknown>; failPreference?: boolean } = {}) {
   const id = "11111111-1111-4111-8111-111111111111";
-  const user = { id, aud: "authenticated", role: "authenticated", email: "reader@example.com", created_at: "2026-01-01T00:00:00Z", app_metadata: { provider: "email" }, user_metadata: { name: options.newMember ? "CaliGuide Member" : "Test Reader", arrival_status_provided: !options.newMember } };
+  const user = { id, aud: "authenticated", role: "authenticated", email: "reader@example.com", created_at: "2026-01-01T00:00:00Z", app_metadata: { provider: "email" }, user_metadata: { name: options.newMember ? "CaliGuide Member" : "Test Reader", arrival_status_provided: !options.newMember, ...options.metadata } };
   const profile = { id, name: user.user_metadata.name, member_since: "2026-01-01T00:00:00Z", arrival_status: options.newMember ? "planning" : "arrived", nationalities: [] };
   const profileWrites: Record<string, unknown>[] = [];
   let failedProfile = false;
   const jwt = `${Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url")}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: "authenticated" })).toString("base64url")}.test`;
-  await page.addInitScript(({ user, jwt }) => {
+  if (!options.signedOut) await page.addInitScript(({ user, jwt }) => {
     if (!localStorage.getItem("sb-example-auth-token")) {
       localStorage.setItem("sb-example-auth-token", JSON.stringify({ access_token: jwt, refresh_token: "test-refresh", expires_at: Math.floor(Date.now() / 1000) + 3600, expires_in: 3600, token_type: "bearer", user }));
     }
@@ -65,7 +69,10 @@ async function mockAccount(page: Page, options: { newMember?: boolean; failProfi
   ];
   await page.route("https://example.supabase.co/**", async (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname.includes("/auth/v1/token")) return route.fulfill({ json: { access_token: jwt, refresh_token: "test-refresh", expires_in: 3600, token_type: "bearer", user } });
+    if (url.pathname.includes("/auth/v1/logout")) return route.fulfill({ status: 204 });
     if (url.pathname.includes("/auth/v1/user")) {
+      if (options.failPreference && route.request().method() === "PUT") return route.fulfill({ status: 503, json: { message: "Private auth failure" } });
       if (route.request().method() === "PUT") Object.assign(user.user_metadata, route.request().postDataJSON().data);
       return route.fulfill({ json: user });
     }
@@ -105,8 +112,135 @@ async function mockAccount(page: Page, options: { newMember?: boolean; failProfi
     return route.fulfill({ json: [] });
   });
   await page.route("**/api/**", (route) => route.fulfill({ json: { ok: true } }));
-  return { progress: () => progress, profileWrites: () => profileWrites };
+  return { progress: () => progress, profileWrites: () => profileWrites, metadata: () => user.user_metadata };
 }
+
+async function signIn(page: Page) {
+  await page.goto("/profile");
+  const consent = page.getByRole("button", { name: "Reject non-essential", exact: true });
+  if (await consent.isVisible()) await consent.click();
+  await page.getByLabel("Email", { exact: true }).fill("reader@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("Test-password-123");
+  await page.locator('button[type="submit"]').click();
+}
+
+test("later login asks only for missing information and saves a partial answer", async ({ page }, testInfo) => {
+  const account = await mockAccount(page, { signedOut: true, metadata: { sex: "prefer_not_to_say" }, failProfileOnce: true });
+  await signIn(page);
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("heading", { name: "Add optional profile details?" })).toBeVisible();
+  await expect(dialog.getByLabel("Display name")).toHaveCount(0);
+  await expect(dialog.getByLabel("Sex", { exact: true })).toHaveCount(0);
+  await expect(dialog.getByLabel("Arrival stage", { exact: false })).toHaveCount(0);
+  await dialog.getByLabel("Current state/city").fill("Los Angeles, CA");
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(dialog.getByLabel("Current state/city")).toHaveValue("Los Angeles, CA");
+  await page.screenshot({ path: testInfo.outputPath("completion-reminder.png") });
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  expect(Object.keys(account.profileWrites()[0]).sort()).toEqual(["current_location", "updated_at"]);
+  expect(account.metadata()).toHaveProperty("profile_reminder_after");
+  await page.reload();
+  await expect(dialog).not.toBeVisible();
+});
+
+for (const choice of ["Not now", "Don't ask again"] as const) {
+  test(`profile reminder remembers ${choice} across logins`, async ({ page }) => {
+    const account = await mockAccount(page, { signedOut: true, newMember: true });
+    await signIn(page);
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: choice, exact: true }).click();
+    await expect(dialog).not.toBeVisible();
+    await expect.poll(() => account.metadata()).toHaveProperty(choice === "Not now" ? "profile_reminder_after" : "profile_reminder_dismissed");
+    await page.evaluate(() => localStorage.removeItem("sb-example-auth-token"));
+    await signIn(page);
+    await expect(page.getByText("Your next steps in California", { exact: true })).toBeVisible();
+    await expect(dialog).not.toBeVisible();
+  });
+}
+
+test("Not now never blocks access when saving the preference fails", async ({ page }) => {
+  await mockAccount(page, { signedOut: true, newMember: true, failPreference: true });
+  await signIn(page);
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Not now", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByText("Your next steps in California", { exact: true })).toBeVisible();
+});
+
+test("a complete profile is never prompted on login", async ({ page }) => {
+  await mockAccount(page, { signedOut: true, metadata: { sex: "prefer_not_to_say", date_of_birth: "1994-03-12", nationalities: ["Canada"], current_location: "Los Angeles, CA" } });
+  await signIn(page);
+  await expect(page.getByText("Test Reader", { exact: true })).toBeVisible();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+});
+
+for (const marker of ["fresh", "expired", "none"] as const) {
+  test(`OAuth return only offers a reminder for a fresh login intent: ${marker}`, async ({ page }) => {
+    await mockAccount(page, { newMember: true });
+    await page.addInitScript((marker) => {
+      if (marker !== "none") sessionStorage.setItem("caliguide-oauth-login", String(Date.now() - (marker === "expired" ? 3600000 : 1000)));
+    }, marker);
+    await page.goto("/profile");
+    await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+    await expect(page.getByText("Your next steps in California", { exact: true })).toBeVisible();
+    if (marker === "fresh") await expect(page.getByRole("dialog")).toBeVisible();
+    else await expect(page.getByRole("dialog")).not.toBeVisible();
+  });
+}
+
+for (const language of ["en", "zh-CN", "zh-TW", "yue", "es"] as LanguageCode[]) {
+  test(`missing-profile reminder fits and can be dismissed: ${language}`, async ({ page }, testInfo) => {
+    await mockAccount(page, { newMember: true });
+    await page.addInitScript((language) => {
+      localStorage.setItem("caliguide-language", language);
+      sessionStorage.setItem("caliguide-oauth-login", String(Date.now()));
+    }, language);
+    await page.goto("/profile");
+    const buttons = page.getByRole("button");
+    const rejectLabels = { en: "Reject non-essential", "zh-CN": "拒绝非必要项", "zh-TW": "拒絕非必要項目", yue: "拒絕非必要項目", es: "Rechazar lo no esencial" };
+    await buttons.filter({ hasText: rejectLabels[language] }).click();
+    const dialog = page.getByRole("dialog");
+    const copy = OPTIONAL_PROFILE_COPY[language];
+    await expect(dialog.getByRole("heading", { name: copy.title })).toBeVisible();
+    await expect(dialog.getByRole("combobox")).toHaveCount(3);
+    await expect(dialog.getByRole("button", { name: copy.never })).toBeVisible();
+    const layout = await dialog.evaluate((node) => ({ overflow: node.scrollWidth > node.clientWidth, top: node.getBoundingClientRect().top, bottom: node.getBoundingClientRect().bottom }));
+    expect(layout.overflow).toBe(false);
+    expect(layout.top).toBeGreaterThanOrEqual(0);
+    expect(layout.bottom).toBeLessThanOrEqual(page.viewportSize()!.height);
+    await page.screenshot({ path: testInfo.outputPath(`completion-${language}.png`) });
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toBeVisible();
+  });
+}
+
+test("registration accepts optional details without changing the password", async ({ page }) => {
+  let signup: any;
+  await page.route("https://example.supabase.co/auth/v1/signup**", async (route) => {
+    signup = route.request().postDataJSON();
+    await route.fulfill({ json: { id: "reader", email: signup.email, identities: [{ id: "email" }], user_metadata: signup.data } });
+  });
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  await page.getByRole("button", { name: "Register", exact: true }).click();
+  await page.getByRole("button", { name: /email/i }).click();
+  await page.getByLabel("Email", { exact: true }).fill("reader@example.com");
+  await page.getByLabel("Password", { exact: true }).fill(" Test-password-123 ");
+  await page.getByLabel("Display name").fill("River");
+  await page.getByLabel("Date of birth").fill("1994-03-12");
+  await page.getByLabel("Sex", { exact: true }).selectOption("prefer_not_to_say");
+  await page.getByLabel("Country / nationality 1").selectOption("Canada");
+  await page.getByRole("button", { name: "Add nationality" }).click();
+  await page.getByLabel("Country / nationality 2").selectOption("Mexico");
+  await page.getByLabel("Current state/city").fill("Los Angeles, CA");
+  await page.getByLabel("Arrival stage", { exact: false }).selectOption("planning");
+  await page.locator('button[type="submit"]').click();
+  await expect.poll(() => signup?.data).toMatchObject({ name: "River", date_of_birth: "1994-03-12", sex: "prefer_not_to_say", sex_provided: true, nationalities: ["Canada", "Mexico"], current_location: "Los Angeles, CA", arrival_status: "planning", arrival_status_provided: true });
+  expect(signup.password).toBe(" Test-password-123 ");
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+});
 
 test("arrival personalization is opt-in and preserves edits after a failed save", async ({ page }, testInfo) => {
   const account = await mockAccount(page, { newMember: true, failProfileOnce: true });

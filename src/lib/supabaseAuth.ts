@@ -69,6 +69,11 @@ export function mapSupabaseUser(input: {
     memberSince: formatMemberSince(memberSinceDate),
     dateOfBirth: input.profile?.date_of_birth ?? metadataDateOfBirth,
     sex: normalizeSex(input.profile?.sex ?? metadataSex),
+    sexProvided: input.user.user_metadata?.sex_provided === true || Boolean(
+      input.user.user_metadata?.sex || (input.profile?.sex && input.profile.sex !== "prefer_not_to_say")),
+    profileReminderDismissed: input.user.user_metadata?.profile_reminder_dismissed === true,
+    profileReminderAfter: typeof input.user.user_metadata?.profile_reminder_after === "number"
+      ? input.user.user_metadata.profile_reminder_after : 0,
     nationalities,
     countryNationality: formatNationalities(nationalities),
     currentLocation: input.profile?.current_location ?? metadataCurrentLocation,

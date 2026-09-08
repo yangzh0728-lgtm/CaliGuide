@@ -17,6 +17,9 @@ export interface AuthUser {
   currentLocation: string;
   arrivalStatus: ArrivalStatusOption;
   arrivalStatusProvided?: boolean;
+  sexProvided?: boolean;
+  profileReminderDismissed?: boolean;
+  profileReminderAfter?: number;
   forumTranslationLanguage: ForumTranslationLanguage;
   savedGuideIds: string[];
   savedPostIds: string[];

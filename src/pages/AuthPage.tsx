@@ -5,6 +5,9 @@ import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { getUserFacingError } from "../lib/userFacingErrors";
 import { WORKFLOW_COPY } from "../i18n/workflowCopy";
+import OptionalProfileFields from "../components/OptionalProfileFields";
+import { blankOptionalProfile } from "../lib/optionalProfile";
+import { OPTIONAL_PROFILE_COPY } from "../i18n/optionalProfileCopy";
 
 import LegalFooter from "../components/LegalFooter";
 import { LegalPageId } from "../lib/legalContent";
@@ -26,6 +29,8 @@ export default function AuthPage({
   const [registerMethod, setRegisterMethod] = useState<"email" | "google" | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [optionalProfile, setOptionalProfile] = useState(blankOptionalProfile);
+  const profileCopy = OPTIONAL_PROFILE_COPY[language];
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +65,7 @@ export default function AuthPage({
         if (registerMethod !== "email") {
           throw new Error(t("auth.chooseSignUpMethod"));
         }
-        const result = await register({ email, password });
+        const result = await register({ email, password, optionalProfile });
         if (result.confirmationRequired) {
           setNotice(t("auth.confirmEmailNotice"));
           setMode("login");
@@ -82,7 +87,7 @@ export default function AuthPage({
     setIsSubmitting(true);
 
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(undefined, isRegistering ? "register" : "login");
     } catch (authError) {
       setError(getUserFacingError(authError, language));
       setIsSubmitting(false);
@@ -217,6 +222,11 @@ export default function AuthPage({
             </button>
           )}
 
+          {isRegistering && registerMethod === "email" && <>
+            <button type="button" onClick={() => setRegisterMethod(null)} className="text-sm font-medium text-primary hover:underline">{profileCopy.back}</button>
+            <h2 className="border-t border-outline-variant pt-4 text-base font-semibold">{profileCopy.required}</h2>
+          </>}
+
           {showEmailField && (
             <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.email")}</span>
@@ -224,6 +234,8 @@ export default function AuthPage({
               <Mail size={18} className="text-on-surface-variant" />
               <input
                 type="email"
+                required
+                autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="w-full py-3 bg-transparent outline-none text-sm"
@@ -242,6 +254,9 @@ export default function AuthPage({
               <LockKeyhole size={18} className="text-on-surface-variant" />
               <input
                 type="password"
+                required
+                minLength={isRegistering || isResettingPassword ? 6 : undefined}
+                autoComplete={isRegistering || isResettingPassword ? "new-password" : "current-password"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="w-full py-3 bg-transparent outline-none text-sm"
@@ -250,6 +265,12 @@ export default function AuthPage({
             </div>
             </label>
           )}
+
+          {isRegistering && registerMethod === "email" && <section className="space-y-4 border-t border-outline-variant pt-5" aria-labelledby="optional-profile-heading">
+            <h2 id="optional-profile-heading" className="text-base font-semibold">{profileCopy.optional}</h2>
+            <p className="text-sm leading-6 text-on-surface-variant">{profileCopy.description}</p>
+            <OptionalProfileFields value={optionalProfile} onChange={setOptionalProfile} disabled={isSubmitting} />
+          </section>}
 
           {error && (
             <p className="rounded-xl bg-error/10 border border-error/20 px-3 py-2 text-sm font-semibold text-error">
