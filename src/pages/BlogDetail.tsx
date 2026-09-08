@@ -1,5 +1,6 @@
 import { Bookmark, CalendarDays, Clock, ExternalLink, Tag } from 'lucide-react';
 import GuideDisclaimer from '../components/GuideDisclaimer';
+import GuideReportButton from '../components/GuideReportButton';
 import MovingDeadlineChecklist from '../components/MovingDeadlineChecklist';
 import ResponsiveImage from '../components/ResponsiveImage';
 import { useLanguage } from '../context/LanguageContext';
@@ -142,6 +143,7 @@ export default function BlogDetail({
       </section>
 
       {citationSet ? <GuideReferences citationSet={citationSet} /> : null}
+      <GuideReportButton article={article} />
     </article>
   );
 }

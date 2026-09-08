@@ -16,6 +16,7 @@ export interface AuthUser {
   countryNationality: string;
   currentLocation: string;
   arrivalStatus: ArrivalStatusOption;
+  arrivalStatusProvided?: boolean;
   forumTranslationLanguage: ForumTranslationLanguage;
   savedGuideIds: string[];
   savedPostIds: string[];

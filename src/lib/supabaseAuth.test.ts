@@ -46,6 +46,7 @@ describe("supabaseAuth", () => {
       countryNationality: "China, Canada",
       currentLocation: "San Jose, CA",
       arrivalStatus: "arrived",
+      arrivalStatusProvided: true,
       forumTranslationLanguage: "zh-TW",
       savedGuideIds: ["guide-1"],
       savedPostIds: ["post-1"],

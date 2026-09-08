@@ -1,6 +1,6 @@
 # CaliGuide Data Inventory
 
-Updated: August 26, 2026, by tracing the code — not from the handoff summary.
+Updated: September 2, 2026, by tracing the code — not from the handoff summary.
 
 Purpose: establish what CaliGuide actually collects, where it goes, and who else
 receives it, so the privacy policy describes real behavior. A privacy policy
@@ -22,6 +22,17 @@ directly. Findings below cite the file and line where the behavior lives.
 | Google account identity | OAuth sign-in | Optional sign-in path |
 
 ### Profile (`public.profiles`)
+
+Email registration requires only email and password. Date of birth, sex,
+nationality, location, and arrival details can be added later in Settings.
+Signup metadata contains a generic public name and an `arrival_status_provided`
+flag set to false, not demographic answers. The legacy database default remains
+`planning`; Profile does not use it as a declared stage for these new accounts.
+An optional nickname dialog appears when a new member starts a forum post;
+skipping keeps the generic name. Arrival-stage personalization is opened by the
+user from Profile. Each dialog updates only its field in the owner's profile
+and auth metadata. Neither asks for immigration status. Profiles are readable
+and editable only by their owner.
 
 Columns confirmed in `supabase/account-profile-fields.sql`:
 
@@ -46,7 +57,14 @@ product and deserves explicit treatment in the policy.
   (e.g. saving deportation-prep or legal-aid guides).
 - `forum_posts`, `forum_comments`, `forum_votes` — user-authored public content.
 - `chat_sessions`, `chat_messages` — **full chatbot conversation content**.
+- `moving_checklist_progress` — completed task identifiers for the moving and
+  address-change checklist; owner-scoped by Supabase row-level security.
 - `media_assets` — ownership, object key, URL, MIME type, size, moderation state.
+- `content_reports` — article ID, optional section, language, citation review
+  date, reason, optional reader details, optional authenticated reporter ID,
+  and private staff review fields. Anonymous submission is supported through
+  the rate-limited Express API; browser database roles have no queue access.
+  Review notes are excluded from account exports.
 
 ### Uploaded files (Cloudflare R2)
 
@@ -69,6 +87,7 @@ The application now separates necessary storage from optional preferences in
 | `caliguide-privacy-consent` | Necessary | Consent version, optional category choices, and update time |
 | `caliguide-language` | Necessary / functional | Interface language required to preserve an accessible experience (`src/context/LanguageContext.tsx`) |
 | `caliguide-chat-memory` | Preferences | Local chatbot cache (`src/pages/Chatbot.tsx`, `src/lib/chatMemory.ts`) |
+| `caliguide-moving-checklist:guest` | Preferences | Guest-only checklist progress; signed-in progress is stored in Supabase and never merged with this key. Revoking preferences clears it. The old shared key is no longer read. |
 
 Interface language is always available as necessary functional storage. Local
 chat storage is not read or written until the user accepts preferences, and

@@ -53,6 +53,31 @@ describe("translations", () => {
     }
   });
 
+  it("translates the profile dashboard and its dynamic count templates", () => {
+    const keys = [
+      "profile.savedCount",
+      "profile.postCount",
+      "profile.dashboardTitle",
+      "profile.arrival.planningTitle",
+      "profile.arrival.arrivedTitle",
+      "profile.arrival.longTermTitle",
+      "profile.checklistProgress",
+      "profile.recentChats",
+      "profile.askFirstQuestion",
+      "profile.openGuide",
+    ];
+
+    for (const language of ["en", "zh-CN", "zh-TW", "yue", "es"] as const) {
+      for (const key of keys) {
+        expect(translate(language, key)).toBeTruthy();
+        expect(translate(language, key)).not.toBe(key);
+      }
+    }
+
+    expect(translate("zh-CN", "profile.savedCount")).not.toContain("saved");
+    expect(translate("es", "profile.postCount")).not.toContain("forum posts");
+  });
+
   it("translates the application loading state", () => {
     for (const language of ["en", "zh-CN", "yue", "zh-TW", "es"] as const) {
       expect(translate(language, "app.loading")).toBeTruthy();

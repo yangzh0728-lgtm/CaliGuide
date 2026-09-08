@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { BLOG_ARTICLES } from "../src/lib/blogContent";
 
 test("opens a shareable guide URL without signing in", async ({ page }) => {
   await page.goto("/guides/california-real-id-documents");
@@ -13,7 +14,8 @@ test("guide navigation writes browser history", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "DMV", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/guides\/california-dmv-new-resident-checklist$/);
+  await expect(page).toHaveURL(/\/guides\/topics\/dmv$/);
+  await expect(page.locator("[data-guide-card]")).toHaveCount(3);
   await page.goBack();
   await expect(page).toHaveURL(/\/$/);
 });
@@ -37,7 +39,7 @@ test("lists and filters the complete public guide library", async ({ page }) => 
 
   await expect(page.getByRole("heading", { level: 1, name: "Guides" })).toBeVisible();
   await expect(page.getByText("Recommended for You", { exact: true })).toHaveCount(0);
-  await expect(page.locator("[data-guide-card]")).toHaveCount(19);
+  await expect(page.locator("[data-guide-card]")).toHaveCount(BLOG_ARTICLES.length);
   await expect(page.locator('[data-guide-card="forum-first-30-days"]')).toBeVisible();
 
   await page.locator('[data-guide-group="safety"]:visible').click();

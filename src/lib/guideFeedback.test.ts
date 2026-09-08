@@ -11,12 +11,14 @@ describe("guide feedback", () => {
   it("validates structured correction reports", () => {
     expect(validateGuideIssueInput({
       articleId: "guide-1",
+      language: "en", sectionIndex: null,
       reason: "outdated",
       details: "The fee appears to have changed.",
     })).toEqual({
       ok: true,
       value: {
         articleId: "guide-1",
+        language: "en", sectionIndex: null,
         reason: "outdated",
         details: "The fee appears to have changed.",
       },
@@ -44,7 +46,7 @@ describe("guide feedback", () => {
           }),
         },
       },
-      { articleId: "guide-1", reason: "broken_link", details: "Reference 2 is unavailable." },
+      { articleId: "guide-1", language: "en", sectionIndex: null, reason: "broken_link", details: "Reference 2 is unavailable." },
     );
 
     expect(request?.url).toBe("/api/guides/reports");

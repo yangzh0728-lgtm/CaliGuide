@@ -32,7 +32,7 @@ interface MovingChecklistCopy {
   tasks: MovingChecklistTask[];
 }
 
-const taskIds: MovingChecklistTaskId[] = [
+export const MOVING_CHECKLIST_TASK_IDS: MovingChecklistTaskId[] = [
   "usps",
   "uscis",
   "dmv-license",
@@ -114,12 +114,18 @@ const copies: Record<LanguageCode, MovingChecklistCopy> = {
   },
 };
 
-copies["zh-TW"].tasks = copies["zh-CN"].tasks.map((task) => ({
-  ...task,
-  label: task.label.replaceAll("证", "證").replaceAll("车", "車").replaceAll("邮", "郵").replaceAll("医", "醫"),
-  deadline: task.deadline.replaceAll("内", "內").replaceAll("后", "後"),
-  consequence: task.consequence.replaceAll("记录", "紀錄").replaceAll("邮", "郵").replaceAll("发", "發").replaceAll("内", "內"),
-}));
+copies["zh-TW"].tasks = [
+  { id: "usps", jurisdiction: "federal", label: "USPS 郵件轉寄", deadline: "搬家日前", consequence: "重要郵件可能繼續寄到舊地址。" },
+  { id: "uscis", jurisdiction: "federal", label: "USCIS 地址", deadline: "多數非公民須在 10 天內", consequence: "可能錯過案件通知並未履行申報義務。" },
+  { id: "dmv-license", jurisdiction: "california", label: "DMV 駕照或身分證", deadline: "10 天內", consequence: "身分證件紀錄和 DMV 郵件可能仍使用舊地址。" },
+  { id: "dmv-vehicle", jurisdiction: "california", label: "DMV 車輛或船隻紀錄", deadline: "10 天內", consequence: "登記和續期通知可能寄到舊地址。" },
+  { id: "voter", jurisdiction: "california", label: "加州選民登記", deadline: "下一次選舉截止日前", consequence: "可能需要使用有條件或臨時投票程序。" },
+  { id: "employer", jurisdiction: "provider", label: "雇主和薪資系統", deadline: "下一個發薪週期前", consequence: "稅表、福利郵件或薪資紀錄可能延誤。" },
+  { id: "financial", jurisdiction: "provider", label: "銀行、信用卡和貸款機構", deadline: "兩週內", consequence: "卡片、通知、帳單或身分核對可能出問題。" },
+  { id: "insurance", jurisdiction: "provider", label: "汽車和租客保險", deadline: "確定搬家後盡快", consequence: "保費和承保紀錄可能使用錯誤地點。" },
+  { id: "health", jurisdiction: "provider", label: "健保方案和醫療機構", deadline: "兩週內", consequence: "卡片、帳單、醫療網絡資訊或通知可能延誤。" },
+  { id: "utilities", jurisdiction: "provider", label: "公用事業和通訊服務", deadline: "搬家前預約", consequence: "可能出現服務中斷或重複帳單。" },
+];
 copies.yue.tasks = copies["zh-TW"].tasks;
 
 export function getMovingChecklistCopy(language: LanguageCode) {
@@ -131,10 +137,18 @@ export function parseMovingChecklistProgress(raw: string | null): MovingChecklis
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((value): value is MovingChecklistTaskId =>
-      typeof value === "string" && taskIds.includes(value as MovingChecklistTaskId),
-    );
+    return normalizeMovingChecklistTaskIds(parsed);
   } catch {
     return [];
   }
+}
+
+export function normalizeMovingChecklistTaskIds(value: unknown): MovingChecklistTaskId[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (taskId, index): taskId is MovingChecklistTaskId =>
+      typeof taskId === "string" &&
+      MOVING_CHECKLIST_TASK_IDS.includes(taskId as MovingChecklistTaskId) &&
+      value.indexOf(taskId) === index,
+  );
 }

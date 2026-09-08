@@ -27,7 +27,7 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "auth.welcome": "Welcome back",
     "auth.createAccount": "Create your CaliGuide account",
     "auth.loginCopy": "Sign in to continue managing your guides, profile, and saved resources.",
-    "auth.registerCopy": "Save guides, manage documents, and keep your immigration profile close at hand.",
+    "auth.registerCopy": "Save guides and track your progress. Personal profile details are optional and can be added later.",
     "auth.login": "Login",
     "auth.register": "Register",
     "auth.chooseSignUpMethod": "Choose how you want to create your account.",
@@ -290,7 +290,7 @@ export const translations: Record<LanguageCode, TranslationTable> = {
     "auth.welcome": "欢迎回来",
     "auth.createAccount": "创建 CaliGuide 账户",
     "auth.loginCopy": "登录后继续管理指南、个人资料和收藏资源。",
-    "auth.registerCopy": "保存指南、管理文件，并随时查看你的移民资料。",
+    "auth.registerCopy": "保存指南并跟踪进度。个人资料选填，可以稍后添加。",
     "auth.login": "登录",
     "auth.register": "注册",
     "auth.chooseSignUpMethod": "选择创建账户的方式。",
@@ -559,7 +559,7 @@ translations.yue = {
   "auth.welcome": "歡迎返嚟",
   "auth.createAccount": "開設 CaliGuide 帳戶",
   "auth.loginCopy": "登入後繼續管理指南、個人資料同收藏資源。",
-  "auth.registerCopy": "儲存指南、管理文件，隨時查看你嘅移民資料。",
+  "auth.registerCopy": "儲存指南同追蹤進度。個人資料可選填，遲啲再加都得。",
   "auth.login": "登入",
   "auth.register": "註冊",
   "auth.chooseSignUpMethod": "選擇你想點樣建立帳戶。",
@@ -822,7 +822,7 @@ translations["zh-TW"] = {
   "auth.welcome": "歡迎回來",
   "auth.createAccount": "建立 CaliGuide 帳戶",
   "auth.loginCopy": "登入後繼續管理指南、個人資料與收藏資源。",
-  "auth.registerCopy": "儲存指南、管理文件，並隨時查看你的移民資料。",
+  "auth.registerCopy": "儲存指南並追蹤進度。個人資料選填，可以稍後新增。",
   "auth.login": "登入",
   "auth.register": "註冊",
   "auth.chooseSignUpMethod": "選擇你想如何建立帳戶。",
@@ -1086,7 +1086,7 @@ translations.es = {
   "auth.welcome": "Bienvenido de nuevo",
   "auth.createAccount": "Crea tu cuenta de CaliGuide",
   "auth.loginCopy": "Inicia sesión para seguir administrando tus guías, perfil y recursos guardados.",
-  "auth.registerCopy": "Guarda guías, administra documentos y mantén tu perfil migratorio a la mano.",
+  "auth.registerCopy": "Guarda guías y sigue tu progreso. Los datos del perfil son opcionales y puedes añadirlos después.",
     "auth.login": "Iniciar sesión",
     "auth.register": "Registrarse",
     "auth.chooseSignUpMethod": "Elige cómo quieres crear tu cuenta.",
@@ -1337,6 +1337,7 @@ translations.es = {
 };
 
 Object.assign(translations.en, {
+  "profile.checklist": "Moving checklist",
   "legal.back": "Back to CaliGuide",
   "legal.effectiveDate": "Effective date",
   "legal.lastUpdated": "Last updated",
@@ -1352,6 +1353,7 @@ Object.assign(translations.en, {
 });
 
 Object.assign(translations["zh-CN"], {
+  "profile.checklist": "搬家清单",
   "legal.back": "返回 CaliGuide",
   "legal.effectiveDate": "生效日期",
   "legal.lastUpdated": "上次更新",
@@ -1367,6 +1369,7 @@ Object.assign(translations["zh-CN"], {
 });
 
 Object.assign(translations.yue, {
+  "profile.checklist": "搬屋清單",
   "legal.back": "返回 CaliGuide",
   "legal.effectiveDate": "生效日期",
   "legal.lastUpdated": "最後更新",
@@ -1382,6 +1385,7 @@ Object.assign(translations.yue, {
 });
 
 Object.assign(translations["zh-TW"], {
+  "profile.checklist": "搬家清單",
   "legal.back": "返回 CaliGuide",
   "legal.effectiveDate": "生效日期",
   "legal.lastUpdated": "最後更新",
@@ -1397,6 +1401,7 @@ Object.assign(translations["zh-TW"], {
 });
 
 Object.assign(translations.es, {
+  "profile.checklist": "Lista de mudanza",
   "legal.back": "Volver a CaliGuide",
   "legal.effectiveDate": "Fecha de vigencia",
   "legal.lastUpdated": "Última actualización",
@@ -2104,6 +2109,136 @@ Object.assign(translations.es, {
   "recommended.group.safety": "Seguridad",
   "recommended.group.education": "Educación",
   "recommended.group.community": "Preguntas de recién llegados",
+});
+
+Object.assign(translations.en, {
+  "profile.savedCount": "Saved items: {count}",
+  "profile.postCount": "Forum posts: {count}",
+  "profile.dashboardTitle": "Your next steps",
+  "profile.arrival.planningTitle": "Prepare before you arrive",
+  "profile.arrival.planningBody": "Organize the documents and appointments that are easiest to handle before your move.",
+  "profile.arrival.arrivedTitle": "Settle in during your first 30 days",
+  "profile.arrival.arrivedBody": "Follow a practical order for identity, housing, transportation, banking, and healthcare.",
+  "profile.arrival.longTermTitle": "Keep important records current",
+  "profile.arrival.longTermBody": "Review address changes, renewals, and records that need attention after life changes.",
+  "profile.openGuide": "Open guide",
+  "profile.checklistProgress": "{completed} of {total} completed",
+  "profile.continueChecklist": "Continue checklist",
+  "profile.savedPreview": "Saved guides",
+  "profile.viewSaved": "View saved items",
+  "profile.recentChats": "Recent CaliBot conversations",
+  "profile.openChatbot": "Open CaliBot",
+  "profile.noRecentChats": "Start a conversation when you need help finding the right official source.",
+  "profile.noForumPosts": "No forum posts yet",
+  "profile.noForumPostsDesc": "Ask your first question and it will appear here.",
+  "profile.askFirstQuestion": "Ask your first question",
+  "profile.browseGuides": "Browse guides",
+  "profile.backToProfile": "Profile",
+  "profile.checklistIntro": "Use this moving checklist across devices. Your progress is saved to your CaliGuide account.",
+});
+
+Object.assign(translations["zh-CN"], {
+  "profile.savedCount": "已收藏 {count} 项",
+  "profile.postCount": "已发布 {count} 个论坛帖子",
+  "profile.dashboardTitle": "下一步",
+  "profile.arrival.planningTitle": "抵达前做好准备",
+  "profile.arrival.planningBody": "先整理适合在搬家前完成的文件和预约事项。",
+  "profile.arrival.arrivedTitle": "完成抵达后的前 30 天安排",
+  "profile.arrival.arrivedBody": "按实用顺序处理身份证件、住房、交通、银行和医疗事项。",
+  "profile.arrival.longTermTitle": "保持重要记录为最新状态",
+  "profile.arrival.longTermBody": "生活发生变化后，检查地址更新、续期和需要处理的记录。",
+  "profile.openGuide": "打开指南",
+  "profile.checklistProgress": "已完成 {completed}/{total}",
+  "profile.continueChecklist": "继续清单",
+  "profile.savedPreview": "收藏的指南",
+  "profile.viewSaved": "查看收藏",
+  "profile.recentChats": "最近的 CaliBot 对话",
+  "profile.openChatbot": "打开 CaliBot",
+  "profile.noRecentChats": "需要查找正确的官方来源时，可以开始与 CaliBot 对话。",
+  "profile.noForumPosts": "还没有论坛帖子",
+  "profile.noForumPostsDesc": "提出第一个问题后，它会显示在这里。",
+  "profile.askFirstQuestion": "提出第一个问题",
+  "profile.browseGuides": "浏览指南",
+  "profile.backToProfile": "个人资料",
+  "profile.checklistIntro": "在不同设备上使用这份搬家清单。进度会保存到您的 CaliGuide 帐户。",
+});
+
+Object.assign(translations.yue, {
+  "profile.savedCount": "已儲存 {count} 項",
+  "profile.postCount": "已發佈 {count} 篇論壇帖文",
+  "profile.dashboardTitle": "下一步",
+  "profile.arrival.planningTitle": "到埗前做好準備",
+  "profile.arrival.planningBody": "先整理適合喺搬屋前完成嘅文件同預約。",
+  "profile.arrival.arrivedTitle": "完成到埗後頭 30 日安排",
+  "profile.arrival.arrivedBody": "按實用次序處理身份證明、住屋、交通、銀行同醫療事項。",
+  "profile.arrival.longTermTitle": "保持重要紀錄最新",
+  "profile.arrival.longTermBody": "生活有變化之後，檢查地址更新、續期同需要處理嘅紀錄。",
+  "profile.openGuide": "打開指南",
+  "profile.checklistProgress": "已完成 {completed}/{total}",
+  "profile.continueChecklist": "繼續清單",
+  "profile.savedPreview": "已儲存指南",
+  "profile.viewSaved": "查看已儲存項目",
+  "profile.recentChats": "最近嘅 CaliBot 對話",
+  "profile.openChatbot": "打開 CaliBot",
+  "profile.noRecentChats": "需要搵正確官方資料時，可以開始同 CaliBot 對話。",
+  "profile.noForumPosts": "暫時未有論壇帖文",
+  "profile.noForumPostsDesc": "提出第一個問題後，就會喺呢度出現。",
+  "profile.askFirstQuestion": "提出第一個問題",
+  "profile.browseGuides": "瀏覽指南",
+  "profile.backToProfile": "個人資料",
+  "profile.checklistIntro": "可以喺唔同裝置使用呢份搬屋清單，進度會儲存到你嘅 CaliGuide 帳戶。",
+});
+
+Object.assign(translations["zh-TW"], {
+  "profile.savedCount": "已儲存 {count} 項",
+  "profile.postCount": "已發布 {count} 篇論壇貼文",
+  "profile.dashboardTitle": "下一步",
+  "profile.arrival.planningTitle": "抵達前做好準備",
+  "profile.arrival.planningBody": "先整理適合在搬家前完成的文件和預約事項。",
+  "profile.arrival.arrivedTitle": "完成抵達後的前 30 天安排",
+  "profile.arrival.arrivedBody": "依實用順序處理身分證件、住房、交通、銀行和醫療事項。",
+  "profile.arrival.longTermTitle": "保持重要紀錄為最新狀態",
+  "profile.arrival.longTermBody": "生活發生變化後，檢查地址更新、續期和需要處理的紀錄。",
+  "profile.openGuide": "開啟指南",
+  "profile.checklistProgress": "已完成 {completed}/{total}",
+  "profile.continueChecklist": "繼續清單",
+  "profile.savedPreview": "已儲存指南",
+  "profile.viewSaved": "查看已儲存項目",
+  "profile.recentChats": "最近的 CaliBot 對話",
+  "profile.openChatbot": "開啟 CaliBot",
+  "profile.noRecentChats": "需要尋找正確的官方來源時，可以開始與 CaliBot 對話。",
+  "profile.noForumPosts": "尚未有論壇貼文",
+  "profile.noForumPostsDesc": "提出第一個問題後，它會顯示在這裡。",
+  "profile.askFirstQuestion": "提出第一個問題",
+  "profile.browseGuides": "瀏覽指南",
+  "profile.backToProfile": "個人資料",
+  "profile.checklistIntro": "可在不同裝置使用這份搬家清單，進度會儲存到您的 CaliGuide 帳戶。",
+});
+
+Object.assign(translations.es, {
+  "profile.savedCount": "Elementos guardados: {count}",
+  "profile.postCount": "{count} publicaciones en el foro",
+  "profile.dashboardTitle": "Tus próximos pasos",
+  "profile.arrival.planningTitle": "Prepárate antes de llegar",
+  "profile.arrival.planningBody": "Organiza los documentos y las citas que conviene resolver antes de la mudanza.",
+  "profile.arrival.arrivedTitle": "Organízate durante tus primeros 30 días",
+  "profile.arrival.arrivedBody": "Sigue un orden práctico para identidad, vivienda, transporte, banca y atención médica.",
+  "profile.arrival.longTermTitle": "Mantén tus registros importantes al día",
+  "profile.arrival.longTermBody": "Revisa cambios de domicilio, renovaciones y registros después de cambios importantes.",
+  "profile.openGuide": "Abrir guía",
+  "profile.checklistProgress": "{completed} de {total} completados",
+  "profile.continueChecklist": "Continuar lista",
+  "profile.savedPreview": "Guías guardadas",
+  "profile.viewSaved": "Ver elementos guardados",
+  "profile.recentChats": "Conversaciones recientes con CaliBot",
+  "profile.openChatbot": "Abrir CaliBot",
+  "profile.noRecentChats": "Inicia una conversación cuando necesites encontrar la fuente oficial correcta.",
+  "profile.noForumPosts": "Aún no hay publicaciones en el foro",
+  "profile.noForumPostsDesc": "Haz tu primera pregunta y aparecerá aquí.",
+  "profile.askFirstQuestion": "Haz tu primera pregunta",
+  "profile.browseGuides": "Explorar guías",
+  "profile.backToProfile": "Perfil",
+  "profile.checklistIntro": "Usa esta lista de mudanza en varios dispositivos. El progreso se guarda en tu cuenta de CaliGuide.",
 });
 
 export function isLanguageCode(value: string | null): value is LanguageCode {

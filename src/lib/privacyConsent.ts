@@ -24,6 +24,7 @@ export type ConsentSelection =
 const OPTIONAL_PREFERENCE_STORAGE_KEYS = [
   CHAT_MEMORY_STORAGE_KEY,
   MOVING_CHECKLIST_STORAGE_KEY,
+  `${MOVING_CHECKLIST_STORAGE_KEY}:guest`,
 ] as const;
 
 function isNecessaryFunctionalStorageKey(key: string) {

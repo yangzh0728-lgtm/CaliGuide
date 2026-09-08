@@ -49,6 +49,7 @@ import {
   ACCOUNT_EXPORT_TABLES,
   getAccountDeleteValidationError,
   getUserMediaPrefix,
+  getAccountExportColumns,
 } from "./src/lib/accountDataServer";
 import {
   buildRobotsText,
@@ -60,6 +61,7 @@ import {
 } from "./src/lib/pageMetadata";
 import { buildSecurityHeaders } from "./src/lib/securityHeaders";
 import { normalizeClientErrorReport } from "./src/lib/clientErrorReport";
+import { createGuideReportHandler } from "./src/lib/guideReportServer";
 
 dotenv.config();
 
@@ -101,6 +103,7 @@ async function startServer() {
     }
     next();
   });
+  app.use("/api/guides/reports", express.json({ limit: "8kb" }));
   app.use(express.json({ limit: "16mb" }));
   app.use("/api", createApiRateLimiter({ max: 300, windowMs: 15 * 60 * 1000 }));
   app.use("/api/forum", createApiRateLimiter({ max: 90, windowMs: 5 * 60 * 1000 }));
@@ -151,6 +154,10 @@ async function startServer() {
       : null;
 
   // API routes
+  app.post("/api/guides/reports",
+    createApiRateLimiter({ max: 10, windowMs: 60 * 60 * 1000 }),
+    createGuideReportHandler(supabaseAdmin),
+  );
   app.post("/api/client-errors", (req, res) => {
     const report = normalizeClientErrorReport(req.body);
     if (!report) {
@@ -877,7 +884,7 @@ async function startServer() {
       for (const { table, ownerColumn } of ACCOUNT_EXPORT_TABLES) {
         const { data, error } = await supabaseAdmin
           .from(table)
-          .select("*")
+          .select(getAccountExportColumns(table))
           .eq(ownerColumn, userId);
 
         if (error) {

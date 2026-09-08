@@ -13,6 +13,7 @@ import { supabase } from "../lib/supabaseClient";
 import { ensureUserMediaStructure } from "../lib/userMediaStructure";
 import { formatNationalities, normalizeNationalities } from "../lib/nationalities";
 import type { ForumTranslationLanguage } from "../lib/forumTranslation";
+import { buildProfileDetailUpdate, minimalSignupMetadata, type ProfileDetailInput } from "../lib/progressiveProfile";
 
 type RegistrationProfileInput = {
   name: string;
@@ -27,7 +28,7 @@ interface AuthContextValue {
   currentUser: AuthUser | null;
   isLoading: boolean;
   isPasswordRecovery: boolean;
-  register: (input: RegistrationProfileInput & {
+  register: (input: {
     email: string;
     password: string;
   }) => Promise<{ confirmationRequired: boolean }>;
@@ -37,6 +38,7 @@ interface AuthContextValue {
   resetRecoveredPassword: (input: { newPassword: string }) => Promise<void>;
   logout: () => Promise<void>;
   clearDeletedAccountSession: () => Promise<void>;
+  updateProfileDetail: (input: ProfileDetailInput) => Promise<void>;
   updateAccount: (input: {
     name: string;
     email: string;
@@ -46,6 +48,7 @@ interface AuthContextValue {
     nationalities: string[];
     currentLocation: string;
     arrivalStatus: ArrivalStatusOption;
+    arrivalStatusProvided?: boolean;
     forumTranslationLanguage: ForumTranslationLanguage;
   }) => Promise<void>;
   updatePassword: (input: { currentPassword: string; newPassword: string }) => Promise<void>;
@@ -67,15 +70,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let isMounted = true;
+    let sessionRevision = 0;
 
     const loadInitialSession = async () => {
+      const revision = ++sessionRevision;
       const { data } = await supabase.auth.getSession();
-      if (!isMounted) {
+      if (!isMounted || revision !== sessionRevision) {
         return;
       }
 
       if (data.session?.user) {
-        setCurrentUser(await loadAuthUserAndEnsureMediaStructure(data.session.user, data.session.access_token));
+        const user = await loadAuthUserAndEnsureMediaStructure(data.session.user, data.session.access_token);
+        if (!isMounted || revision !== sessionRevision) return;
+        setCurrentUser(user);
       } else {
         setCurrentUser(null);
       }
@@ -83,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      const revision = ++sessionRevision;
       if (!isMounted) {
         return;
       }
@@ -98,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       void loadAuthUserAndEnsureMediaStructure(session.user, session.access_token).then((user) => {
-        if (isMounted) {
+        if (isMounted && revision === sessionRevision) {
           setCurrentUser(user);
           setIsLoading(false);
         }
@@ -119,51 +127,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       isPasswordRecovery,
       register: async (input) => {
-        const name = input.name.trim();
         const email = input.email.trim().toLowerCase();
-        const password = input.password.trim();
-        const dateOfBirth = input.dateOfBirth.trim();
-        const nationalities = normalizeNationalities(input.nationalities);
-        const countryNationality = formatNationalities(nationalities);
-        const currentLocation = input.currentLocation.trim();
-
-        if (!name) {
-          throw new Error("Name is required");
-        }
+        const password = input.password;
         if (!email.includes("@")) {
           throw new Error("Enter a valid email");
         }
         if (password.length < 6) {
           throw new Error("Password must be at least 6 characters");
         }
-        if (!dateOfBirth || Number.isNaN(new Date(`${dateOfBirth}T00:00:00.000Z`).getTime())) {
-          throw new Error("Enter a valid date of birth");
-        }
-        if (new Date(`${dateOfBirth}T00:00:00.000Z`) > new Date()) {
-          throw new Error("Enter a valid date of birth");
-        }
-        if (!nationalities.length) {
-          throw new Error("Country / nationality is required");
-        }
-        if (!currentLocation) {
-          throw new Error("Current state/city is required");
-        }
-
-        const avatarUrl = createRandomAvatar(name);
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: {
-              name,
-              avatar_url: avatarUrl,
-              date_of_birth: dateOfBirth,
-              sex: input.sex,
-              nationalities,
-              country_nationality: countryNationality,
-              current_location: currentLocation,
-              arrival_status: input.arrivalStatus,
-            },
+            data: minimalSignupMetadata(),
           },
         });
 
@@ -262,6 +238,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCurrentUser(null);
         setIsPasswordRecovery(false);
       },
+      updateProfileDetail: async (input) => {
+        if (!currentUser) throw new Error("Sign in required");
+        const update = buildProfileDetailUpdate(input);
+        const { error: profileError } = await supabase.from("profiles")
+          .update({ ...update.profile, updated_at: new Date().toISOString() })
+          .eq("id", currentUser.id).select("id").single();
+        if (profileError) throw new Error(profileError.message);
+        const { data, error } = await supabase.auth.updateUser({ data: update.metadata });
+        if (error) throw new Error(formatSupabaseAuthError(error));
+        const updatedUser = await loadAuthUser(data.user);
+        setCurrentUser((active) => active?.id === updatedUser.id ? updatedUser : active);
+      },
       updateAccount: async (input) => {
         if (!currentUser) {
           throw new Error("Sign in required");
@@ -284,17 +272,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!avatarUrl) {
           throw new Error("Profile picture is required");
         }
-        if (!dateOfBirth || Number.isNaN(new Date(`${dateOfBirth}T00:00:00.000Z`).getTime())) {
+        if (dateOfBirth && Number.isNaN(new Date(`${dateOfBirth}T00:00:00.000Z`).getTime())) {
           throw new Error("Enter a valid date of birth");
         }
         if (new Date(`${dateOfBirth}T00:00:00.000Z`) > new Date()) {
           throw new Error("Enter a valid date of birth");
-        }
-        if (!nationalities.length) {
-          throw new Error("Country / nationality is required");
-        }
-        if (!currentLocation) {
-          throw new Error("Current state/city is required");
         }
 
         const { error: profileError } = await supabase
@@ -302,7 +284,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .update({
             name,
             avatar_url: avatarUrl,
-            date_of_birth: dateOfBirth,
+            date_of_birth: dateOfBirth || null,
             sex: input.sex,
             nationalities,
             country_nationality: countryNationality,
@@ -322,12 +304,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           data: {
             name,
             avatar_url: avatarUrl,
-            date_of_birth: dateOfBirth,
+            date_of_birth: dateOfBirth || null,
             sex: input.sex,
             nationalities,
             country_nationality: countryNationality,
             current_location: currentLocation,
             arrival_status: input.arrivalStatus,
+            ...(input.arrivalStatusProvided ? { arrival_status_provided: true } : {}),
             forum_translation_language: input.forumTranslationLanguage,
           },
         });

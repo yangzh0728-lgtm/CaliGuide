@@ -10,6 +10,23 @@ import {
 import { formatBlogBodyBlock } from "./blogBodyFormat";
 
 describe("blogLocalization", () => {
+  it("renders explicit checklist items in all five languages without leaking delimiters", () => {
+    for (const language of ["en", "zh-CN", "zh-TW", "yue", "es"] as const) {
+      for (const article of getLocalizedBlogArticles(language)) {
+        for (const paragraph of article.body) {
+          const block = formatBlogBodyBlock(paragraph);
+          if (block.tone === "checklist") {
+            expect(block.listItems.length).toBeGreaterThan(1);
+            expect(block.listItems.join("")).not.toContain(" | ");
+          }
+        }
+      }
+    }
+    const housing = getLocalizedBlogArticle("category-housing", "zh-CN")!;
+    const items = housing.body.map(formatBlogBodyBlock).find((block) => block.tone === "checklist")!.listItems;
+    expect(items).toContain("水电、网络、停车、交通和保险预算");
+    expect(items.some((item) => item.startsWith("以及"))).toBe(false);
+  });
   it("provides official content in the supported site languages", () => {
     expect(OFFICIAL_CONTENT_LANGUAGES).toEqual(["en", "zh-CN", "zh-TW", "es"]);
 
