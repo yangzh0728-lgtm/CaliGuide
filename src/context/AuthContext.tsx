@@ -10,6 +10,7 @@ import {
   requiresEmailConfirmationAfterSignUp,
 } from "../lib/supabaseAuth";
 import { supabase } from "../lib/supabaseClient";
+import { rememberAuthReturnPath } from "../lib/authReturnPath";
 import { ensureUserMediaStructure } from "../lib/userMediaStructure";
 import { formatNationalities, normalizeNationalities } from "../lib/nationalities";
 import type { ForumTranslationLanguage } from "../lib/forumTranslation";
@@ -210,6 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           saveGoogleProfileDraft(profileDraft);
         }
 
+        rememberAuthReturnPath();
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {

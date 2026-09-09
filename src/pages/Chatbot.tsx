@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { Bot, User, Send, PlusCircle, MessageSquare, X, ImagePlus, CheckCircle2, LoaderCircle } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { motion } from 'motion/react';
+import ChatMessageContent from '../components/ChatMessageContent';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -447,7 +448,11 @@ export default function Chatbot({ initialSessionId }: { initialSessionId?: strin
                     ))}
                   </div>
                 )}
-                <p className="text-sm leading-relaxed">{msg.content}</p>
+                {msg.role === 'user' ? (
+                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                ) : (
+                  <ChatMessageContent content={msg.content} />
+                )}
                 <span className={`text-[10px] mt-2 block ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-on-surface-variant'}`}>
                   {msg.timestamp}
                 </span>

@@ -7,6 +7,7 @@ import {
   type AppRoute,
   getAppRouteFromPath,
   getAppRoutePath,
+  isPublicAppRoute,
 } from "./appRoutes";
 
 const DEFAULT_DESCRIPTION =
@@ -31,6 +32,7 @@ export function getPageMetadata(route: AppRoute): PageMetadata {
         canonicalPath: getAppRoutePath(route),
         type: "article",
         imageUrl: article.image,
+        noIndex: !isPublicAppRoute(route),
       };
     }
   }
@@ -41,6 +43,7 @@ export function getPageMetadata(route: AppRoute): PageMetadata {
       description: "Browse practical California guides covering documents, housing, health, money, safety, work, and daily life.",
       canonicalPath: "/guides",
       type: "website",
+      noIndex: true,
     };
   }
 
@@ -55,6 +58,7 @@ export function getPageMetadata(route: AppRoute): PageMetadata {
         : "Find the official federal, California, regional, and community organizations newcomers may need, grouped by task.",
       canonicalPath: getAppRoutePath(route),
       type: "website",
+      noIndex: !isPublicAppRoute(route),
     };
   }
 
@@ -104,7 +108,10 @@ export function getPublicSitemapPaths() {
     getAppRoutePath({ page: "agencies", institutionId: institution.id }),
   );
 
-  return Array.from(new Set(["/", "/guides", "/agencies", ...guidePaths, ...institutionPaths, ...legalPaths]));
+  return Array.from(new Set(["/", ...guidePaths, ...institutionPaths, ...legalPaths])).filter((path) => {
+    const route = getAppRouteFromPath(path);
+    return !route || isPublicAppRoute(route);
+  });
 }
 
 export function buildSitemapXml(paths: string[], siteOrigin: string) {
@@ -122,6 +129,7 @@ export function buildRobotsText(siteOrigin: string) {
     "Allow: /",
     "Disallow: /profile",
     "Disallow: /chatbot",
+    "Disallow: /forum",
     `Sitemap: ${origin}/sitemap.xml`,
     "",
   ].join("\n");

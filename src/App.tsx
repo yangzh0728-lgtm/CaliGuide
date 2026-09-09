@@ -55,6 +55,7 @@ import {
 } from './lib/appRoutes';
 import { getPageMetadata } from './lib/pageMetadata';
 import { reportClientError } from './lib/clientErrorReport';
+import { consumeAuthReturnPath } from './lib/authReturnPath';
 import type { GuideDirectoryGroupId } from './lib/guideDirectory';
 
 const AuthPage = lazy(() => import('./pages/AuthPage'));
@@ -153,8 +154,10 @@ export default function App() {
   useEffect(() => {
     if (currentUser) {
       setAuthRequested(false);
+      const returnRoute = consumeAuthReturnPath();
+      if (returnRoute) navigate(returnRoute, { replace: true });
     }
-  }, [currentUser]);
+  }, [currentUser, navigate]);
 
   useEffect(() => {
     if (legalPage) {
@@ -507,8 +510,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
-      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'home': return <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'guide': return <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'blog': return selectedBlog ? (
         <BlogDetail
           article={selectedBlog}
@@ -516,7 +519,7 @@ export default function App() {
           isSaved={isGuideSaved(selectedBlog.id)}
           onToggleSave={toggleSavedGuide}
         />
-      ) : <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      ) : <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'recommended': return (
         <RecommendedGuides
           activeGroupId={appRoute.page === 'recommended' ? appRoute.groupId ?? 'all' : 'all'}
@@ -598,7 +601,7 @@ export default function App() {
           currentUserId={currentUser?.id ?? ''}
         />
       );
-      default: return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      default: return <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
     }
   };
 

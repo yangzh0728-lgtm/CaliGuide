@@ -1,7 +1,8 @@
-import { ArrivalStatusOption, AuthUser, createRandomAvatar, SexOption } from "./authStore";
+import { ArrivalStatusOption, AuthUser, SexOption } from "./authStore";
 import { formatNationalities, normalizeNationalities } from "./nationalities";
 import { type ForumTranslationLanguage, normalizeForumTranslationLanguage } from "./forumTranslation";
 import { DEFAULT_MEMBER_NAME } from "./progressiveProfile";
+import { resolveProfileAvatar } from "./defaultAvatar";
 
 export interface SupabaseUserLike {
   id: string;
@@ -38,7 +39,7 @@ export function mapSupabaseUser(input: {
   const metadataAvatar =
     typeof input.user.user_metadata?.avatar_url === "string" ? input.user.user_metadata.avatar_url : "";
   const name = input.profile?.name || metadataName || DEFAULT_MEMBER_NAME;
-  const avatarUrl = input.profile?.avatar_url || metadataAvatar || createRandomAvatar(name);
+  const avatarUrl = resolveProfileAvatar(input.profile?.avatar_url || metadataAvatar, name);
   const memberSinceDate = input.profile?.member_since || input.user.created_at || new Date().toISOString();
   const metadataDateOfBirth =
     typeof input.user.user_metadata?.date_of_birth === "string" ? input.user.user_metadata.date_of_birth : null;

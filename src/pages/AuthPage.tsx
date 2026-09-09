@@ -8,6 +8,7 @@ import { WORKFLOW_COPY } from "../i18n/workflowCopy";
 import OptionalProfileFields from "../components/OptionalProfileFields";
 import { blankOptionalProfile } from "../lib/optionalProfile";
 import { OPTIONAL_PROFILE_COPY } from "../i18n/optionalProfileCopy";
+import { PUBLIC_ACCESS_COPY } from "../i18n/publicAccessCopy";
 
 import LegalFooter from "../components/LegalFooter";
 import { LegalPageId } from "../lib/legalContent";
@@ -132,7 +133,7 @@ export default function AuthPage({
                 ? t("auth.forgotPasswordCopy")
                 : isRegistering
               ? t("auth.registerCopy")
-              : t("auth.loginCopy")}
+              : PUBLIC_ACCESS_COPY[language].login}
           </p>
         </section>
 

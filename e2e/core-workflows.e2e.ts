@@ -2,16 +2,50 @@ import { expect, test, type Page } from "@playwright/test";
 import { PROFILE_PROMPT_COPY } from "../src/i18n/profilePromptCopy";
 import { OPTIONAL_PROFILE_COPY } from "../src/i18n/optionalProfileCopy";
 import type { LanguageCode } from "../src/i18n/translations";
+import { BLOG_ARTICLES } from "../src/lib/blogContent";
+
+test("sign-in unlocks the requested guide and the complete directories", async ({ page }) => {
+  await mockAccount(page, { signedOut: true, metadata: { profile_reminder_dismissed: true } });
+  await page.goto("/guides/california-real-id-documents");
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+  await page.getByLabel("Email", { exact: true }).fill("reader@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("Test-password-123");
+  await page.locator('button[type="submit"]').click();
+  await expect(page.getByRole("heading", { level: 1, name: /REAL ID Document Preparation Guide/ })).toBeVisible();
+  await expect(page).toHaveURL(/\/guides\/california-real-id-documents$/);
+  await page.goto("/guides");
+  await expect(page.locator("[data-guide-card]")).toHaveCount(BLOG_ARTICLES.length);
+  await page.locator('[data-guide-group="safety"]:visible').click();
+  await expect(page.locator("[data-guide-card]")).toHaveCount(1);
+  await page.locator('[data-reference-tab="agencies"]').click();
+  await expect(page).toHaveURL(/\/agencies$/);
+  await expect(page.getByRole("heading", { name: "Official agencies and services" })).toBeVisible();
+});
+
+test("OAuth callback restores the requested agency once", async ({ page }) => {
+  await mockAccount(page, { metadata: { profile_reminder_dismissed: true } });
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem('test-return-set')) {
+      sessionStorage.setItem('test-return-set', '1');
+      sessionStorage.setItem('caliguide-auth-return-path', JSON.stringify({ path: '/agencies/uscis', time: Date.now() }));
+    }
+  });
+  await page.goto('/');
+  await expect(page).toHaveURL(/\/agencies\/uscis$/);
+  await expect(page.getByRole('heading', { level: 1, name: /U.S. Citizenship and Immigration Services/ })).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem('caliguide-auth-return-path'))).toBeNull();
+});
 
 test("anonymous guide reports preserve edits on failure and can be retried", async ({ page }, testInfo) => {
   let attempts = 0;
   await page.route("**/api/guides/reports", async (route) => {
     expect(route.request().headers().authorization).toBeUndefined();
-    expect(route.request().postDataJSON()).toMatchObject({ articleId: "guide-real-id-documents", language: "en", sectionIndex: null });
+    expect(route.request().postDataJSON()).toMatchObject({ articleId: "forum-first-30-days", language: "en", sectionIndex: null });
     attempts++;
     await route.fulfill({ status: attempts === 1 ? 503 : 201, json: attempts === 1 ? { error: "private database error" } : { ok: true } });
   });
-  await page.goto("/guides/california-real-id-documents");
+  await page.goto("/guides/first-30-days-in-california");
   await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
   await page.getByRole("button", { name: "Report incorrect information", exact: true }).click();
   const dialog = page.getByRole("dialog");
@@ -49,10 +83,10 @@ test("email registration requires no demographic details", async ({ page }, test
   expect(signup.data).toEqual({ name: "CaliGuide Member", arrival_status_provided: false });
 });
 
-async function mockAccount(page: Page, options: { newMember?: boolean; failProfileOnce?: boolean; signedOut?: boolean; metadata?: Record<string, unknown>; failPreference?: boolean } = {}) {
+async function mockAccount(page: Page, options: { newMember?: boolean; failProfileOnce?: boolean; signedOut?: boolean; metadata?: Record<string, unknown>; failPreference?: boolean; avatarUrl?: string } = {}) {
   const id = "11111111-1111-4111-8111-111111111111";
   const user = { id, aud: "authenticated", role: "authenticated", email: "reader@example.com", created_at: "2026-01-01T00:00:00Z", app_metadata: { provider: "email" }, user_metadata: { name: options.newMember ? "CaliGuide Member" : "Test Reader", arrival_status_provided: !options.newMember, ...options.metadata } };
-  const profile = { id, name: user.user_metadata.name, member_since: "2026-01-01T00:00:00Z", arrival_status: options.newMember ? "planning" : "arrived", nationalities: [] };
+  const profile = { id, name: user.user_metadata.name, avatar_url: options.avatarUrl, member_since: "2026-01-01T00:00:00Z", arrival_status: options.newMember ? "planning" : "arrived", nationalities: [] };
   const profileWrites: Record<string, unknown>[] = [];
   let failedProfile = false;
   const jwt = `${Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url")}.${Buffer.from(JSON.stringify({ sub: id, exp: Math.floor(Date.now() / 1000) + 3600, role: "authenticated" })).toString("base64url")}.test`;
@@ -123,6 +157,19 @@ async function signIn(page: Page) {
   await page.getByLabel("Password", { exact: true }).fill("Test-password-123");
   await page.locator('button[type="submit"]').click();
 }
+
+test("saved cartoon defaults display the new initials avatar", async ({ page }, testInfo) => {
+  const legacy = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="144" r="24"/><path d="M45 178 Q100 126 155 178"/></svg>';
+  await mockAccount(page, { avatarUrl: `data:image/svg+xml,${encodeURIComponent(legacy)}` });
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  const avatar = page.getByRole("img", { name: "Test Reader", exact: true });
+  await expect(avatar).toBeVisible();
+  await expect.poll(() => avatar.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(128);
+  expect(decodeURIComponent(await avatar.getAttribute("src") ?? "")).toContain('data-caliguide-avatar="monogram-v1"');
+  expect(decodeURIComponent(await avatar.getAttribute("src") ?? "")).toContain('>TR</text>');
+  await page.screenshot({ path: testInfo.outputPath("default-avatar-profile.png") });
+});
 
 test("later login asks only for missing information and saves a partial answer", async ({ page }, testInfo) => {
   const account = await mockAccount(page, { signedOut: true, metadata: { sex: "prefer_not_to_say" }, failProfileOnce: true });

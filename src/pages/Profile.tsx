@@ -424,7 +424,7 @@ export default function Profile({
               {!avatarFailed && avatarUrl ? (
                 <img
                   alt={currentUser.name}
-                  className={`h-full w-full ${avatarUrl.startsWith("data:image/svg") || avatarUrl.includes("ui-avatars.com") ? "object-contain p-1" : "object-cover"}`}
+                  className={`h-full w-full ${avatarUrl.includes("monogram-v1") ? "object-contain" : avatarUrl.startsWith("data:image/svg") || avatarUrl.includes("ui-avatars.com") ? "object-contain p-1" : "object-cover"}`}
                   src={avatarUrl}
                   onError={() => setAvatarFailed(true)}
                 />
@@ -1021,7 +1021,7 @@ export default function Profile({
             {!avatarFailed && currentUser.avatarUrl ? (
               <img
                 alt={currentUser.name}
-                className={`h-full w-full ${useContainedAvatar ? "object-contain p-1" : "object-cover"}`}
+                className={`h-full w-full ${currentUser.avatarUrl.includes("monogram-v1") ? "object-contain" : useContainedAvatar ? "object-contain p-1" : "object-cover"}`}
                 src={currentUser.avatarUrl}
                 onError={() => setAvatarFailed(true)}
               />

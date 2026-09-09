@@ -20,10 +20,13 @@ import { useLanguage } from '../context/LanguageContext';
 import ResponsiveImage from '../components/ResponsiveImage';
 import { getVisibleRecommendedGuides } from '../lib/homeRecommendations';
 import { getLocalizedBlogArticle, getRecommendedBlogArticles, searchLocalizedBlogArticles } from '../lib/blogLocalization';
-import { searchInstitutions } from '../lib/institutions';
+import { getInstitution, searchInstitutions } from '../lib/institutions';
 import { getHomeTopics, type HomeTopicId } from '../lib/homeTopics';
+import { PUBLIC_AGENCY_ID, PUBLIC_GUIDE_ID, PUBLIC_AGENCY_PATH, PUBLIC_GUIDE_PATH } from '../lib/publicSamples';
+import { PUBLIC_ACCESS_COPY } from '../i18n/publicAccessCopy';
 
 interface HomeProps {
+  isAuthenticated?: boolean;
   onOpenBlog: (articleId: string) => void;
   onOpenRecommended: (groupId?: HomeTopicId) => void;
   onOpenInstitution: (institutionId: string) => void;
@@ -44,10 +47,13 @@ const TOPIC_ICONS: Record<HomeTopicId, LucideIcon> = {
 
 const HOME_TOPIC_PREVIEW_LIMIT = 4;
 
-export default function Home({ onOpenBlog, onOpenRecommended, onOpenInstitution, onOpenAgencies }: HomeProps) {
+export default function Home({ isAuthenticated = false, onOpenBlog, onOpenRecommended, onOpenInstitution, onOpenAgencies }: HomeProps) {
   const { language, t } = useLanguage();
   const [searchText, setSearchText] = useState('');
   const topics = getHomeTopics().slice(0, HOME_TOPIC_PREVIEW_LIMIT);
+  const accessCopy = PUBLIC_ACCESS_COPY[language];
+  const sampleGuide = getLocalizedBlogArticle(PUBLIC_GUIDE_ID, language)!;
+  const sampleAgency = getInstitution(PUBLIC_AGENCY_ID)!;
 
   const recommendedGuides = getVisibleRecommendedGuides(getRecommendedBlogArticles(language), false);
   const searchResults = useMemo(
@@ -73,6 +79,20 @@ export default function Home({ onOpenBlog, onOpenRecommended, onOpenInstitution,
 
   return (
     <div className="mx-auto max-w-6xl pb-24 pt-20">
+      {!isAuthenticated && <section className="mb-8 px-4" aria-labelledby="public-samples-title">
+        <h2 id="public-samples-title" className="text-xl font-semibold text-on-surface">{accessCopy.title}</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-on-surface-variant">{accessCopy.description}</p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <a href={PUBLIC_GUIDE_PATH} className="flex items-center gap-4 rounded-lg border border-outline-variant bg-white p-4 text-primary hover:border-primary">
+            <ResponsiveImage src={sampleGuide.image} alt="" sizes="80px" className="h-20 w-20 shrink-0 rounded-lg object-cover" />
+            <span className="min-w-0"><span className="block text-base font-semibold">{sampleGuide.title}</span><span className="mt-2 inline-flex items-center gap-1 text-sm">{accessCopy.guide}<ChevronRight size={16} /></span></span>
+          </a>
+          <a href={PUBLIC_AGENCY_PATH} className="flex items-center gap-4 rounded-lg border border-outline-variant bg-white p-4 text-primary hover:border-primary">
+            <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-primary/10"><Building2 size={32} /></span>
+            <span className="min-w-0"><span className="block text-base font-semibold">{sampleAgency.name}</span><span className="mt-2 inline-flex items-center gap-1 text-sm">{accessCopy.agency}<ChevronRight size={16} /></span></span>
+          </a>
+        </div>
+      </section>}
       {/* Search Section */}
       <section className="mx-auto mb-7 max-w-3xl px-4">
         <div className="relative">

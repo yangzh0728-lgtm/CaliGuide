@@ -1,64 +1,55 @@
 import { expect, test } from "@playwright/test";
-import { BLOG_ARTICLES } from "../src/lib/blogContent";
 
-test("opens a shareable guide URL without signing in", async ({ page }) => {
-  await page.goto("/guides/california-real-id-documents");
-
-  await expect(page).toHaveURL(/\/guides\/california-real-id-documents$/);
-  await expect(page).toHaveTitle(/REAL ID Document Preparation Guide \| CaliGuide/);
-  await expect(page.getByRole("heading", { level: 1, name: /REAL ID Document Preparation Guide/ })).toBeVisible();
+test("opens the sample guide without signing in", async ({ page }) => {
+  await page.goto("/guides/first-30-days-in-california");
+  await expect(page.getByRole("heading", { level: 1, name: "First 30 Days in California", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign in to save this guide" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: "First 30 Days in California", exact: true })).toBeVisible();
 });
 
-test("guide navigation writes browser history", async ({ page }) => {
+test("home links to both public samples", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Start with a free preview" })).toBeVisible();
+  await expect(page.locator('main > div').first()).toHaveCSS('opacity', '1');
+  await page.screenshot({ path: testInfo.outputPath("public-samples.png") });
+  await page.getByRole("link", { name: /Read sample guide/ }).click();
+  await expect(page).toHaveURL(/\/guides\/first-30-days-in-california$/);
+  await page.goBack();
+  await page.getByRole("link", { name: /Explore sample agency/ }).click();
+  await expect(page).toHaveURL(/\/agencies\/ca-dmv$/);
+  await expect(page.getByRole("heading", { level: 1, name: /Department of Motor Vehicles/ })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: /Department of Motor Vehicles/ })).toBeVisible();
+});
+
+test("topic navigation prompts for login and Back returns home", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "DMV", exact: true }).click();
-
   await expect(page).toHaveURL(/\/guides\/topics\/dmv$/);
-  await expect(page.locator("[data-guide-card]")).toHaveCount(3);
+  await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
   await page.goBack();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("heading", { name: "Start with a free preview" })).toBeVisible();
 });
 
-test("organizes guide and agency discovery without requiring an account", async ({ page }) => {
-  await page.goto("/");
-
-  await expect(page.getByRole("button", { name: "Guides", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Browse guides by topic" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Browse agencies" })).toBeVisible();
-
-  await page.getByRole("button", { name: "Browse agencies" }).click();
-  await expect(page).toHaveURL(/\/agencies$/);
-  await expect(page.getByRole("heading", { name: "Official agencies and services" })).toBeVisible();
-  await expect(page.locator('nav[aria-label="Find by need"]:visible')).toBeVisible();
-  await expect(page.getByRole("button", { name: /U.S. Citizenship and Immigration Services/ })).toBeVisible();
-});
-
-test("lists and filters the complete public guide library", async ({ page }) => {
-  await page.goto("/guides");
-
-  await expect(page.getByRole("heading", { level: 1, name: "Guides" })).toBeVisible();
-  await expect(page.getByText("Recommended for You", { exact: true })).toHaveCount(0);
-  await expect(page.locator("[data-guide-card]")).toHaveCount(BLOG_ARTICLES.length);
-  await expect(page.locator('[data-guide-card="forum-first-30-days"]')).toBeVisible();
-
-  await page.locator('[data-guide-group="safety"]:visible').click();
-  await expect(page.locator("[data-guide-card]")).toHaveCount(1);
-  await expect(page.locator('[data-guide-card="guide-earthquake-wildfire-preparedness"]')).toBeVisible();
-
-  await page.locator('[data-reference-tab="agencies"]').click();
-  await expect(page).toHaveURL(/\/agencies$/);
-  await expect(page.locator('[data-reference-tab="agencies"]')).toHaveAttribute("aria-current", "page");
-});
-
-for (const privatePath of ["/forum", "/chatbot", "/profile"]) {
+for (const privatePath of ["/guides", "/guides/california-real-id-documents", "/guides/apply-for-social-security-number", "/agencies", "/agencies/uscis", "/forum", "/forum/post-1", "/chatbot", "/profile"]) {
   test(`requires an account for ${privatePath}`, async ({ page }) => {
     await page.goto(privatePath);
-
+    await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Welcome back" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Continue browsing" })).toHaveAttribute(
-      "href",
-      "/?continue=1",
-    );
+    await expect(page.getByRole("link", { name: "Continue browsing" })).toHaveAttribute("href", "/?continue=1");
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+    await page.getByRole("link", { name: "Continue browsing" }).click();
+    await expect(page.getByRole("heading", { name: "Start with a free preview" })).toBeVisible();
   });
 }
+
+test("trust pages remain public", async ({ page }) => {
+  for (const path of ["/privacy", "/terms"]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  }
+});

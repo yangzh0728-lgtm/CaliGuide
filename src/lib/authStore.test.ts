@@ -41,7 +41,7 @@ describe("authStore", () => {
     expect(signedIn.currentUser?.email).toBe("maya@example.com");
   });
 
-  test("assigns a generated cartoon avatar instead of a real photo", () => {
+  test("assigns a generated initials avatar instead of a real photo", () => {
     const registered = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",

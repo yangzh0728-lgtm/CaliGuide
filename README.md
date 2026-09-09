@@ -57,9 +57,9 @@ PostHog, or advertising tracking pixels. Operational error reporting and externa
 services still process some data; the [data inventory](docs/DATA_INVENTORY.md)
 explains those flows.
 
-**Read first, register when needed.** Guides and the agency directory are public.
-Accounts are for saving, posting, chat, and synced progress, not for reading public
-government information.
+**Preview first, then sign in.** First 30 Days in California and the California DMV
+agency page are public samples. The full guide and agency libraries, forum posts
+and replies, chat, and personal features require an account. Trust pages remain public.
 
 **Sensitive topics are clearly marked.** Guides covering legal, medical, or
 financial topics include notices explaining the limits of general information.
@@ -71,7 +71,7 @@ broken links, or translation problems. Reports enter a private review queue.
 
 ## Features
 
-- **Public guide library** with shareable URLs, topic filters, section-level citations, official action links, review dates, and topic-specific disclaimers. Reading does not require an account.
+- **Guide library** with shareable URLs, topic filters, section-level citations, official action links, review dates, and topic-specific disclaimers. One sample is public; other guides require sign-in.
 - **Agency directory** organized by need, with agency responsibilities, common points of confusion, official resources, and related guides.
 - **Multilingual interface** supporting English, Simplified Chinese, Traditional Chinese, Cantonese, and Spanish modes.
 - **Community forum** with posts, comments, voting, saved posts, image attachments, reporting, and on-demand translation.
@@ -193,7 +193,7 @@ server.ts           Express API and production application server
 
 Supabase stores user accounts, profiles, signed-in checklist progress, forum activity, saved content, chat history, and moderation data. Profile and checklist access is scoped to the account owner; report queues are not exposed to browser roles. Cloudflare R2 stores binary media rather than database blobs.
 
-The public guide library currently renders bundled content from `src/lib/blogContent.ts` and its localization modules. The separate structured-content import workflow writes normalized records to Supabase; importing content alone does not update the bundled guide pages.
+The guide library currently renders bundled content from `src/lib/blogContent.ts` and its localization modules. Sign-in gates the reading interface, not access to the underlying bundled article data. The separate structured-content import workflow writes normalized records to Supabase; importing content alone does not update the bundled guide pages.
 
 ```text
 assets/users/{user_id}/profile/{file}

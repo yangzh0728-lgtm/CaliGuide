@@ -78,6 +78,19 @@ describe("translations", () => {
     expect(translate("es", "profile.postCount")).not.toContain("forum posts");
   });
 
+  it("does not describe CaliBot as a professional adviser in any language", () => {
+    const forbidden = [/professional/i, /legal guidance/i, /法律指引/, /orientación legal/i];
+
+    for (const language of ["en", "zh-CN", "zh-TW", "yue", "es"] as const) {
+      const intro = translate(language, "chatbot.intro");
+      expect(intro).toBeTruthy();
+
+      for (const pattern of forbidden) {
+        expect(intro).not.toMatch(pattern);
+      }
+    }
+  });
+
   it("translates the application loading state", () => {
     for (const language of ["en", "zh-CN", "yue", "zh-TW", "es"] as const) {
       expect(translate(language, "app.loading")).toBeTruthy();
