@@ -38,7 +38,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助新移民选择合适的银行和账户，并准备开户身份材料、地址信息及初始存款。",
     body: [
       "适合人群：刚到美国还没有美国银行账户的人、需要接收工资或支付房租的人、不熟悉美国银行费用和账户规则的人，以及想比较银行与信用合作社的新居民。",
-      "准备清单：护照或其他政府签发照片证件、第二份身份证明、SSN 或 ITIN、美国居住或邮寄地址、美国电话号码、电子邮箱、初始存款、工作学校或移民文件、英文姓名格式和需要询问银行的问题清单。",
+      "准备清单：护照或其他政府签发照片证件 | 第二份身份证明 | SSN 或 ITIN | 美国居住或邮寄地址 | 美国电话号码 | 电子邮箱 | 初始存款 | 工作学校或移民文件 | 英文姓名格式和需要询问银行的问题清单。",
       "先选择金融机构。可以比较传统银行、网上银行和信用合作社，重点看分行和 ATM 是否方便、手机银行是否好用、是否提供语言服务，以及日常转账和国际汇款是否适合自己。",
       "选择账户类型时，日常消费和收工资通常使用 checking account；存放备用资金可以考虑 savings account。开户前询问月费、最低余额、ATM 费、透支费、国际汇款费、支票费和关闭账户条件。",
       "确认存款保障。银行账户应确认是否受到 FDIC 保险保障；信用合作社则确认是否受到相应的联邦存款保障。不要只比较开户奖励，也要查看长期费用和账户限制。",
@@ -58,7 +58,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助第一次在加州租房的新移民从预算、找房和申请，一直准备到签约、付款及入住检查。",
     body: [
       "适合人群：第一次在加州租公寓、房屋或房间的人，没有美国信用记录或租房历史的新移民，需要准备收入和身份材料的租客，以及不熟悉押金、租约和入住检查流程的人。",
-      "准备清单：每月可承受租金预算，水电、网络、停车、交通和保险预算，身份证件，收入证明、工作证明或资金证明，银行流水或储蓄证明，推荐人或以前房东信息，信用报告或没有美国信用记录的解释，申请费预算，押金和首月租金，租约问题清单，以及入住检查表和照片备份空间。",
+      "准备清单：每月可承受租金预算 | 水电、网络、停车、交通和保险预算 | 身份证件 | 收入证明、工作证明或资金证明 | 银行流水或储蓄证明 | 推荐人或以前房东信息 | 信用报告或没有美国信用记录的解释 | 申请费预算 | 押金和首月租金 | 租约问题清单 | 入住检查表和照片备份空间。",
       "先确定完整住房预算。不要只计算房租，还要加入水电、燃气、网络、停车、洗衣、通勤和租客保险。确认地点和通勤需求时，要检查工作地点、学校、公共交通、停车条件和周边生活设施。",
       "准备租房申请包，把身份证明、收入资料、资金证明和推荐信息整理成可以安全提交的文件。看房时应核实房源和出租人，实地或通过可信的实时视频方式看房，并确认联系人是否有权出租该房产。",
       "询问所有入住费用，要求书面列出申请费、押金、首月租金、停车费、宠物费和其他费用。签约前仔细阅读租期、租金到期日、逾期费、维修责任、室友、访客、宠物、转租、提前退租和续租规则。",
@@ -78,7 +78,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助新移民了解雇主保险、Covered California、Medi-Cal 和自费医疗的基本区别及申请准备。",
     body: [
       "适合人群：刚搬到加州尚未取得医疗保险的人，不清楚自己是否应申请 Covered California 或 Medi-Cal 的人，需要为配偶和子女安排保险的家庭，以及第一次比较美国医疗保险计划的人。",
-      "准备清单：家庭成员名单、出生日期和家庭关系、加州地址、SSN、非公民家庭成员的相关移民文件号码、雇主和收入信息、现有保险及终止日期、常用医生和医院名单、常用处方药名单、预计看医生和用药频率，以及可以承受的月保费和医疗支出预算。",
+      "准备清单：家庭成员名单 | 出生日期和家庭关系 | 加州地址 | SSN | 非公民家庭成员的相关移民文件号码 | 雇主和收入信息 | 现有保险及终止日期 | 常用医生和医院名单 | 常用处方药名单 | 预计看医生和用药频率 | 可以承受的月保费和医疗支出预算。",
       "先检查雇主保险，询问何时可以加入、雇主承担多少费用、家属费用和生效日期。Covered California 是加州官方健康保险市场，可以比较计划并判断是否符合经济补助条件。",
       "了解 Medi-Cal。Medi-Cal 是加州的 Medicaid 项目，主要为符合收入和其他资格要求的居民提供免费或低费用医疗服务。不同家庭成员可能因年龄、收入、身份和其他条件得到不同结果。",
       "确认申请时间。Covered California 有年度开放申请期。搬到加州、失去原有保险、结婚、生育或取得符合要求的身份等事件可能触发特别申请期；多数情况需要在事件附近的规定期限内申请。",
@@ -98,7 +98,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助第一次申请加州驾照的新移民了解需要准备的材料、考试流程和 DMV 办理步骤。",
     body: [
       "适合人群：刚搬到加州需要合法开车的新居民、持有外国或其他州驾照的人、第一次申请美国驾照的成年人，以及需要了解普通驾照和 REAL ID 驾照区别的人。",
-      "准备清单：护照及适用的合法身份或入境文件、加州居住地址证明、Social Security Number、外国或其他州驾照、眼镜或隐形眼镜、申请费付款方式、路考车辆、车辆注册、保险证明、加州驾驶手册和笔试练习材料。没有 SSN 时，应先确认自己适用的 DMV 要求。",
+      "准备清单：护照及适用的合法身份或入境文件 | 加州居住地址证明 | Social Security Number | 外国或其他州驾照 | 眼镜或隐形眼镜 | 申请费付款方式 | 路考车辆 | 车辆注册 | 保险证明 | 加州驾驶手册和笔试练习材料。没有 SSN 时 | 应先确认自己适用的 DMV 要求。",
       "第一步是确定申请类型。根据自己的情况选择普通驾照、REAL ID 驾照或适用于特定申请人的 AB 60 驾照。AB 60 驾照不能作为 REAL ID 使用。",
       "在线填写 Driver's License or ID Card Application 后，仍需按要求到 DMV 办公室完成身份验证和后续程序。到现场时携带申请确认信息和文件原件，DMV 通常会核验文件、拍照、采集指纹并收取申请费。",
       "申请人需要完成视力检查和交通法规知识测试。考试前应阅读最新版 California Driver's Handbook，不要只依赖非官方模拟题。没有符合条件的现有驾照时，通常需要先取得 instruction permit，再按规定练习驾驶。",
@@ -118,7 +118,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助申请人一次性整理 REAL ID 所需的身份证明、SSN、加州住址和姓名变更材料。",
     body: [
       "适合人群：准备第一次申请加州 REAL ID 的居民、计划把普通驾照或身份证升级为 REAL ID 的人、需要使用州证件搭乘受联邦规定约束的国内航班或进入特定联邦设施的人，以及持有符合条件移民身份文件的非美国公民。",
-      "准备清单：一份 DMV 接受的身份证明原件或认证副本、两份显示加州实际居住地址的证明、SSN 或适用的例外证明、姓名变更文件、当前驾照或州身份证、DMV 在线申请确认信息，以及所有文件上的完整法定姓名和出生日期核对表。",
+      "准备清单：一份 DMV 接受的身份证明原件或认证副本 | 两份显示加州实际居住地址的证明 | SSN 或适用的例外证明 | 姓名变更文件 | 当前驾照或州身份证 | DMV 在线申请确认信息 | 所有文件上的完整法定姓名和出生日期核对表。",
       "先确认自己是否需要 REAL ID。REAL ID 不是驾驶所必需的，普通驾照仍可以用于驾驶，但不能代替符合联邦用途要求的证件。",
       "使用 DMV 官方 Checklist，根据个人身份选择可以接受的文件。身份证明通常需要显示出生日期和完整法定姓名，例如符合要求的护照、出生证明、永久居民卡或其他 DMV 接受的身份文件。",
       "准备两份加州居住证明。两份文件通常都应显示申请人的姓名及同一个加州实际地址；可接受文件可能包括账单、银行记录、保险文件、租赁文件或就业文件。",
@@ -157,7 +157,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助租客识别假房源、冒充房东、虚假中介和要求提前转账等常见租房骗局。",
     body: [
       "适合人群：通过分类广告、社交媒体或租房网站找房的人，尚未到达加州需要远程租房的新移民，不熟悉当地租金水平和付款方式的人，以及因急于入住而容易忽略核验步骤的人。",
-      "准备清单：房源完整地址、房东或物业公司姓名、经纪人执照信息、多个平台价格对比、看房预约、租约副本、费用明细、房产或管理方联系方式、付款收据、骗局报告和银行紧急联系方式。",
+      "准备清单：房源完整地址 | 房东或物业公司姓名 | 经纪人执照信息 | 多个平台价格对比 | 看房预约 | 租约副本 | 费用明细 | 房产或管理方联系方式 | 付款收据 | 骗局报告和银行紧急联系方式。",
       "先检查价格是否异常。明显低于同一地区类似房源的价格需要提高警惕。搜索同一地址，查看该地址是否同时出现在出售和出租网站，以及联系人和价格是否一致。",
       "核实联系人身份，不要只依据社交媒体头像、电子邮件签名或发来的证件照片判断身份。实地或实时视频看房，预先录制的视频不能证明联系人目前有权出租房屋。",
       "阅读完整租约，租约应写明地址、租金、押金、租期、双方姓名和付款方式。拒绝异常付款要求，例如立即电汇、购买礼品卡、发送加密货币或向陌生第三方付款。",
@@ -178,7 +178,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     body: [
       "Who this is for: People arriving in California within the next 30 days, and people who arrived in the last 30 days. This guide covers the order to do things in without repeating the details covered by each topic guide.",
       "What blocks what: A US mailing address can help unlock a bank account, DMV appointment, school enrollment, and utility accounts. A Social Security Number or ITIN may be needed for payroll and many credit products. Two separate proofs of address are generally needed for REAL ID. Start tasks with waiting queues first, because queue time is the part you cannot compress.",
-      "Preparation checklist: US phone number, mailing address held for 30 days, encrypted document scans, passport and visa originals, I-94 record, school records for children, opening deposit for a bank account",
+      "Preparation checklist: US phone number | mailing address held for 30 days | encrypted document scans | passport and visa originals | I-94 record | school records for children | opening deposit for a bank account",
       "Before you arrive: Scan your passport, visa, I-94 record, birth certificate, marriage certificate, and any immigration approval notices. Keep one encrypted digital copy and carry originals in hand luggage, never checked baggage. Decide which mailing address you will use for your first month. If you are bringing school-age children, request their school records and immunization history before you leave.",
       "Days 1 to 3, become contactable: Almost nothing else can start until an institution can reach you. Get a US phone number, because many agencies and banks will not send verification codes to international numbers. Confirm a mailing address you will hold for at least 30 days, because address evidence takes time to accumulate. Set up one document folder, physical and digital. Skipping this step can delay several later tasks.",
       "Week 1, start the long queues: Two tasks may involve waiting periods you cannot shorten, so begin both now even when other things feel more urgent. Book the earliest Social Security appointment your situation allows. Open a bank account, or if you do not have an SSN yet, first confirm which institutions accept a passport and ITIN.",
@@ -202,7 +202,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       "Who this helps: People applying for their first Social Security Number, people who need a replacement or corrected card, and noncitizens who need to understand how immigration status and work authorization affect eligibility.",
       "Check eligibility first: U.S. citizens and many noncitizens with Department of Homeland Security work authorization can apply for an SSN. A lawfully admitted noncitizen without work authorization generally needs a valid nonwork reason recognized by law. An SSN card does not itself grant permission to work.",
       "Choose the correct application path: Start with the official SSA Number and Card tool. Some people can request an SSN while filing an eligible USCIS immigration or work-authorization form, while others can begin online and then complete the process with Social Security. Avoid filing a second application if an SSN was already requested through USCIS.",
-      "Preparation checklist: Current identity document, proof of age, U.S. citizenship evidence or current immigration and work-authorization documents, completed application information, appointment confirmation when required, original documents or issuing-agency-certified copies rather than ordinary photocopies or notarized copies",
+      "Preparation checklist: Current identity document | proof of age | U.S. citizenship evidence or current immigration and work-authorization documents | completed application information | appointment confirmation when required | original documents or issuing-agency-certified copies rather than ordinary photocopies or notarized copies",
       "Find help near you: Use the official SSA office locator with your address or ZIP code. Office procedures and appointment availability can differ, so confirm whether your service can be completed online, by phone, or requires an appointment before traveling. This guide applies nationwide, not only to one California city.",
       "At the appointment: Bring the documents identified by SSA for your situation and arrive with enough time for identity and eligibility review. Applying for an original or replacement Social Security card is free. Keep any receipt or confirmation information, but store your SSN and documents securely.",
       "After you apply: Monitor the mailing address you provided and verify your name when the card arrives. Contact SSA directly if the card does not arrive within the timeframe SSA gives you. Replacement cards, name corrections, and immigration-status updates may use different online or in-person steps.",
@@ -243,7 +243,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助暂时没有 Social Security Number 的新移民准备替代证件、比较银行政策并安全安排日常财务。",
     body: [
       "适合人群：尚未获得 SSN 的新移民、不符合 SSN 申请资格但准备申请 ITIN 的人、需要接收资金或支付账单的人，以及被一家银行拒绝后不知道下一步怎么办的人。",
-      "准备清单：有效护照、第二份政府签发证件、ITIN 文件、美国地址证明、电话号码、电子邮箱、签证、I-94 或其他身份文件、初始存款、接受非 SSN 客户的金融机构名单，以及各银行文件费用和开户方式比较表。",
+      "准备清单：有效护照 | 第二份政府签发证件 | ITIN 文件 | 美国地址证明 | 电话号码 | 电子邮箱 | 签证 | I-94 或其他身份文件 | 初始存款 | 接受非 SSN 客户的金融机构名单 | 各银行文件费用和开户方式比较表。",
       "先了解 SSN 与 ITIN 的区别。ITIN 是税务识别号码，不等于工作许可，也不能代替所有要求 SSN 的服务。只有符合 IRS 规定并具有联邦税务用途的人才应申请 ITIN。",
       "联系多家银行或信用合作社，明确询问：没有 SSN 是否可以开户？是否接受 ITIN、外国护照或其他政府证件？除护照外，准备地址、联系方式和银行可能要求的第二份证件。",
       "询问可以开设的账户类型。某些机构可能对没有 SSN 的客户提供不同账户、申请渠道或功能限制。优先比较低费用账户，包括月费、最低余额、ATM 网络、国际汇款和透支政策。",
@@ -263,7 +263,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助第一次在美国就医的新移民完成找医生、预约、就诊、检查、处方和账单处理。",
     body: [
       "适合人群：第一次使用美国医疗保险的人，不熟悉 PCP、专科转诊和网络内医生的人，英语沟通有困难需要翻译支持的人，以及需要为自己或家人安排常规就诊的人。",
-      "准备清单：保险卡或 Medi-Cal Benefits Identification Card、照片证件、PCP 姓名和诊所地址、症状出现时间、目前使用的药物和剂量、过敏记录、既往病史和疫苗记录、海外检查报告、希望咨询的问题、首选语言及口译需求、copay 付款方式。",
+      "准备清单：保险卡或 Medi-Cal Benefits Identification Card | 照片证件 | PCP 姓名和诊所地址 | 症状出现时间 | 目前使用的药物和剂量 | 过敏记录 | 既往病史和疫苗记录 | 海外检查报告 | 希望咨询的问题 | 首选语言及口译需求 | copay 付款方式。",
       "先判断就医类型。常规体检、慢性病和一般症状通常先联系 PCP。紧急或危及生命的情况应立即使用当地紧急医疗服务。",
       "寻找网络内医生时，使用保险公司或 Medi-Cal 计划的官方医生目录，并打电话确认医生仍接受该保险及新患者。Medi-Cal 将 PCP 定义为生病或体检时通常前往的医生或诊所。",
       "预约时提供姓名、出生日期、保险信息、主要症状和语言需求，并询问是否需要提前填写表格。确认 copay，以及看专科、做影像或化验是否需要 PCP 转诊或保险授权。",
@@ -284,7 +284,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助新移民在出发前整理身份、入境、家庭、医疗、教育和财务文件，并建立安全备份。",
     body: [
       "适合人群：未来 30 天内搬到加州的人、携带配偶或子女一起入境的家庭，以及需要办理驾照、学校、银行、住房和医疗事务的新居民。",
-      "准备清单：护照和签证、移民签证包或批准通知、I-20、DS-2019、EAD、绿卡或其他身份文件、出生证、结婚证、离婚文件、子女监护文件、驾照和驾驶记录、疫苗和医疗记录、学历和职业资格文件、工作合同、银行及资金证明、保险文件、加州地址、紧急联系人、纸质副本、加密电子副本和文件清单。",
+      "准备清单：护照和签证 | 移民签证包或批准通知 | I-20 | DS-2019 | EAD | 绿卡或其他身份文件 | 出生证 | 结婚证 | 离婚文件 | 子女监护文件 | 驾照和驾驶记录 | 疫苗和医疗记录 | 学历和职业资格文件 | 工作合同 | 银行及资金证明 | 保险文件 | 加州地址 | 紧急联系人 | 纸质副本 | 加密电子副本和文件清单。",
       "第一步是建立文件总目录。建议按身份、家庭、医疗、教育、工作、银行、住房和交通分类，并为每位家庭成员建立独立文件夹。重要原件应放入随身行李，不要放在托运行李中。",
       "出发前核对姓名、出生日期和英文拼写。护照、签证、出生证、学校记录和银行文件如果存在拼写差异，应记录差异来源，并提前询问学校、法院、医疗机构或其他机构是否需要认证翻译。",
       "入境后，适用的非移民旅客可以从 CBP 系统获取最近一次电子 I-94，并核对姓名、身份类别和允许停留日期。搬家后不要只在邮局转寄邮件，许多非公民还需要根据 USCIS 要求更新地址；当前 USCIS 说明通常为搬家后 10 天内。",
@@ -303,7 +303,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助新移民确认工作资格，准备美式简历、就业文件、推荐人和安全求职计划。",
     body: [
       "适合人群：准备在加州寻找第一份工作的新移民、有海外学历和工作经验的人、不熟悉美国简历和面试流程的人，以及需要确认工作授权和 I-9 文件的人。",
-      "准备清单：有效工作授权证明、USCIS I-9 可接受文件清单、一页或两页英文简历、不同岗位的简历版本、LinkedIn 或其他专业档案、海外学历和资格证书、学历评估或执照认证资料、推荐人、英文自我介绍、专业邮箱、语音信箱、求职申请记录表、面试交通和服装安排。",
+      "准备清单：有效工作授权证明 | USCIS I-9 可接受文件清单 | 一页或两页英文简历 | 不同岗位的简历版本 | LinkedIn 或其他专业档案 | 海外学历和资格证书 | 学历评估或执照认证资料 | 推荐人 | 英文自我介绍 | 专业邮箱 | 语音信箱 | 求职申请记录表 | 面试交通和服装安排。",
       "先确认是否获得工作授权。签证、身份文件和工作许可规则不同，不要仅凭 SSN 判断自己是否可以工作。获聘后，雇主使用 Form I-9 核验身份和就业资格；雇主不应自行要求员工必须提交某一种特定文件。",
       "制作美式简历时，突出技能、成果和与职位相关的经验。一般不放照片、年龄、婚姻状况、护照号码或 SSN。针对不同职位调整关键词和经历顺序，不要所有岗位使用同一份材料。",
       "处理海外学历和资格时，先确认目标职业是否要求学历评估、州执照、背景调查或考试。求职渠道可以包括公司官网、可靠招聘平台、CalJOBS、行业协会、学校资源和社区就业资源。",
@@ -323,7 +323,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助新移民家长找到所属学区、准备入学文件，并了解英语学习和 newcomer 学生支持资源。",
     body: [
       "适合人群：带学龄儿童搬到加州的新移民家庭、子女曾在其他国家或美国其他州上学的家长、子女需要英语语言支持的家庭，以及不熟悉学区和入学流程的家长。",
-      "准备清单：加州居住地址、孩子出生日期和年龄证明、家长或监护人身份证明、住址证明、疫苗和医疗记录、以前学校成绩单和在读证明、中学生课程名称及学分记录、特殊教育计划或医疗安排、监护权文件、翻译件、家庭主要语言、口译需求和紧急联系人。",
+      "准备清单：加州居住地址 | 孩子出生日期和年龄证明 | 家长或监护人身份证明 | 住址证明 | 疫苗和医疗记录 | 以前学校成绩单和在读证明 | 中学生课程名称及学分记录 | 特殊教育计划或医疗安排 | 监护权文件 | 翻译件 | 家庭主要语言 | 口译需求和紧急联系人。",
       "第一步是根据实际居住地址找到所属 school district，并联系学区 enrollment office。不同学区接受的住址、年龄和监护证明可能不同，应要求学校提供正式入学清单。",
       "提交以前的学习记录时，中学生应尽量提供详细课程说明、学分记录和毕业要求信息，减少学分判断困难。海外疫苗记录应尽量包含疫苗名称和接种日期。",
       "学校可能通过家庭语言调查和英语能力评估判断学生是否需要 English Learner 服务。家长可以询问学校提供的是课堂内支持、指定英语语言发展课程、双语项目还是 newcomer program。",
@@ -343,7 +343,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助新移民比较公共交通与买车成本，并了解车辆购买、注册和汽车保险的基本要求。",
     body: [
       "适合人群：正在决定是否需要买车的新移民、需要规划工作或学校通勤的人、第一次在美国购买新车或二手车的人、从其他州或国家带车进入加州的人，以及不熟悉汽车保险和 DMV 注册的人。",
-      "准备清单：家庭和工作地点的通勤地图、公交地铁和通勤铁路费用、驾照或学习许可证情况、买车总预算、贷款利率和首付款预算、车辆历史报告、独立机械检查、title 和 VIN、保险报价、注册税费、停车维修预算、卖家身份信息、签署文件和付款记录。",
+      "准备清单：家庭和工作地点的通勤地图 | 公交地铁和通勤铁路费用 | 驾照或学习许可证情况 | 买车总预算 | 贷款利率和首付款预算 | 车辆历史报告 | 独立机械检查 | title 和 VIN | 保险报价 | 注册税费 | 停车维修预算 | 卖家身份信息 | 签署文件和付款记录。",
       "先测试不买车的通勤方案。比较公交、铁路、骑车、步行、公司班车和拼车，计算时间、换乘和晚间服务。加州不同城市差异很大，具体路线比城市平均印象更重要。",
       "计算真实养车成本。除车价或月供外，还要包括销售税、注册、贷款利息、汽车保险、燃油或充电、停车、保养和维修。在决定购买哪辆车之前，最好使用 VIN 或具体车型取得保险报价。",
       "购买二手车时，检查 title、事故或报废记录，并考虑安排独立机械师检查。区分经销商和私人交易：加州 Car Buyer's Bill of Rights 的部分保护适用于持牌经销商零售交易，但不适用于私人之间的车辆交易。",
@@ -363,7 +363,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助新居民设置地震预警、准备撤离路线和应急包，并在山火烟雾期间保护家人。",
     body: [
       "适合人群：第一次居住在地震或山火高风险地区的新居民、不熟悉加州紧急警报和撤离术语的人、需要为儿童老人宠物或残障家庭成员制定计划的人，以及希望改善山火烟雾防护的家庭。",
-      "准备清单：本地紧急警报、MyShake、家庭联系计划、两个集合地点、两条撤离路线、三天应急食物和饮水、处方药、急救用品、手电筒、移动电源、收音机、现金、证件副本、N95 口罩、宠物用品和车辆油量或电量。",
+      "准备清单：本地紧急警报 | MyShake | 家庭联系计划 | 两个集合地点 | 两条撤离路线 | 三天应急食物和饮水 | 处方药 | 急救用品 | 手电筒 | 移动电源 | 收音机 | 现金 | 证件副本 | N95 口罩 | 宠物用品和车辆油量或电量。",
       "地震发生时，如果收到预警或感到摇晃，应立即趴下、掩护、抓牢。尽量躲在结实桌子下并保护头颈，不要跑向门口、窗户或电梯；使用轮椅的人可以锁住轮子、保护头颈并抓牢。",
       "提前启用警报。MyShake、Android 地震警报和 Wireless Emergency Alerts 可以提供有限的提前时间，但警报可能很短、延迟或没有明显摇晃。收到警报时应立即采取保护动作，不要等待确认。",
       "山火季前准备家庭撤离计划，记录至少两条离开路线、集合地点、接送安排和宠物运输方法。理解 Evacuation Warning 表示需要做好随时离开的准备，Evacuation Order 表示应立即按照当地部门指示撤离。",
@@ -383,7 +383,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "识别无权提供移民法律建议的人，并核实律师或 DOJ 认可代表的资格。",
     body: [
       "适合人群：正在寻找移民法律帮助的人、来自 notario público 具有律师资格的国家或地区的人、通过社交媒体或熟人收到移民服务推荐的人，以及准备支付申请或代理费用的家庭。",
-      "准备清单：服务提供者全名和机构名称、律师执照州和编号、DOJ 认可机构及代表记录、书面服务合同、完整费用表、付款收据、提交文件副本、案件号码、官方截止日期和可信翻译人员。",
+      "准备清单：服务提供者全名和机构名称 | 律师执照州和编号 | DOJ 认可机构及代表记录 | 书面服务合同 | 完整费用表 | 付款收据 | 提交文件副本 | 案件号码 | 官方截止日期和可信翻译人员。",
       "在美国，notary public 或 notario 并不等于移民律师。Notario、文件准备人员、移民顾问或旅行代理不能因为自己的头衔而提供移民法律建议、判断申请资格或代表当事人出庭。",
       "合法帮助通常来自持有效执照且信誉良好的律师，或通过 DOJ Recognized Organization 提供服务的 Accredited Representative。核实律师时应查询其执照机构；核实认可代表时应查询 DOJ 名单并确认其当前所属机构和授权范围。",
       "签署或付款前，要求使用你能理解的语言提供书面合同、服务范围、总费用和退款条款。不要签空白表格或含有错误信息的文件；保留每份申请、证据、通知和收据的副本。",
@@ -403,7 +403,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: "帮助工人记录工时和工资，识别工资盗窃，并了解加州投诉与反报复保护。",
     body: [
       "适合人群：刚开始在加州工作的新居民、按小时计薪或现金收款的人、被称为独立承包商但工作方式像员工的人，以及担心提出工资问题会影响移民身份的工人。",
-      "准备清单：雇主和主管完整联系方式、工作地点、每日开始结束和休息时间、排班截图、工资率和承诺、工资单、支票或转账记录、现金收据、同事证人、工作指示、短信邮件和任何报复或威胁记录。",
+      "准备清单：雇主和主管完整联系方式 | 工作地点 | 每日开始结束和休息时间 | 排班截图 | 工资率和承诺 | 工资单 | 支票或转账记录 | 现金收据 | 同事证人 | 工作指示 | 短信邮件和任何报复或威胁记录。",
       "加州劳动保护适用于所有工人，不论移民身份。雇主必须支付已经赚取的工资，并遵守适用的最低工资、加班、用餐和休息规则；某些行业、职业或工作安排可能适用不同规则。",
       "工资盗窃可能包括少付工时、不付加班、要求下班后继续工作、非法扣款、不给适用的休息时间或把员工错误分类为独立承包商。不要只依赖雇主记录，应每天保存自己的工时和工作地点。",
       "提出工资或工作条件问题、提交工资申诉或行使劳动权利后，雇主不得进行非法报复。报复可能包括解雇、减少工时或以联系移民机构相威胁；加州劳动专员办公室说明其不会询问工人的移民身份。",

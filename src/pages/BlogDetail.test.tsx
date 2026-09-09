@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LanguageProvider } from "../context/LanguageContext";
 import { PrivacyConsentProvider } from "../context/PrivacyConsentContext";
+import { AuthProvider } from "../context/AuthContext";
 import { translate } from "../i18n/translations";
 import { getBlogArticle } from "../lib/blogContent";
 import BlogDetail from "./BlogDetail";
@@ -14,14 +15,16 @@ function renderArticle(articleId: string, isAuthenticated = true) {
 
   return renderToStaticMarkup(
     <PrivacyConsentProvider>
-      <LanguageProvider>
-        <BlogDetail
-          article={article}
-          isAuthenticated={isAuthenticated}
-          isSaved={false}
-          onToggleSave={() => {}}
-        />
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <BlogDetail
+            article={article}
+            isAuthenticated={isAuthenticated}
+            isSaved={false}
+            onToggleSave={() => {}}
+          />
+        </LanguageProvider>
+      </AuthProvider>
     </PrivacyConsentProvider>,
   );
 }

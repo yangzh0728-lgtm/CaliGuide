@@ -1,6 +1,6 @@
 # CaliGuide Data Inventory
 
-Updated: August 26, 2026, by tracing the code — not from the handoff summary.
+Updated: September 2, 2026, by tracing the code — not from the handoff summary.
 
 Purpose: establish what CaliGuide actually collects, where it goes, and who else
 receives it, so the privacy policy describes real behavior. A privacy policy
@@ -22,6 +22,28 @@ directly. Findings below cite the file and line where the behavior lives.
 | Google account identity | OAuth sign-in | Optional sign-in path |
 
 ### Profile (`public.profiles`)
+
+Email registration requires only email and password. Display name, date of birth,
+sex, nationality, location, and arrival stage remain visible in a separate optional
+section. Blank fields are omitted from signup metadata. An omitted name uses a
+generic public name; an omitted arrival stage sets `arrival_status_provided` false.
+The legacy database default remains `planning`, but is not a declared stage.
+Explicit sex choices (including "Prefer not to say") are tracked with
+`sex_provided` in auth metadata so they are not requested again.
+
+A later explicit password or Google sign-in may offer a missing-details dialog;
+registration, page reloads, and token refreshes do not trigger it. Auth metadata
+stores `profile_reminder_after` (a 30-day snooze after saving or choosing Not now)
+and `profile_reminder_dismissed` (permanent opt-out). These are UX preferences,
+never authorization claims. If a snooze cannot sync, the dialog still closes,
+but the pause is only retained in the current in-memory account state.
+The dialog writes only supplied, still-missing fields. Settings remains available
+for editing existing answers.
+An optional nickname dialog appears when a new member starts a forum post;
+skipping keeps the generic name. Arrival-stage personalization is opened by the
+user from Profile. Each dialog updates only its field in the owner's profile
+and auth metadata. Neither asks for immigration status. Profiles are readable
+and editable only by their owner.
 
 Columns confirmed in `supabase/account-profile-fields.sql`:
 
@@ -46,7 +68,14 @@ product and deserves explicit treatment in the policy.
   (e.g. saving deportation-prep or legal-aid guides).
 - `forum_posts`, `forum_comments`, `forum_votes` — user-authored public content.
 - `chat_sessions`, `chat_messages` — **full chatbot conversation content**.
+- `moving_checklist_progress` — completed task identifiers for the moving and
+  address-change checklist; owner-scoped by Supabase row-level security.
 - `media_assets` — ownership, object key, URL, MIME type, size, moderation state.
+- `content_reports` — article ID, optional section, language, citation review
+  date, reason, optional reader details, optional authenticated reporter ID,
+  and private staff review fields. Anonymous submission is supported through
+  the rate-limited Express API; browser database roles have no queue access.
+  Review notes are excluded from account exports.
 
 ### Uploaded files (Cloudflare R2)
 
@@ -65,10 +94,12 @@ The application now separates necessary storage from optional preferences in
 | Key or storage | Category | Purpose |
 | --- | --- | --- |
 | Supabase Auth browser storage | Necessary | Session and refresh-token persistence (`src/lib/supabaseClient.ts`) |
-| `caliguide-google-profile-draft` | Necessary | Temporary profile state for Google OAuth registration (`src/context/AuthContext.tsx`) |
+| `caliguide-google-profile-draft` | Necessary | Legacy temporary profile state for Google OAuth registration (`src/context/AuthContext.tsx`) |
+| `caliguide-oauth-login` (session storage) | Necessary | OAuth sign-in start time; consumed after return, valid for 30 minutes, contains no profile details |
 | `caliguide-privacy-consent` | Necessary | Consent version, optional category choices, and update time |
 | `caliguide-language` | Necessary / functional | Interface language required to preserve an accessible experience (`src/context/LanguageContext.tsx`) |
 | `caliguide-chat-memory` | Preferences | Local chatbot cache (`src/pages/Chatbot.tsx`, `src/lib/chatMemory.ts`) |
+| `caliguide-moving-checklist:guest` | Preferences | Guest-only checklist progress; signed-in progress is stored in Supabase and never merged with this key. Revoking preferences clears it. The old shared key is no longer read. |
 
 Interface language is always available as necessary functional storage. Local
 chat storage is not read or written until the user accepts preferences, and

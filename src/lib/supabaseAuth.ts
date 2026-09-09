@@ -1,6 +1,8 @@
-import { ArrivalStatusOption, AuthUser, createRandomAvatar, SexOption } from "./authStore";
+import { ArrivalStatusOption, AuthUser, SexOption } from "./authStore";
 import { formatNationalities, normalizeNationalities } from "./nationalities";
 import { type ForumTranslationLanguage, normalizeForumTranslationLanguage } from "./forumTranslation";
+import { DEFAULT_MEMBER_NAME } from "./progressiveProfile";
+import { resolveProfileAvatar } from "./defaultAvatar";
 
 export interface SupabaseUserLike {
   id: string;
@@ -36,8 +38,8 @@ export function mapSupabaseUser(input: {
   const metadataName = typeof input.user.user_metadata?.name === "string" ? input.user.user_metadata.name : "";
   const metadataAvatar =
     typeof input.user.user_metadata?.avatar_url === "string" ? input.user.user_metadata.avatar_url : "";
-  const name = input.profile?.name || metadataName || input.user.email?.split("@")[0] || "CaliGuide Member";
-  const avatarUrl = input.profile?.avatar_url || metadataAvatar || createRandomAvatar(name);
+  const name = input.profile?.name || metadataName || DEFAULT_MEMBER_NAME;
+  const avatarUrl = resolveProfileAvatar(input.profile?.avatar_url || metadataAvatar, name);
   const memberSinceDate = input.profile?.member_since || input.user.created_at || new Date().toISOString();
   const metadataDateOfBirth =
     typeof input.user.user_metadata?.date_of_birth === "string" ? input.user.user_metadata.date_of_birth : null;
@@ -68,10 +70,21 @@ export function mapSupabaseUser(input: {
     memberSince: formatMemberSince(memberSinceDate),
     dateOfBirth: input.profile?.date_of_birth ?? metadataDateOfBirth,
     sex: normalizeSex(input.profile?.sex ?? metadataSex),
+    sexProvided: input.user.user_metadata?.sex_provided === true || Boolean(
+      input.user.user_metadata?.sex || (input.profile?.sex && input.profile.sex !== "prefer_not_to_say")),
+    profileReminderDismissed: input.user.user_metadata?.profile_reminder_dismissed === true,
+    profileReminderAfter: typeof input.user.user_metadata?.profile_reminder_after === "number"
+      ? input.user.user_metadata.profile_reminder_after : 0,
     nationalities,
     countryNationality: formatNationalities(nationalities),
     currentLocation: input.profile?.current_location ?? metadataCurrentLocation,
     arrivalStatus: normalizeArrivalStatus(input.profile?.arrival_status ?? metadataArrivalStatus),
+    arrivalStatusProvided: input.user.user_metadata?.arrival_status_provided === false
+      ? false
+      : input.user.user_metadata?.arrival_status_provided === true || Boolean(
+          input.user.user_metadata?.arrival_status ||
+          (input.profile?.arrival_status && input.profile.arrival_status !== "planning"),
+        ),
     forumTranslationLanguage: normalizeForumTranslationLanguage(
       input.profile?.forum_translation_language ?? metadataForumTranslationLanguage,
     ),
@@ -130,10 +143,10 @@ export function requiresEmailConfirmationAfterSignUp(data: SignUpResultLike) {
 function formatMemberSince(dateValue: string) {
   const date = new Date(dateValue);
   if (Number.isNaN(date.getTime())) {
-    return new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
+    return new Date().toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
   }
 
-  return date.toLocaleString("en-US", { month: "long", year: "numeric" });
+  return date.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 }
 
 function normalizeSex(value: unknown): SexOption {

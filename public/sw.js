@@ -1,6 +1,7 @@
-const CACHE_NAME = "caliguide-public-v1";
-const PUBLIC_SHELL = ["/", "/guides", "/favicon.png", "/brand/full-logo.png"];
-const PRIVATE_PREFIXES = ["/api", "/forum", "/chatbot", "/profile"];
+const CACHE_NAME = "caliguide-public-v2";
+const PUBLIC_SAMPLES = ["/guides/first-30-days-in-california", "/agencies/ca-dmv"];
+const PUBLIC_SHELL = ["/", ...PUBLIC_SAMPLES, "/favicon.png", "/brand/full-logo.png"];
+const PRIVATE_PREFIXES = ["/api", "/forum", "/chatbot", "/profile", "/guides", "/agencies"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PUBLIC_SHELL)));
@@ -17,6 +18,8 @@ self.addEventListener("activate", (event) => {
 });
 
 function isCacheablePath(pathname) {
+  pathname = pathname.replace(/\/+$/, "") || "/";
+  if (PUBLIC_SAMPLES.includes(pathname)) return true;
   return !PRIVATE_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );

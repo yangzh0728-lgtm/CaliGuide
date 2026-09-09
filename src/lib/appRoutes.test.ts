@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { BLOG_ARTICLES } from "./blogContent";
+import { INSTITUTIONS } from "./institutions";
+import { PUBLIC_GUIDE_ID, PUBLIC_AGENCY_ID } from "./publicSamples";
 import {
   GUIDE_SLUG_BY_ID,
   getAppRouteFromPath,
@@ -81,12 +83,15 @@ describe("application routes", () => {
     );
   });
 
-  test("keeps reading routes public and actions private", () => {
+  test("exposes exactly one sample guide and agency", () => {
     expect(isPublicAppRoute({ page: "home" })).toBe(true);
-    expect(isPublicAppRoute({ page: "recommended" })).toBe(true);
-    expect(isPublicAppRoute({ page: "blog", articleId: "category-dmv" })).toBe(true);
+    expect(isPublicAppRoute({ page: "recommended" })).toBe(false);
+    expect(isPublicAppRoute({ page: "agencies" })).toBe(false);
+    for (const article of BLOG_ARTICLES) expect(isPublicAppRoute({ page: "blog", articleId: article.id })).toBe(article.id === PUBLIC_GUIDE_ID);
+    for (const agency of INSTITUTIONS) expect(isPublicAppRoute({ page: "agencies", institutionId: agency.id })).toBe(agency.id === PUBLIC_AGENCY_ID);
     expect(isPublicAppRoute({ page: "agencies", institutionId: "ca-dmv" })).toBe(true);
     expect(isPublicAppRoute({ page: "forum" })).toBe(false);
+    expect(isPublicAppRoute({ page: "forumDetail", discussionId: "post-1" })).toBe(false);
     expect(isPublicAppRoute({ page: "chatbot" })).toBe(false);
     expect(isPublicAppRoute({ page: "profile" })).toBe(false);
   });
@@ -94,7 +99,7 @@ describe("application routes", () => {
   test("requires authentication only for private routes or explicit account actions", () => {
     expect(shouldRequireAuthentication({ page: "home" }, false)).toBe(false);
     expect(shouldRequireAuthentication({ page: "blog", articleId: "category-dmv" }, false)).toBe(
-      false,
+      true,
     );
     expect(shouldRequireAuthentication({ page: "blog", articleId: "category-dmv" }, true)).toBe(
       true,

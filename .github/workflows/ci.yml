@@ -4,9 +4,28 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       VITE_SUPABASE_URL: https://example.supabase.co
       VITE_SUPABASE_ANON_KEY: sb_publishable_ci
@@ -25,6 +44,20 @@ jobs:
       - name: Run tests
         run: bun test
 
+      - name: Verify database permissions on PostgreSQL
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: ci-only-password
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/permissions-fixture.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/harden-moderation-permissions.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/harden-internal-functions.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/content-reports.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/moving-checklist-progress.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/permissions-assertions.sql
+
       - name: Typecheck
         run: bun run typecheck
 
@@ -36,3 +69,13 @@ jobs:
 
       - name: Run browser tests
         run: bun run test:e2e
+
+      - name: Upload browser failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failures
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7

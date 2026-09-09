@@ -1,7 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { BLOG_ARTICLES } from "./blogContent";
 import { LEGAL_PAGE_IDS } from "./legalContent";
-import { INSTITUTIONS } from "./institutions";
 import { getLegalPagePath } from "./legalRoutes";
 import {
   buildRobotsText,
@@ -47,20 +45,25 @@ describe("public page metadata", () => {
     expect(html).toContain('property="og:type" content="article"');
   });
 
-  it("lists every guide and trust page in the public sitemap", () => {
+  it("lists only the samples, home, and trust pages in the public sitemap", () => {
     const paths = getPublicSitemapPaths();
 
     expect(paths).toContain("/");
-    expect(paths).toContain("/guides");
-    expect(paths).toContain("/agencies");
-    for (const institution of INSTITUTIONS) {
-      expect(paths).toContain(`/agencies/${institution.id}`);
-    }
-    expect(paths.filter((path) => path.startsWith("/guides/")).length).toBe(BLOG_ARTICLES.length);
+    expect(paths).not.toContain("/guides");
+    expect(paths).not.toContain("/agencies");
+    expect(paths.filter((path) => path.startsWith("/guides/"))).toEqual(["/guides/first-30-days-in-california"]);
+    expect(paths.filter((path) => path.startsWith("/agencies/"))).toEqual(["/agencies/ca-dmv"]);
     for (const pageId of LEGAL_PAGE_IDS) {
       expect(paths).toContain(getLegalPagePath(pageId));
     }
     expect(new Set(paths).size).toBe(paths.length);
+  });
+
+  it("marks restricted guides and agency pages noindex", () => {
+    for (const path of ["/guides", "/guides/california-real-id-documents", "/agencies", "/agencies/uscis", "/forum/post-1"])
+      expect(getPageMetadataFromPath(path)?.noIndex).toBe(true);
+    expect(getPageMetadataFromPath("/guides/first-30-days-in-california")?.noIndex).toBe(false);
+    expect(getPageMetadataFromPath("/agencies/ca-dmv")?.noIndex).toBe(false);
   });
 
   it("builds crawler files with absolute public URLs", () => {

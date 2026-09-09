@@ -1,7 +1,9 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
+  Bot,
   Bookmark,
+  BookOpen,
   Camera,
   CalendarDays,
   ChevronRight,
@@ -27,6 +29,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
+import ProfileDetailPrompt from "../components/ProfileDetailPrompt";
+import { PROFILE_PROMPT_COPY } from "../i18n/profilePromptCopy";
 import { usePrivacyConsent } from "../context/PrivacyConsentContext";
 import ProfileSettingsShell, {
   type ProfileSettingsSection,
@@ -49,11 +53,27 @@ import {
 } from "../lib/forumContent";
 import { supabase } from "../lib/supabaseClient";
 import { deleteAccountViaApi, requestAccountExportViaApi } from "../lib/accountDataApi";
+import ChecklistSyncStatus from "../components/ChecklistSyncStatus";
+import { getUserFacingError } from "../lib/userFacingErrors";
+import { useMovingChecklistProgress } from "../hooks/useMovingChecklistProgress";
+import { getMovingChecklistCopy } from "../lib/movingChecklist";
+import {
+  formatProfileCount,
+  formatProfileMonthYear,
+  getArrivalGuideId,
+} from "../lib/profileDashboard";
+import {
+  fetchRecentProfileChats,
+  type ProfileRecentChat,
+} from "../lib/profileRecentChats";
 
 interface ProfileProps {
   articles: BlogArticle[];
   forumDiscussions: ForumDiscussion[];
   onOpenBlog: (articleId: string) => void;
+  onOpenGuides: () => void;
+  onOpenForum: () => void;
+  onOpenChatbot: (sessionId?: string) => void;
   onOpenForumDetail: (discussionId: string) => void;
   onToggleForumUseful: (discussionId: string) => void;
   onToggleForumUnuseful: (discussionId: string) => void;
@@ -66,14 +86,19 @@ export default function Profile({
   articles,
   forumDiscussions,
   onOpenBlog,
+  onOpenGuides,
+  onOpenForum,
+  onOpenChatbot,
   onOpenForumDetail,
   onToggleForumUseful,
   onToggleForumUnuseful,
   currentUserId,
 }: ProfileProps) {
-  const { currentUser, logout, clearDeletedAccountSession, updateAccount, updatePassword } = useAuth();
+  const { currentUser, logout, clearDeletedAccountSession, updateAccount, updatePassword, updateProfileDetail } = useAuth();
+  const [arrivalPromptOpen, setArrivalPromptOpen] = useState(false);
   const { language, languages, setLanguage, t } = useLanguage();
   const { consent, openPreferences } = usePrivacyConsent();
+  const movingChecklist = useMovingChecklistProgress();
   const [view, setView] = useState<ProfileView>("profile");
   const [settingsSection, setSettingsSection] = useState<ProfileSettingsSection | null>(null);
   const [name, setName] = useState(currentUser?.name ?? "");
@@ -84,6 +109,7 @@ export default function Profile({
   const [nationalities, setNationalities] = useState(currentUser?.nationalities?.length ? currentUser.nationalities : [""]);
   const [currentLocation, setCurrentLocation] = useState(currentUser?.currentLocation ?? "");
   const [arrivalStatus, setArrivalStatus] = useState<ArrivalStatusOption>(currentUser?.arrivalStatus ?? "planning");
+  const [arrivalStatusProvided, setArrivalStatusProvided] = useState(currentUser?.arrivalStatusProvided !== false);
   const [forumTranslationLanguage, setForumTranslationLanguage] = useState<ForumTranslationLanguage>(
     currentUser?.forumTranslationLanguage ?? "en",
   );
@@ -99,6 +125,8 @@ export default function Profile({
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
   const [deleteAccountConfirmation, setDeleteAccountConfirmation] = useState("");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const [recentChats, setRecentChats] = useState<ProfileRecentChat[]>([]);
   const savedArticles = useMemo(
     () => articles.filter((article) => currentUser?.savedGuideIds.includes(article.id)),
     [articles, currentUser?.savedGuideIds],
@@ -111,6 +139,10 @@ export default function Profile({
     () => forumDiscussions.filter((discussion) => discussion.userId === currentUser?.id),
     [forumDiscussions, currentUser?.id],
   );
+  const arrivalGuide = useMemo(
+    () => articles.find((article) => article.id === (currentUser?.arrivalStatusProvided === false ? "forum-first-30-days" : getArrivalGuideId(currentUser?.arrivalStatus ?? "planning"))),
+    [articles, currentUser?.arrivalStatus, currentUser?.arrivalStatusProvided],
+  );
 
   useEffect(() => {
     setName(currentUser?.name ?? "");
@@ -121,21 +153,46 @@ export default function Profile({
     setNationalities(currentUser?.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser?.currentLocation ?? "");
     setArrivalStatus(currentUser?.arrivalStatus ?? "planning");
+    setArrivalStatusProvided(currentUser?.arrivalStatusProvided !== false);
     setForumTranslationLanguage(currentUser?.forumTranslationLanguage ?? "en");
+    setAvatarFailed(false);
   }, [currentUser]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!currentUser?.id) {
+      setRecentChats([]);
+      return;
+    }
+
+    void fetchRecentProfileChats(supabase, currentUser.id)
+      .then((chats) => {
+        if (!cancelled) setRecentChats(chats);
+      })
+      .catch((error) => {
+        console.warn("Unable to load recent profile chats", error);
+        if (!cancelled) setRecentChats([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser?.id]);
 
   const menuItems = [
     {
       id: "checklist",
       title: t("profile.checklist"),
-      desc: t("profile.checklistDesc"),
+      desc: t("profile.checklistProgress")
+        .replace("{completed}", String(movingChecklist.completed.length))
+        .replace("{total}", String(getMovingChecklistCopy(language).tasks.length)),
       icon: FileCheck,
       color: "bg-secondary-container text-on-secondary-container",
     },
     {
       id: "saved",
       title: t("profile.saved"),
-      desc: `${savedArticles.length + savedForumPosts.length} saved ${savedArticles.length + savedForumPosts.length === 1 ? "item" : "items"}`,
+      desc: formatProfileCount(t("profile.savedCount"), savedArticles.length + savedForumPosts.length),
       icon: Bookmark,
       color: "bg-primary-container text-on-primary-container",
       filled: true,
@@ -143,7 +200,7 @@ export default function Profile({
     {
       id: "posts",
       title: t("profile.posts"),
-      desc: `${userForumPosts.length} forum ${userForumPosts.length === 1 ? "post" : "posts"}`,
+      desc: formatProfileCount(t("profile.postCount"), userForumPosts.length),
       icon: MessageSquare,
       color: "bg-surface-container-high text-on-surface-variant",
     },
@@ -169,6 +226,7 @@ export default function Profile({
     setNationalities(currentUser.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser.currentLocation);
     setArrivalStatus(currentUser.arrivalStatus);
+    setArrivalStatusProvided(currentUser.arrivalStatusProvided !== false);
     setForumTranslationLanguage(currentUser.forumTranslationLanguage);
     setCurrentPassword("");
     setNewPassword("");
@@ -200,6 +258,7 @@ export default function Profile({
     setNationalities(currentUser.nationalities?.length ? currentUser.nationalities : [""]);
     setCurrentLocation(currentUser.currentLocation);
     setArrivalStatus(currentUser.arrivalStatus);
+    setArrivalStatusProvided(currentUser.arrivalStatusProvided !== false);
     setForumTranslationLanguage(currentUser.forumTranslationLanguage);
     setCurrentPassword("");
     setNewPassword("");
@@ -231,11 +290,12 @@ export default function Profile({
         nationalities,
         currentLocation,
         arrivalStatus,
+        arrivalStatusProvided,
         forumTranslationLanguage,
       });
       setProfileMessage(t("settings.profileUpdated"));
     } catch (error) {
-      setProfileMessage(error instanceof Error ? error.message : "Unable to update profile");
+      setProfileMessage(getUserFacingError(error, language));
     } finally {
       setIsSavingProfile(false);
     }
@@ -257,9 +317,10 @@ export default function Profile({
 
       const uploadedAvatarUrl = await uploadAvatarToR2(file, data.session.access_token);
       setAvatarUrl(uploadedAvatarUrl);
+      setAvatarFailed(false);
       setProfileMessage(t("settings.avatarReady"));
     } catch (error) {
-      setProfileMessage(error instanceof Error ? error.message : "Unable to upload profile picture");
+      setProfileMessage(getUserFacingError(error, language));
     } finally {
       event.target.value = "";
     }
@@ -276,7 +337,7 @@ export default function Profile({
       setNewPassword("");
       setPasswordMessage(t("settings.passwordChanged"));
     } catch (error) {
-      setPasswordMessage(error instanceof Error ? error.message : "Unable to change password");
+      setPasswordMessage(getUserFacingError(error, language));
     } finally {
       setIsSavingPassword(false);
     }
@@ -294,7 +355,7 @@ export default function Profile({
       await logout();
       setIsSignOutConfirmOpen(false);
     } catch (error) {
-      setProfileMessage(error instanceof Error ? error.message : "Unable to sign out");
+      setProfileMessage(getUserFacingError(error, language));
       setIsSignOutConfirmOpen(false);
     }
   };
@@ -359,11 +420,18 @@ export default function Profile({
         <form onSubmit={handleProfileSubmit} className="space-y-5">
 
           <div className="flex items-center gap-4 rounded-2xl bg-surface-container-low p-4">
-            <img
-              alt={currentUser.name}
-              className="w-16 h-16 rounded-full border-2 border-white object-cover bg-surface-container-high shadow-sm"
-              src={avatarUrl}
-            />
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-primary-container font-bold text-primary shadow-sm">
+              {!avatarFailed && avatarUrl ? (
+                <img
+                  alt={currentUser.name}
+                  className={`h-full w-full ${avatarUrl.includes("monogram-v1") ? "object-contain" : avatarUrl.startsWith("data:image/svg") || avatarUrl.includes("ui-avatars.com") ? "object-contain p-1" : "object-cover"}`}
+                  src={avatarUrl}
+                  onError={() => setAvatarFailed(true)}
+                />
+              ) : (
+                <span>{currentUser.name.slice(0, 2).toUpperCase()}</span>
+              )}
+            </div>
             <label className="inline-flex items-center gap-2 rounded-xl bg-secondary-container px-4 py-3 text-sm font-bold text-on-secondary-container cursor-pointer hover:opacity-90 transition-opacity">
               <Camera size={18} />
               {t("settings.upload")}
@@ -447,7 +515,6 @@ export default function Profile({
                         current.map((item, itemIndex) => (itemIndex === index ? event.target.value : item)),
                       )
                     }
-                    required={index === 0}
                     className="w-full bg-transparent py-3 text-sm outline-none"
                   >
                     <option value="">{t("auth.countryNationalityPlaceholder")}</option>
@@ -498,10 +565,14 @@ export default function Profile({
             <div className="mt-2 flex items-center gap-3 rounded-xl border border-outline-variant px-3 focus-within:border-primary">
               <Plane size={18} className="text-on-surface-variant" />
               <select
-                value={arrivalStatus}
-                onChange={(event) => setArrivalStatus(event.target.value as ArrivalStatusOption)}
+                value={arrivalStatusProvided ? arrivalStatus : ""}
+                onChange={(event) => {
+                  setArrivalStatusProvided(Boolean(event.target.value));
+                  if (event.target.value) setArrivalStatus(event.target.value as ArrivalStatusOption);
+                }}
                 className="w-full bg-transparent py-3 text-sm outline-none"
               >
+                {!arrivalStatusProvided && <option value="">{PROFILE_PROMPT_COPY[language].choose}</option>}
                 <option value="planning">{t("auth.arrivalPlanning")}</option>
                 <option value="arrived">{t("auth.arrivalArrived")}</option>
                 <option value="long_term_resident">{t("auth.arrivalLongTermResident")}</option>
@@ -763,7 +834,7 @@ export default function Profile({
   if (view === "saved") {
     return (
       <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
-        <ProfilePanelHeader title={t("profile.saved")} onBack={closeProfilePanel} />
+        <ProfilePanelHeader title={t("profile.saved")} backLabel={t("profile.backToProfile")} onBack={closeProfilePanel} />
 
         <div className="space-y-6">
           <section>
@@ -795,6 +866,8 @@ export default function Profile({
               <EmptyProfileState
                 title={t("profile.noSavedGuides")}
                 body={t("profile.noSavedGuidesDesc")}
+                actionLabel={t("profile.browseGuides")}
+                onAction={onOpenGuides}
               />
             )}
           </section>
@@ -819,6 +892,8 @@ export default function Profile({
               <EmptyProfileState
                 title={t("profile.noSavedPosts")}
                 body={t("profile.noSavedPostsDesc")}
+                actionLabel={t("profile.askFirstQuestion")}
+                onAction={onOpenForum}
               />
             )}
           </section>
@@ -830,7 +905,7 @@ export default function Profile({
   if (view === "posts") {
     return (
       <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
-        <ProfilePanelHeader title={t("profile.posts")} onBack={closeProfilePanel} />
+        <ProfilePanelHeader title={t("profile.posts")} backLabel={t("profile.backToProfile")} onBack={closeProfilePanel} />
 
         {userForumPosts.length > 0 ? (
           <div className="space-y-3">
@@ -848,8 +923,10 @@ export default function Profile({
           </div>
         ) : (
           <EmptyProfileState
-            title="No forum posts yet"
-            body="Create a post from the Forum page and it will appear here."
+            title={t("profile.noForumPosts")}
+            body={t("profile.noForumPostsDesc")}
+            actionLabel={t("profile.askFirstQuestion")}
+            onAction={onOpenForum}
           />
         )}
       </div>
@@ -857,52 +934,198 @@ export default function Profile({
   }
 
   if (view === "checklist") {
-    const checklistItems = [
-      "Passport or government ID",
-      "Proof of California address",
-      "Bank account setup notes",
-      "Health insurance documents",
-      "School or work records",
-    ];
+    const checklistCopy = getMovingChecklistCopy(language);
 
     return (
-      <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
-        <ProfilePanelHeader title={t("profile.checklist")} onBack={closeProfilePanel} />
+      <div className="mx-auto max-w-3xl px-4 pb-24 pt-20">
+        <ProfilePanelHeader title={t("profile.checklist")} backLabel={t("profile.backToProfile")} onBack={closeProfilePanel} />
         <div className="rounded-2xl border border-outline-variant bg-white p-5 shadow-sm">
           <p className="mb-4 text-sm leading-6 text-on-surface-variant">
-            Keep these starter documents close while you prepare guides, appointments, and forum questions.
+            {t("profile.checklistIntro")}
           </p>
+          <div className="mb-5 h-2 overflow-hidden rounded-full bg-surface-container-high">
+            <div
+              className="h-full rounded-full bg-primary transition-[width]"
+              style={{ width: `${(movingChecklist.completed.length / checklistCopy.tasks.length) * 100}%` }}
+            />
+          </div>
           <div className="space-y-3">
-            {checklistItems.map((item, index) => (
-              <div key={item} className="flex items-center gap-3 rounded-xl bg-surface-container-low p-3">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary-container text-xs font-bold text-on-secondary-container">
-                  {index + 1}
-                </div>
-                <p className="text-sm font-semibold text-on-surface">{item}</p>
-              </div>
+            <ChecklistSyncStatus {...movingChecklist} />
+            {checklistCopy.tasks.map((item) => (
+              <label key={item.id} className="flex cursor-pointer items-start gap-3 rounded-xl bg-surface-container-low p-3">
+                <input
+                  type="checkbox"
+                  checked={movingChecklist.completed.includes(item.id)}
+                  disabled={movingChecklist.isLoading}
+                  onChange={() => movingChecklist.toggle(item.id)}
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-primary disabled:cursor-wait disabled:opacity-60"
+                />
+                <span>
+                  <span className="block text-sm font-bold text-on-surface">{item.label}</span>
+                  <span className="mt-1 block text-xs leading-5 text-on-surface-variant">{item.deadline}</span>
+                </span>
+              </label>
             ))}
           </div>
+          <button
+            type="button"
+            onClick={() => onOpenBlog("guide-moving-address-checklist")}
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:opacity-90"
+          >
+            <BookOpen size={17} />
+            {t("profile.openGuide")}
+          </button>
         </div>
       </div>
     );
   }
 
+  const promptCopy = PROFILE_PROMPT_COPY[language];
+  const arrivalCopy = currentUser.arrivalStatusProvided === false
+    ? { title: promptCopy.genericTitle, body: promptCopy.genericBody }
+    : currentUser.arrivalStatus === "planning"
+    ? {
+        title: t("profile.arrival.planningTitle"),
+        body: t("profile.arrival.planningBody"),
+      }
+    : currentUser.arrivalStatus === "arrived"
+      ? {
+          title: t("profile.arrival.arrivedTitle"),
+          body: t("profile.arrival.arrivedBody"),
+        }
+      : {
+          title: t("profile.arrival.longTermTitle"),
+          body: t("profile.arrival.longTermBody"),
+        };
+  const checklistCopy = getMovingChecklistCopy(language);
+  const checklistProgress = t("profile.checklistProgress")
+    .replace("{completed}", String(movingChecklist.completed.length))
+    .replace("{total}", String(checklistCopy.tasks.length));
+  const memberSince = formatProfileMonthYear(currentUser.memberSince, language);
+  const initials = currentUser.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "CG";
+  const useContainedAvatar = currentUser.avatarUrl.startsWith("data:image/svg") || currentUser.avatarUrl.includes("ui-avatars.com");
+
   return (
     <>
-      <div className="pt-20 pb-24 max-w-lg mx-auto px-4">
-        <section className="flex flex-col items-center mb-8 pt-4">
-          <div className="mb-4">
-            <img
-              alt={currentUser.name}
-              className="w-28 h-28 rounded-full border-4 border-white shadow-xl object-cover bg-surface-container-high"
-              src={currentUser.avatarUrl}
-            />
+      {arrivalPromptOpen && <ProfileDetailPrompt kind="arrival"
+        initialValue={currentUser.arrivalStatusProvided === false ? "" : currentUser.arrivalStatus}
+        onSave={updateProfileDetail} onContinue={() => setArrivalPromptOpen(false)} onDismiss={() => setArrivalPromptOpen(false)} />}
+      <div className="mx-auto max-w-4xl px-4 pb-24 pt-20">
+        <section className="mb-7 flex items-center gap-4 rounded-2xl border border-outline-variant bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-primary-container text-lg font-bold text-primary shadow-sm">
+            {!avatarFailed && currentUser.avatarUrl ? (
+              <img
+                alt={currentUser.name}
+                className={`h-full w-full ${currentUser.avatarUrl.includes("monogram-v1") ? "object-contain" : useContainedAvatar ? "object-contain p-1" : "object-cover"}`}
+                src={currentUser.avatarUrl}
+                onError={() => setAvatarFailed(true)}
+              />
+            ) : (
+              <span aria-label={currentUser.name}>{initials}</span>
+            )}
           </div>
-          <h2 className="text-2xl font-bold text-on-surface">{currentUser.name}</h2>
-          <p className="text-sm font-medium text-on-surface-variant mt-1">{currentUser.email}</p>
-          <p className="text-xs font-medium text-on-surface-variant mt-1">
-            {t("profile.memberSince")} {currentUser.memberSince}
-          </p>
+          <div className="min-w-0">
+            <h2 className="truncate text-2xl font-bold text-on-surface">{currentUser.name}</h2>
+            <p className="mt-1 text-sm font-medium text-on-surface-variant">
+              {t("profile.memberSince")} {memberSince}
+            </p>
+          </div>
+        </section>
+
+        <section className="mb-7">
+          <h2 className="mb-3 text-xl font-bold text-on-surface">{t("profile.dashboardTitle")}</h2>
+          <div className="overflow-hidden rounded-2xl border border-outline-variant bg-primary text-white shadow-sm">
+            <div className="grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase text-white/75">{t("auth.arrivalStatus")}</p>
+                <h3 className="mt-2 text-xl font-bold">{arrivalCopy.title}</h3>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/85">{arrivalCopy.body}</p>
+                <button type="button" onClick={() => setArrivalPromptOpen(true)}
+                  className="mt-3 text-sm font-medium text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                  {promptCopy.personalize}
+                </button>
+              </div>
+              {arrivalGuide ? (
+                <button
+                  type="button"
+                  onClick={() => onOpenBlog(arrivalGuide.id)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary-container px-4 py-3 text-sm font-bold text-on-secondary-container hover:opacity-90"
+                >
+                  <BookOpen size={18} />
+                  {t("profile.openGuide")}
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </section>
+
+        <div className="mb-7 grid gap-4 md:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => openProfilePanel("checklist")}
+            className="rounded-2xl border border-outline-variant bg-white p-5 text-left shadow-sm transition-colors hover:bg-surface-container-low"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="rounded-xl bg-secondary-container p-3 text-on-secondary-container"><FileCheck size={22} /></div>
+              <ChevronRight size={20} className="text-outline" />
+            </div>
+            <h3 className="mt-4 text-lg font-bold text-on-surface">{t("profile.checklist")}</h3>
+            <p className="mt-1 text-sm text-on-surface-variant">{checklistProgress}</p>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-surface-container-high">
+              <div
+                className="h-full rounded-full bg-primary transition-[width]"
+                style={{ width: `${(movingChecklist.completed.length / checklistCopy.tasks.length) * 100}%` }}
+              />
+            </div>
+          </button>
+
+          <section className="rounded-2xl border border-outline-variant bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div className="rounded-xl bg-primary-container p-3 text-primary"><Bot size={22} /></div>
+              <button type="button" onClick={() => onOpenChatbot()} className="text-sm font-bold text-primary hover:underline">
+                {t("profile.openChatbot")}
+              </button>
+            </div>
+            <h3 className="mt-4 text-lg font-bold text-on-surface">{t("profile.recentChats")}</h3>
+            {recentChats.length ? (
+              <div className="mt-3 space-y-2">
+                {recentChats.map((chat) => (
+                  <button key={chat.id} type="button" onClick={() => onOpenChatbot(chat.id)} className="block w-full truncate rounded-lg bg-surface-container-low px-3 py-2 text-left text-sm font-semibold text-on-surface hover:bg-surface-container-high">
+                    {chat.title}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">{t("profile.noRecentChats")}</p>
+            )}
+          </section>
+        </div>
+
+        <section className="mb-7 rounded-2xl border border-outline-variant bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="text-lg font-bold text-on-surface">{t("profile.savedPreview")}</h3>
+            <button type="button" onClick={() => openProfilePanel("saved")} className="text-sm font-bold text-primary hover:underline">{t("profile.viewSaved")}</button>
+          </div>
+          {savedArticles.length ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {savedArticles.slice(0, 2).map((article) => (
+                <button key={article.id} type="button" onClick={() => onOpenBlog(article.id)} className="flex items-center gap-3 rounded-xl bg-surface-container-low p-3 text-left hover:bg-surface-container-high">
+                  <img src={article.image} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+                  <span className="line-clamp-2 text-sm font-bold text-on-surface">{article.title}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <button type="button" onClick={onOpenGuides} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-surface-container-low px-4 py-3 text-sm font-bold text-primary hover:bg-surface-container-high">
+              <BookOpen size={17} />
+              {t("profile.browseGuides")}
+            </button>
+          )}
         </section>
 
         <div className="space-y-3">
@@ -984,7 +1207,7 @@ export default function Profile({
   );
 }
 
-function ProfilePanelHeader({ title, onBack }: { title: string; onBack: () => void }) {
+function ProfilePanelHeader({ title, backLabel, onBack }: { title: string; backLabel: string; onBack: () => void }) {
   return (
     <section className="mb-6 pt-2">
       <button
@@ -992,18 +1215,33 @@ function ProfilePanelHeader({ title, onBack }: { title: string; onBack: () => vo
         className="mb-5 inline-flex items-center gap-2 rounded-xl py-2 pr-3 font-bold text-primary transition-colors hover:bg-surface-container-low"
       >
         <ArrowLeft size={20} />
-        Profile
+        {backLabel}
       </button>
       <h2 className="text-3xl font-bold text-on-surface">{title}</h2>
     </section>
   );
 }
 
-function EmptyProfileState({ title, body }: { title: string; body: string }) {
+function EmptyProfileState({
+  title,
+  body,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  body: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
     <div className="rounded-2xl border border-outline-variant bg-white p-6 text-center shadow-sm">
       <h3 className="text-lg font-bold text-on-surface">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-on-surface-variant">{body}</p>
+      {actionLabel && onAction ? (
+        <button type="button" onClick={onAction} className="mt-4 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:opacity-90">
+          {actionLabel}
+        </button>
+      ) : null}
     </div>
   );
 }

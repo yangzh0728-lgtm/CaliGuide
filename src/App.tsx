@@ -5,12 +5,14 @@
 
 import { lazy, ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { Page } from './types';
+import { getUserFacingError } from './lib/userFacingErrors';
 import Navigation from './components/Navigation';
 import TopAppBar from './components/TopAppBar';
 import PageSkeleton from './components/PageSkeleton';
 import Home from './pages/Home';
 import BlogDetail from './pages/BlogDetail';
 import { useAuth } from './context/AuthContext';
+import ProfileCompletionReminder from './components/ProfileCompletionReminder';
 import { useLanguage } from './context/LanguageContext';
 import { getLocalizedBlogArticle, getLocalizedBlogArticles } from './lib/blogLocalization';
 import {
@@ -53,6 +55,7 @@ import {
 } from './lib/appRoutes';
 import { getPageMetadata } from './lib/pageMetadata';
 import { reportClientError } from './lib/clientErrorReport';
+import { consumeAuthReturnPath } from './lib/authReturnPath';
 import type { GuideDirectoryGroupId } from './lib/guideDirectory';
 
 const AuthPage = lazy(() => import('./pages/AuthPage'));
@@ -76,6 +79,7 @@ export default function App() {
       : getAppRouteFromPath(window.location.pathname) ?? { page: 'home' },
   );
   const [authRequested, setAuthRequested] = useState(false);
+  const [selectedChatSessionId, setSelectedChatSessionId] = useState<string>();
   const [forumDiscussions, setForumDiscussions] = useState<ForumDiscussion[]>(FORUM_DISCUSSIONS);
   const [forumSyncError, setForumSyncError] = useState('');
   const [pendingForumDelete, setPendingForumDelete] = useState<PendingForumDelete | null>(null);
@@ -150,8 +154,10 @@ export default function App() {
   useEffect(() => {
     if (currentUser) {
       setAuthRequested(false);
+      const returnRoute = consumeAuthReturnPath();
+      if (returnRoute) navigate(returnRoute, { replace: true });
     }
-  }, [currentUser]);
+  }, [currentUser, navigate]);
 
   useEffect(() => {
     if (legalPage) {
@@ -237,7 +243,7 @@ export default function App() {
         navigate({ page: 'forumDetail', discussionId: remoteDiscussion.id }, { replace: true });
       })
       .catch((error) => {
-        setForumSyncError(`Forum post saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+        setForumSyncError(getUserFacingError(error, language));
         reportClientError('forum.post.create', error);
         console.warn('Unable to save forum post to Supabase:', error);
       });
@@ -265,7 +271,7 @@ export default function App() {
     })
       .then(reloadForumDiscussions)
       .catch((error) => {
-        setForumSyncError(`Comment saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+        setForumSyncError(getUserFacingError(error, language));
         reportClientError('forum.comment.create', error);
         console.warn('Unable to save forum comment to Supabase:', error);
       });
@@ -306,7 +312,7 @@ export default function App() {
     try {
       await deleteForumPostViaApi(supabase, discussionId);
     } catch (error) {
-      setForumSyncError(`Post delete failed: ${getErrorMessage(error)}`);
+      setForumSyncError(getUserFacingError(error, language));
       reportClientError('forum.post.delete', error);
       console.warn('Unable to delete forum post from Supabase:', error);
       return;
@@ -357,7 +363,7 @@ export default function App() {
     try {
       await deleteForumCommentViaApi(supabase, commentId);
     } catch (error) {
-      setForumSyncError(`Comment delete failed: ${getErrorMessage(error)}`);
+      setForumSyncError(getUserFacingError(error, language));
       reportClientError('forum.comment.delete', error);
       console.warn('Unable to delete forum comment from Supabase:', error);
       return;
@@ -401,7 +407,7 @@ export default function App() {
       ),
     );
     void setForumVoteViaApi(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
-      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      setForumSyncError(getUserFacingError(error, language));
       reportClientError('forum.post.vote', error);
       console.warn('Unable to save forum post vote to Supabase:', error);
     });
@@ -423,7 +429,7 @@ export default function App() {
       ),
     );
     void setForumVoteViaApi(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
-      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      setForumSyncError(getUserFacingError(error, language));
       reportClientError('forum.comment.vote', error);
       console.warn('Unable to save forum comment vote to Supabase:', error);
     });
@@ -444,7 +450,7 @@ export default function App() {
       ),
     );
     void setForumVoteViaApi(supabase, 'post', discussionId, userId, nextVote).catch((error) => {
-      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      setForumSyncError(getUserFacingError(error, language));
       reportClientError('forum.post.vote', error);
       console.warn('Unable to save forum post vote to Supabase:', error);
     });
@@ -466,7 +472,7 @@ export default function App() {
       ),
     );
     void setForumVoteViaApi(supabase, 'comment', commentId, userId, nextVote).catch((error) => {
-      setForumSyncError(`Vote saved locally, but Supabase sync failed: ${getErrorMessage(error)}`);
+      setForumSyncError(getUserFacingError(error, language));
       reportClientError('forum.comment.vote', error);
       console.warn('Unable to save forum comment vote to Supabase:', error);
     });
@@ -496,7 +502,7 @@ export default function App() {
         await savePost(postId);
       }
     })().catch((error) => {
-      setForumSyncError(`Post save failed: ${getErrorMessage(error)}`);
+      setForumSyncError(getUserFacingError(error, language));
       reportClientError('forum.post.save', error);
       console.warn('Unable to save forum post:', error);
     });
@@ -504,8 +510,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
-      case 'guide': return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'home': return <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      case 'guide': return <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'blog': return selectedBlog ? (
         <BlogDetail
           article={selectedBlog}
@@ -513,7 +519,7 @@ export default function App() {
           isSaved={isGuideSaved(selectedBlog.id)}
           onToggleSave={toggleSavedGuide}
         />
-      ) : <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      ) : <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
       case 'recommended': return (
         <RecommendedGuides
           activeGroupId={appRoute.page === 'recommended' ? appRoute.groupId ?? 'all' : 'all'}
@@ -580,19 +586,22 @@ export default function App() {
           onClearSyncError={() => setForumSyncError('')}
         />
       );
-      case 'chatbot': return <Chatbot />;
+      case 'chatbot': return <Chatbot initialSessionId={selectedChatSessionId} />;
       case 'profile': return (
         <Profile
           articles={localizedBlogArticles}
           forumDiscussions={forumDiscussions}
           onOpenBlog={openBlog}
+          onOpenGuides={() => navigate({ page: 'recommended' })}
+          onOpenForum={() => navigate({ page: 'forum' })}
+          onOpenChatbot={(sessionId) => { setSelectedChatSessionId(sessionId); navigate({ page: 'chatbot' }); }}
           onOpenForumDetail={openForumDetail}
           onToggleForumUseful={toggleForumDiscussionUseful}
           onToggleForumUnuseful={toggleForumDiscussionUnuseful}
           currentUserId={currentUser?.id ?? ''}
         />
       );
-      default: return <Home onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
+      default: return <Home isAuthenticated={Boolean(currentUser)} onOpenBlog={openBlog} onOpenRecommended={openRecommended} onOpenInstitution={openInstitution} onOpenAgencies={() => navigate({ page: 'agencies' })} />;
     }
   };
 
@@ -710,6 +719,7 @@ export default function App() {
         onCancel={() => setPendingForumDelete(null)}
         onConfirm={confirmForumDelete}
       />
+      <ProfileCompletionReminder />
     </div>
   );
 }
@@ -796,8 +806,4 @@ function getForumAvatar(name: string) {
       .map((part) => part[0]?.toUpperCase())
       .join("") || "U"
   );
-}
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unknown error';
 }

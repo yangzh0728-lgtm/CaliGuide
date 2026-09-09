@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { getUserFacingError } from '../lib/userFacingErrors';
 import {
   ArrowRight,
   Briefcase,
@@ -25,6 +26,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import ProfileDetailPrompt from '../components/ProfileDetailPrompt';
+import { needsDisplayName } from '../lib/progressiveProfile';
 import { useAuth } from '../context/AuthContext';
 import {
   createForumDiscussion,
@@ -89,8 +92,10 @@ export default function Forum({
   syncError,
   onClearSyncError,
 }: ForumProps) {
-  const { t } = useLanguage();
-  const { currentUser } = useAuth();
+  const { t, language } = useLanguage();
+  const { currentUser, updateProfileDetail } = useAuth();
+  const [namePromptOpen, setNamePromptOpen] = useState(false);
+  const [namePromptAsked, setNamePromptAsked] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [activeCategory, setActiveCategory] = useState('All Topics');
   const [isCommunityVisible, setIsCommunityVisible] = useState(true);
@@ -268,7 +273,7 @@ export default function Forum({
       setUploadProgress({ completed: 0, total: 0, fileName: '' });
       setIsComposerOpen(false);
     } catch (error) {
-      setComposerError(getErrorMessage(error));
+      setComposerError(getUserFacingError(error, language));
     } finally {
       setIsSubmittingPost(false);
     }
@@ -548,11 +553,20 @@ export default function Forum({
       <button
         type="button"
         aria-label="Create a forum post"
-        onClick={() => setIsComposerOpen(true)}
+        onClick={() => {
+          if (currentUser && needsDisplayName(currentUser.name) && !namePromptAsked && !currentUser.profileReminderDismissed && (currentUser.profileReminderAfter ?? 0) <= Date.now()) {
+            setNamePromptOpen(true);
+            setNamePromptAsked(true);
+          } else setIsComposerOpen(true);
+        }}
         className="fixed bottom-28 right-4 w-14 h-14 bg-primary text-white rounded-full shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-40"
       >
         <Plus size={24} />
       </button>
+
+      {namePromptOpen && <ProfileDetailPrompt kind="name" onSave={updateProfileDetail}
+        onDismiss={() => setNamePromptOpen(false)}
+        onContinue={() => { setNamePromptOpen(false); setIsComposerOpen(true); }} />}
 
       {isComposerOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-black/40 px-4 py-4 sm:items-center">
@@ -776,9 +790,6 @@ function ForumImageGrid({ imageUrls, compact = false }: { imageUrls?: string[]; 
   );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unable to upload images';
-}
 
 function VoteControls({
   usefulActive,

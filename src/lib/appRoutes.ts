@@ -1,6 +1,7 @@
 import { BLOG_ARTICLES } from "./blogContent";
 import { isGuideDirectoryGroupId, type GuideDirectoryGroupId } from "./guideDirectory";
 import { getInstitution } from "./institutions";
+import { PUBLIC_AGENCY_ID, PUBLIC_GUIDE_ID } from "./publicSamples";
 
 export type AppRoute =
   | { page: "home" }
@@ -124,7 +125,9 @@ export function getAppRoutePath(route: AppRoute) {
 }
 
 export function isPublicAppRoute(route: AppRoute) {
-  return route.page === "home" || route.page === "recommended" || route.page === "blog" || route.page === "agencies";
+  return route.page === "home"
+    || (route.page === "blog" && route.articleId === PUBLIC_GUIDE_ID)
+    || (route.page === "agencies" && route.institutionId === PUBLIC_AGENCY_ID);
 }
 
 export function shouldRequireAuthentication(route: AppRoute, accountActionRequested: boolean) {

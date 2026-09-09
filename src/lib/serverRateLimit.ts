@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import type { Request } from "express";
 import { ipKeyGenerator, rateLimit } from "express-rate-limit";
 
@@ -7,15 +6,9 @@ export const rateLimitErrorBody = {
   error: "Too many requests. Please wait and try again.",
 } as const;
 
-export function buildRateLimitKey(authorization: string | undefined, ip: string) {
-  const token = authorization?.startsWith("Bearer ")
-    ? authorization.slice("Bearer ".length).trim()
-    : "";
-
-  if (token) {
-    return `user:${createHash("sha256").update(token).digest("hex")}`;
-  }
-
+export function buildRateLimitKey(_authorization: string | undefined, ip: string) {
+  // These limits execute before authentication. Unverified tokens must never
+  // let callers choose a new bucket (especially for anonymous guide reports).
   return ipKeyGenerator(ip || "unknown");
 }
 

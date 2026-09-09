@@ -53,6 +53,44 @@ describe("translations", () => {
     }
   });
 
+  it("translates the profile dashboard and its dynamic count templates", () => {
+    const keys = [
+      "profile.savedCount",
+      "profile.postCount",
+      "profile.dashboardTitle",
+      "profile.arrival.planningTitle",
+      "profile.arrival.arrivedTitle",
+      "profile.arrival.longTermTitle",
+      "profile.checklistProgress",
+      "profile.recentChats",
+      "profile.askFirstQuestion",
+      "profile.openGuide",
+    ];
+
+    for (const language of ["en", "zh-CN", "zh-TW", "yue", "es"] as const) {
+      for (const key of keys) {
+        expect(translate(language, key)).toBeTruthy();
+        expect(translate(language, key)).not.toBe(key);
+      }
+    }
+
+    expect(translate("zh-CN", "profile.savedCount")).not.toContain("saved");
+    expect(translate("es", "profile.postCount")).not.toContain("forum posts");
+  });
+
+  it("does not describe CaliBot as a professional adviser in any language", () => {
+    const forbidden = [/professional/i, /legal guidance/i, /法律指引/, /orientación legal/i];
+
+    for (const language of ["en", "zh-CN", "zh-TW", "yue", "es"] as const) {
+      const intro = translate(language, "chatbot.intro");
+      expect(intro).toBeTruthy();
+
+      for (const pattern of forbidden) {
+        expect(intro).not.toMatch(pattern);
+      }
+    }
+  });
+
   it("translates the application loading state", () => {
     for (const language of ["en", "zh-CN", "yue", "zh-TW", "es"] as const) {
       expect(translate(language, "app.loading")).toBeTruthy();

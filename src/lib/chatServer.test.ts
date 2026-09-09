@@ -27,6 +27,18 @@ describe("chatServer", () => {
     expect(SYSTEM_PROMPT).toContain("under 180 words");
   });
 
+  it("does not claim professional standing or offer legal advice", () => {
+    expect(SYSTEM_PROMPT).not.toMatch(/professional immigration assistant/i);
+    expect(SYSTEM_PROMPT).not.toMatch(/legal guidance/i);
+    expect(SYSTEM_PROMPT).toMatch(/do not give legal advice/i);
+    expect(SYSTEM_PROMPT).toMatch(/attorney|accredited representative/i);
+  });
+
+  it("constrains formatting to the subset the chat renderer supports", () => {
+    expect(SYSTEM_PROMPT).toMatch(/bullet|list/i);
+    expect(SYSTEM_PROMPT).not.toMatch(/tables?\b.*allowed/i);
+  });
+
   it("keeps only non-empty chat history entries before the current user message", () => {
     const request = buildChatCompletionRequest({
       model: "deepseek-v4-flash",

@@ -33,7 +33,7 @@ const zhCnPatches: Record<string, BlogArticleTranslation> = {
     excerpt: "帮助新居民规划最常见的 DMV 事项，包括驾照、REAL ID、车辆登记和地址更新。",
     body: [
       "适合人群：刚搬到加州、需要办理驾照或州身份证、考虑 REAL ID、从外州带车进入加州，或需要更新 DMV 地址的新居民。",
-      "准备清单：护照或其他身份证明、加州住址证明、Social Security 信息、外州驾照或车辆登记、预约确认、申请费付款方式、车辆保险和注册文件。",
+      "准备清单：护照或其他身份证明 | 加州住址证明 | Social Security 信息 | 外州驾照或车辆登记 | 预约确认 | 申请费付款方式 | 车辆保险和注册文件。",
       "先确认你最需要办理的 DMV 事项：加州驾照、州身份证、REAL ID、车辆登记或地址更新。新居民应查看官方 DMV 时间要求，因为截止日期可能取决于何时建立加州居民身份，以及是否从外州带车进入加州。",
       "预约前整理身份、住址和合法居留相关材料。常见材料包括护照或其他身份证明、加州住址证明、适用时的 Social Security 信息，以及已有的外州驾照或车辆登记。",
       "访问 DMV 官网确认表格、费用、考试要求和预约情况。许多步骤可以在线开始，但到现场前仍应用官方页面核对最新规则。",
@@ -50,7 +50,7 @@ const zhCnPatches: Record<string, BlogArticleTranslation> = {
     body: [
       "适合人群：计划在未来 30 天内抵达加州，或抵达加州不满 30 天的人。本指南重点说明事项之间的办理顺序，不重复每篇专题指南中的详细要求。",
       "先后依赖关系：美国邮寄地址可以帮助你办理银行账户、DMV 预约、学校注册和水电网络账户。Social Security Number 或 ITIN 可能用于工资和许多信用产品。REAL ID 通常需要两份不同的住址证明。先启动需要排队等待的事项，因为等待时间无法压缩。",
-      "准备清单：美国电话号码、可持续使用 30 天的邮寄地址、加密保存的文件扫描件、护照和签证原件、I-94 记录、孩子的学校记录、银行开户存款",
+      "准备清单：美国电话号码 | 可持续使用 30 天的邮寄地址 | 加密保存的文件扫描件 | 护照和签证原件 | I-94 记录 | 孩子的学校记录 | 银行开户存款",
       "出发前：扫描护照、签证、I-94 记录、出生证明、结婚证明和移民批准通知。保留一份加密电子副本，所有原件随身携带，不要放入托运行李。确定第一个月使用的邮寄地址。如果有学龄儿童，应在离开前索取学校记录和疫苗接种记录。",
       "第 1 至 3 天保持可联系：机构能够联系到你后，许多后续事项才可以开始。准备美国电话号码，因为部分机构和银行不会向国际号码发送验证码。确认一个至少可使用 30 天的邮寄地址，因为住址证明需要时间积累。建立一个纸质和电子文件夹。跳过这一步会拖慢多个后续事项。",
       "第 1 周启动长期等待事项：有些事项可能存在无法缩短的等待期，即使其他事情看起来更紧急，也应现在开始。根据个人情况预约尽早可办理的 Social Security 服务。尝试开设银行账户；如果还没有 SSN，先确认哪些机构接受护照和 ITIN。",
@@ -70,7 +70,7 @@ const zhCnPatches: Record<string, BlogArticleTranslation> = {
       "适合人群：首次申请 Social Security Number、需要补发或更正卡片，以及需要了解移民身份和工作授权如何影响资格的非公民。",
       "先确认资格：美国公民和许多获得国土安全部工作授权的非公民可以申请 SSN。合法入境但没有工作授权的非公民，通常需要法律承认的有效非工作理由。SSN 卡本身不代表工作许可。",
       "选择申请方式：先使用 SSA 官方 Number and Card 工具。有些人可在提交符合条件的 USCIS 移民或工作授权表格时同时申请 SSN；其他人可以在线开始，再向 Social Security 完成后续步骤。如果已通过 USCIS 申请 SSN，不要重复提交。",
-      "准备清单：有效身份证件、年龄证明、美国公民身份证明或当前移民及工作授权文件、完整申请信息、适用时的预约确认、原件或由签发机构认证的副本而不是普通复印件或公证副本",
+      "准备清单：有效身份证件 | 年龄证明 | 美国公民身份证明或当前移民及工作授权文件 | 完整申请信息 | 适用时的预约确认 | 原件或由签发机构认证的副本而不是普通复印件或公证副本",
       "寻找附近服务：使用 SSA 官方办公室定位器，输入地址或邮编。各地办公流程和预约情况可能不同，出发前应确认该业务能否在线或电话办理，或是否必须预约。本指南适用于全美，不限于加州某个城市。",
       "现场办理：携带 SSA 根据个人情况列出的材料，并预留身份和资格审核时间。申请原始或补发 Social Security 卡免费。保存收据或确认信息，并安全保管 SSN 和身份文件。",
       "申请后：留意申请时提供的邮寄地址，卡片寄到后核对姓名。如未在 SSA 告知的时间内收到卡片，应直接联系 SSA。补卡、姓名更正和移民身份更新可能需要不同的在线或现场步骤。",
@@ -115,7 +115,7 @@ const englishTranslations: Record<string, BlogArticleTranslation> = {
     excerpt: "Plan your first DMV tasks, including licenses, REAL ID documents, vehicle registration, and address updates.",
     body: [
       "Who this helps: new California residents who need a driver's license or state ID, people deciding whether to apply for REAL ID, and residents bringing a vehicle from another state.",
-      "Preparation checklist: Passport or other identity document, California address proof, Social Security information when applicable, out-of-state license or vehicle registration, appointment confirmation, fee payment method, vehicle insurance, vehicle registration.",
+      "Preparation checklist: Passport or other identity document | California address proof | Social Security information when applicable | out-of-state license or vehicle registration | appointment confirmation | fee payment method | vehicle insurance | vehicle registration.",
       "Start by deciding which DMV task you need first: a California driver's license, state ID, REAL ID, vehicle registration, or address update. New residents should review official DMV timelines because deadlines can depend on when they establish residency and whether they bring a vehicle from another state.",
       "Before booking an appointment, organize identity, residency, and legal-presence documents. Common documents include a passport or other identity proof, proof of California address, Social Security information when applicable, and any existing out-of-state license or registration.",
       "Use the DMV website to check forms, fees, test requirements, and appointment availability before visiting an office. Many steps can start online, but users should confirm current rules on the official DMV site before relying on any checklist.",
@@ -170,7 +170,7 @@ const englishTranslations: Record<string, BlogArticleTranslation> = {
     excerpt: "Learn which documents, tests, appointments, and DMV steps first-time California license applicants should expect.",
     body: [
       "Who this helps: new California residents, adults applying for a U.S. license for the first time, drivers with a foreign or out-of-state license, and applicants comparing a standard license, REAL ID license, or AB 60 license.",
-      "Preparation checklist: Identity and legal-presence documents, California address proof, SSN information if applicable, existing licenses, fee payment, study materials, road-test vehicle, valid registration, valid insurance.",
+      "Preparation checklist: Identity and legal-presence documents | California address proof | SSN information if applicable | existing licenses | fee payment | study materials | road-test vehicle | valid registration | valid insurance.",
       "Choose the correct license type before applying. A standard license, REAL ID license, and AB 60 license have different document rules and uses; AB 60 cannot be used as REAL ID.",
       "Start the online driver's license or ID application, then visit DMV to verify documents, take a photo, provide fingerprints, pay fees, and complete required tests.",
       "Study the latest California Driver's Handbook for the vision and knowledge tests. Do not rely only on unofficial practice questions. If you do not already have a qualifying license, you may need an instruction permit before practicing.",
@@ -338,7 +338,7 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
     excerpt: "Planifica tus primeros trámites del DMV: licencia, REAL ID, registro del vehículo y cambio de dirección.",
     body: [
       "A quién ayuda: nuevos residentes de California que necesitan licencia de conducir o identificación estatal, personas que están considerando REAL ID y residentes que traen un vehículo de otro estado.",
-      "Lista de preparación: Pasaporte u otro documento de identidad, comprobante de domicilio en California, información del Seguro Social si aplica, licencia o registro vehicular de otro estado, confirmación de cita, forma de pago, seguro del vehículo, registro del vehículo.",
+      "Lista de preparación: Pasaporte u otro documento de identidad | comprobante de domicilio en California | información del Seguro Social si aplica | licencia o registro vehicular de otro estado | confirmación de cita | forma de pago | seguro del vehículo | registro del vehículo.",
       "Primero decide qué trámite necesitas: licencia de California, identificación estatal, REAL ID, registro del vehículo o cambio de dirección. Los plazos pueden depender de cuándo estableces residencia y de si traes un vehículo de otro estado.",
       "Prepara documentos de identidad, residencia y presencia legal antes de pedir cita. También lleva cualquier licencia o registro de otro estado si aplica.",
       "Usa el sitio oficial del DMV para confirmar formularios, costos, exámenes y citas. Muchas gestiones empiezan en línea, pero las reglas actuales deben verificarse en la fuente oficial.",
@@ -393,7 +393,7 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
     excerpt: "Conoce documentos, citas, exámenes y pasos del DMV para solicitar tu primera licencia en California.",
     body: [
       "Esta guía ayuda a nuevos residentes, adultos que solicitan por primera vez una licencia en EE. UU. y personas con licencia extranjera o de otro estado.",
-      "Lista de preparación: Documentos de identidad y presencia legal, comprobante de domicilio en California, información de SSN si aplica, licencias existentes, pago de tarifas, materiales de estudio, vehículo para examen práctico, registro válido, seguro válido.",
+      "Lista de preparación: Documentos de identidad y presencia legal | comprobante de domicilio en California | información de SSN si aplica | licencias existentes | pago de tarifas | materiales de estudio | vehículo para examen práctico | registro válido | seguro válido.",
       "Elige el tipo correcto: licencia estándar, licencia REAL ID o AB 60. Cada una tiene requisitos y usos diferentes; AB 60 no sirve como REAL ID.",
       "Empieza con la solicitud en línea, luego visita el DMV para verificar documentos, tomar foto, huellas, pagar tarifas y completar exámenes.",
       "Estudia el California Driver's Handbook para el examen de visión y conocimiento. No dependas solo de preguntas de práctica no oficiales. Si no tienes una licencia que califique, es posible que primero necesites un permiso de instrucción para practicar.",
@@ -442,7 +442,7 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
     body: [
       "A quién va dirigida: Personas que llegarán a California durante los próximos 30 días y personas que llegaron en los últimos 30 días. Esta guía explica el orden de los trámites sin repetir los requisitos detallados de cada guía temática.",
       "Qué desbloquea cada paso: Una dirección postal en Estados Unidos puede facilitar la apertura de una cuenta bancaria, una cita del DMV, la inscripción escolar y las cuentas de servicios. Un Social Security Number o ITIN puede ser necesario para la nómina y muchos productos de crédito. Para REAL ID generalmente se necesitan dos comprobantes de domicilio distintos. Empieza primero los trámites con filas de espera, porque ese tiempo no se puede acortar.",
-      "Lista de preparación: Número de teléfono estadounidense, dirección postal disponible durante 30 días, copias digitales cifradas, originales de pasaporte y visa, registro I-94, expedientes escolares de los niños, depósito para abrir una cuenta bancaria",
+      "Lista de preparación: Número de teléfono estadounidense | dirección postal disponible durante 30 días | copias digitales cifradas | originales de pasaporte y visa | registro I-94 | expedientes escolares de los niños | depósito para abrir una cuenta bancaria",
       "Antes de llegar: Escanea el pasaporte, la visa, el registro I-94, el acta de nacimiento, el acta de matrimonio y cualquier aviso de aprobación migratoria. Guarda una copia digital cifrada y lleva los originales en el equipaje de mano, nunca en el equipaje facturado. Decide qué dirección postal usarás durante el primer mes. Si viajas con niños en edad escolar, solicita antes sus expedientes y registros de vacunación.",
       "Días 1 a 3, mantente localizable: Muchos pasos no pueden empezar hasta que una institución pueda comunicarse contigo. Obtén un número de teléfono estadounidense, porque algunas agencias y bancos no envían códigos a números internacionales. Confirma una dirección postal que conservarás al menos 30 días, porque reunir comprobantes de domicilio toma tiempo. Crea una carpeta física y otra digital para tus documentos. Omitir este paso puede retrasar varias tareas posteriores.",
       "Semana 1, inicia las esperas: Algunos trámites pueden tener periodos de espera que no se pueden acortar, así que comienza ahora aunque otros asuntos parezcan más urgentes. Reserva la cita de Social Security más temprana que permita tu situación. Abre una cuenta bancaria o, si todavía no tienes SSN, confirma primero qué instituciones aceptan pasaporte e ITIN.",
@@ -462,7 +462,7 @@ const spanishTranslations: Record<string, BlogArticleTranslation> = {
       "A quién ayuda: Personas que solicitan su primer número de Seguro Social, quienes necesitan reemplazar o corregir una tarjeta y no ciudadanos que deben entender cómo el estatus migratorio y la autorización de trabajo afectan la elegibilidad.",
       "Confirma primero la elegibilidad: Los ciudadanos estadounidenses y muchos no ciudadanos con autorización de trabajo del Departamento de Seguridad Nacional pueden solicitar un SSN. Una persona admitida legalmente sin autorización de trabajo generalmente necesita un motivo no laboral válido reconocido por la ley. La tarjeta de SSN por sí sola no autoriza a trabajar.",
       "Elige la vía correcta: Empieza con la herramienta oficial de Número y Tarjeta de SSA. Algunas personas pueden pedir un SSN al presentar un formulario elegible de inmigración o autorización de trabajo ante USCIS; otras pueden comenzar en línea y terminar el proceso con Social Security. No presentes otra solicitud si ya pediste el SSN mediante USCIS.",
-      "Lista de preparación: Documento de identidad vigente, prueba de edad, evidencia de ciudadanía estadounidense o documentos actuales de inmigración y autorización de trabajo, información completa de la solicitud, confirmación de cita cuando corresponda, documentos originales o copias certificadas por la entidad emisora en lugar de fotocopias comunes o copias notarizadas",
+      "Lista de preparación: Documento de identidad vigente | prueba de edad | evidencia de ciudadanía estadounidense o documentos actuales de inmigración y autorización de trabajo | información completa de la solicitud | confirmación de cita cuando corresponda | documentos originales o copias certificadas por la entidad emisora en lugar de fotocopias comunes o copias notarizadas",
       "Encuentra ayuda cercana: Usa el localizador oficial de oficinas de SSA con tu dirección o código postal. Los procedimientos y las citas pueden variar, así que confirma antes de viajar si el servicio puede hacerse en línea, por teléfono o requiere cita. Esta guía es nacional y no se limita a una ciudad de California.",
       "En la cita: Lleva los documentos que SSA indique para tu situación y reserva tiempo para la revisión de identidad y elegibilidad. Solicitar una tarjeta original o de reemplazo es gratis. Guarda el recibo o la confirmación y protege tu SSN y tus documentos.",
       "Después de solicitar: Vigila el correo en la dirección proporcionada y revisa tu nombre cuando llegue la tarjeta. Contacta directamente a SSA si no llega dentro del plazo indicado. Los reemplazos, correcciones de nombre y actualizaciones de estatus migratorio pueden seguir pasos distintos en línea o presenciales.",
@@ -726,6 +726,7 @@ const traditionalReplacements: Array<[RegExp, string]> = [
   [/申请/g, "申請"],
   [/材料/g, "文件"],
   [/准备/g, "準備"],
+  [/清单/g, "清單"],
   [/身份证明/g, "身分證明"],
   [/身份证/g, "身分證"],
   [/地址/g, "地址"],

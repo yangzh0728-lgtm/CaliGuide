@@ -12,7 +12,7 @@ describe("blogBodyFormat", () => {
   });
 
   it("turns preparation checklist paragraphs into list items", () => {
-    expect(formatBlogBodyBlock("准备清单：护照、SSN 或 ITIN、美国地址、电话号码。")).toEqual({
+    expect(formatBlogBodyBlock("准备清单：护照 | SSN 或 ITIN | 美国地址 | 电话号码。")).toEqual({
       heading: "准备清单",
       content: "",
       listItems: ["护照", "SSN 或 ITIN", "美国地址", "电话号码"],
@@ -28,7 +28,7 @@ describe("blogBodyFormat", () => {
   });
 
   it("formats English and Spanish checklist and reminder headings", () => {
-    expect(formatBlogBodyBlock("Preparation checklist: Passport, address proof, DMV appointment.")).toMatchObject({
+    expect(formatBlogBodyBlock("Preparation checklist: Passport | address proof | DMV appointment.")).toMatchObject({
       heading: "Preparation checklist",
       listItems: ["Passport", "address proof", "DMV appointment"],
       tone: "checklist",
@@ -60,5 +60,14 @@ describe("blogBodyFormat", () => {
       heading: "Errores comunes",
       tone: "warning",
     });
+  });
+
+  it("preserves punctuation within authored checklist items in both Chinese scripts", () => {
+    for (const heading of ["准备清单", "準備清單"]) {
+      expect(formatBlogBodyBlock(`${heading}：水电、网络、停车、交通和保险预算 | 身份证明。`).listItems)
+        .toEqual(["水电、网络、停车、交通和保险预算", "身份证明"]);
+    }
+    expect(formatBlogBodyBlock("Preparation checklist: Budget for gas, water, and internet | ID.").listItems)
+      .toEqual(["Budget for gas, water, and internet", "ID"]);
   });
 });

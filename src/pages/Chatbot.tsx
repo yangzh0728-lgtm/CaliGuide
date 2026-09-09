@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { Bot, User, Send, PlusCircle, MessageSquare, X, ImagePlus, CheckCircle2, LoaderCircle } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { motion } from 'motion/react';
+import ChatMessageContent from '../components/ChatMessageContent';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -29,9 +30,10 @@ import { resolveApiUrl } from '../lib/apiUrl';
 import { readChatResponseError } from '../lib/chatClient';
 import { usePrivacyConsent } from '../context/PrivacyConsentContext';
 import ChatSafetyNotice from '../components/ChatSafetyNotice';
+import { getUserFacingError } from '../lib/userFacingErrors';
 
-export default function Chatbot() {
-  const { t } = useLanguage();
+export default function Chatbot({ initialSessionId }: { initialSessionId?: string }) {
+  const { t, language } = useLanguage();
   const { currentUser } = useAuth();
   const { isPreferencesAllowed } = usePrivacyConsent();
   const userId = currentUser?.id ?? DEFAULT_CHAT_USER_ID;
@@ -84,17 +86,17 @@ export default function Chatbot() {
           return;
         }
 
-        setChatMemory((currentMemory) => ({
+        setChatMemory((currentMemory) => setActiveChatMemorySession({
           sessionsByUserId: {
             ...currentMemory.sessionsByUserId,
             [userId]: remoteMemory,
           },
-        }));
+        }, userId, initialSessionId ?? remoteMemory.activeSessionId));
       })
       .catch((error) => {
         console.warn('Chat Supabase sync skipped:', error);
       });
-  }, [currentUser, introMessage, userId]);
+  }, [currentUser, introMessage, userId, initialSessionId]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && isPreferencesAllowed) {
@@ -137,7 +139,7 @@ export default function Chatbot() {
       }
     } catch (error) {
       setIsLoading(false);
-      setUploadError(getErrorMessage(error));
+      setUploadError(getUserFacingError(error, language));
       return;
     }
 
@@ -245,7 +247,7 @@ export default function Chatbot() {
       }
     } catch (error) {
       console.error("Chat Error:", error);
-      setUploadError(getErrorMessage(error));
+      setUploadError(getUserFacingError(error, language));
       const finalBotMessage = {
         ...botMessage,
         content: t('chatbot.error'),
@@ -446,7 +448,11 @@ export default function Chatbot() {
                     ))}
                   </div>
                 )}
-                <p className="text-sm leading-relaxed">{msg.content}</p>
+                {msg.role === 'user' ? (
+                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                ) : (
+                  <ChatMessageContent content={msg.content} />
+                )}
                 <span className={`text-[10px] mt-2 block ${msg.role === 'user' ? 'text-white/70 text-right' : 'text-on-surface-variant'}`}>
                   {msg.timestamp}
                 </span>
@@ -634,8 +640,4 @@ function BotAvatar({ size }: { size: 'large' | 'small' }) {
       <Bot size={isLarge ? 32 : 16} className={isLarge ? 'text-white' : 'text-primary'} fill="currentColor" />
     </div>
   );
-}
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unable to upload images';
 }

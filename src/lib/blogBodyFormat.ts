@@ -48,8 +48,8 @@ function getTone(heading: string): BlogBodyTone {
 
   if (
     heading.includes("清单") ||
+    heading.includes("清單") ||
     normalizedHeading.includes("checklist") ||
-    normalizedHeading.includes("preparation") ||
     normalizedHeading.includes("lista")
   ) {
     return "checklist";
@@ -81,7 +81,7 @@ function getTone(heading: string): BlogBodyTone {
 function splitChecklistItems(content: string) {
   return content
     .replace(/[。.]$/, "")
-    .split(/[、,，]/)
+    .split(/\s+\|\s+/)
     .map((item) => item.trim())
     .filter(Boolean);
 }
