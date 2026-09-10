@@ -235,6 +235,7 @@ export default function AuthPage({
               <Mail size={18} className="text-on-surface-variant" />
               <input
                 type="email"
+                aria-label={t("auth.email")}
                 required
                 autoComplete="email"
                 value={email}
@@ -256,6 +257,7 @@ export default function AuthPage({
               <LockKeyhole size={18} className="text-on-surface-variant" />
               <input
                 type="password"
+                aria-label={isResettingPassword ? t("auth.newPassword") : t("auth.password")}
                 required
                 minLength={isRegistering || isResettingPassword ? 6 : undefined}
                 autoComplete={isRegistering || isResettingPassword ? "new-password" : "current-password"}
