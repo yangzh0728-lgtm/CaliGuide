@@ -230,11 +230,12 @@ export default function AuthPage({
 
           {showEmailField && (
             <label className="block">
-            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.email")}</span>
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">{t("auth.email")}<span aria-hidden="true" className="ml-1 text-error">*</span></span>
             <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
               <Mail size={18} className="text-on-surface-variant" />
               <input
                 type="email"
+                aria-label={t("auth.email")}
                 required
                 autoComplete="email"
                 value={email}
@@ -250,11 +251,13 @@ export default function AuthPage({
             <label className="block">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">
               {isResettingPassword ? t("auth.newPassword") : t("auth.password")}
+              <span aria-hidden="true" className="ml-1 text-error">*</span>
             </span>
             <div className="mt-2 flex items-center gap-3 border border-outline-variant rounded-xl px-3 focus-within:border-primary">
               <LockKeyhole size={18} className="text-on-surface-variant" />
               <input
                 type="password"
+                aria-label={isResettingPassword ? t("auth.newPassword") : t("auth.password")}
                 required
                 minLength={isRegistering || isResettingPassword ? 6 : undefined}
                 autoComplete={isRegistering || isResettingPassword ? "new-password" : "current-password"}
