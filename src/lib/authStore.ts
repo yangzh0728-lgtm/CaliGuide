@@ -20,6 +20,7 @@ export interface AuthUser {
   arrivalStatusProvided?: boolean;
   sexProvided?: boolean;
   profileReminderDismissed?: boolean;
+  arrivalSuggestionDismissed?: boolean;
   profileReminderAfter?: number;
   forumTranslationLanguage: ForumTranslationLanguage;
   savedGuideIds: string[];

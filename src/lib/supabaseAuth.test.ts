@@ -44,6 +44,7 @@ describe("supabaseAuth", () => {
       sex: "female",
       sexProvided: true,
       profileReminderDismissed: false,
+      arrivalSuggestionDismissed: false,
       profileReminderAfter: 0,
       nationalities: ["China", "Canada"],
       countryNationality: "China, Canada",
@@ -86,6 +87,20 @@ describe("supabaseAuth", () => {
     expect(user.arrivalStatus).toBe("planning");
     expect(user.forumTranslationLanguage).toBe("en");
     expect(user.avatarUrl).toStartWith("data:image/svg+xml");
+  });
+
+  it("remembers arrival-card dismissal separately from profile reminders", () => {
+    const user = mapSupabaseUser({
+      user: {
+        id: "user-dismissed",
+        user_metadata: { arrival_suggestion_dismissed: true },
+      },
+      profile: null,
+      savedGuideIds: [],
+      savedPostIds: [],
+    });
+    expect(user.arrivalSuggestionDismissed).toBe(true);
+    expect(user.profileReminderDismissed).toBe(false);
   });
 
   it("normalizes Supabase credential errors for the current UI", () => {

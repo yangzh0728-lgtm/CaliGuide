@@ -26,6 +26,7 @@ import {
   Trash2,
   UserRound,
   UsersRound,
+  X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -94,8 +95,10 @@ export default function Profile({
   onToggleForumUnuseful,
   currentUserId,
 }: ProfileProps) {
-  const { currentUser, logout, clearDeletedAccountSession, updateAccount, updatePassword, updateProfileDetail } = useAuth();
+  const { currentUser, logout, clearDeletedAccountSession, updateAccount, updatePassword, updateProfileDetail, dismissArrivalSuggestion } = useAuth();
   const [arrivalPromptOpen, setArrivalPromptOpen] = useState(false);
+  const [isDismissingArrival, setIsDismissingArrival] = useState(false);
+  const [arrivalDismissError, setArrivalDismissError] = useState("");
   const { language, languages, setLanguage, t } = useLanguage();
   const { consent, openPreferences } = usePrivacyConsent();
   const movingChecklist = useMovingChecklistProgress();
@@ -1037,10 +1040,30 @@ export default function Profile({
           </div>
         </section>
 
-        <section className="mb-7">
+        {!currentUser.arrivalSuggestionDismissed && <section className="mb-7">
           <h2 className="mb-3 text-xl font-bold text-on-surface">{t("profile.dashboardTitle")}</h2>
-          <div className="overflow-hidden rounded-2xl border border-outline-variant bg-primary text-white shadow-sm">
-            <div className="grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="relative overflow-hidden rounded-2xl border border-outline-variant bg-primary text-white shadow-sm">
+            <button
+              type="button"
+              aria-label={promptCopy.dismissSuggestion}
+              title={promptCopy.dismissSuggestion}
+              disabled={isDismissingArrival}
+              onClick={async () => {
+                setIsDismissingArrival(true);
+                setArrivalDismissError("");
+                try {
+                  await dismissArrivalSuggestion();
+                } catch (error) {
+                  setArrivalDismissError(getUserFacingError(error, language));
+                } finally {
+                  setIsDismissingArrival(false);
+                }
+              }}
+              className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-lg text-white hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-50"
+            >
+              <X size={20} aria-hidden="true" />
+            </button>
+            <div className="grid gap-5 p-5 pr-16 sm:grid-cols-[1fr_auto] sm:items-center">
               <div>
                 <p className="text-xs font-bold uppercase text-white/75">{t("auth.arrivalStatus")}</p>
                 <h3 className="mt-2 text-xl font-bold">{arrivalCopy.title}</h3>
@@ -1061,8 +1084,9 @@ export default function Profile({
                 </button>
               ) : null}
             </div>
+            {arrivalDismissError && <p role="alert" className="px-5 pb-5 text-sm text-white">{arrivalDismissError}</p>}
           </div>
-        </section>
+        </section>}
 
         <div className="mb-7 grid gap-4 md:grid-cols-2">
           <button

@@ -33,6 +33,7 @@ interface AuthContextValue {
   profileReminderUserId: string | null;
   saveOptionalProfile: (input: OptionalProfileValues) => Promise<void>;
   dismissProfileReminder: (choice: "later" | "never") => Promise<void>;
+  dismissArrivalSuggestion: () => Promise<void>;
   register: (input: {
     email: string;
     password: string;
@@ -311,6 +312,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const updated = await loadAuthUser(data.user);
         setCurrentUser((active) => active?.id === updated.id ? updated : active);
         setProfileReminderUserId(null);
+      },
+      dismissArrivalSuggestion: async () => {
+        if (!currentUser) throw new Error("Sign in required");
+        const { data, error } = await supabase.auth.updateUser({
+          data: { arrival_suggestion_dismissed: true },
+        });
+        if (error) throw new Error(formatSupabaseAuthError(error));
+        setCurrentUser((active) => active?.id === data.user.id
+          ? { ...active, arrivalSuggestionDismissed: true } : active);
       },
       updateProfileDetail: async (input) => {
         if (!currentUser) throw new Error("Sign in required");
