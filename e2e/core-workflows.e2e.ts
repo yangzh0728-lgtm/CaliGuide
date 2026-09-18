@@ -158,6 +158,42 @@ async function signIn(page: Page) {
   await page.locator('button[type="submit"]').click();
 }
 
+test("arrival suggestion dismissal persists across refresh and login", async ({ page }, testInfo) => {
+  const account = await mockAccount(page, { signedOut: true, metadata: { profile_reminder_dismissed: true } });
+  await signIn(page);
+  const close = page.getByRole("button", { name: PROFILE_PROMPT_COPY.en.dismissSuggestion });
+  await expect(close).toBeVisible();
+  const bounds = await close.boundingBox();
+  expect(bounds!.width).toBeGreaterThanOrEqual(44);
+  expect(bounds!.height).toBeGreaterThanOrEqual(44);
+  await page.screenshot({ path: testInfo.outputPath("arrival-close.png"), fullPage: true });
+  await close.click();
+  await expect(close).toHaveCount(0);
+  expect(account.metadata()).toHaveProperty("arrival_suggestion_dismissed", true);
+  expect(account.metadata()).toHaveProperty("profile_reminder_dismissed", true);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Test Reader", exact: true })).toBeVisible();
+  await expect(close).toHaveCount(0);
+  await page.evaluate(() => localStorage.removeItem("sb-example-auth-token"));
+  await signIn(page);
+  await expect(page.getByRole("heading", { name: "Test Reader", exact: true })).toBeVisible();
+  await expect(close).toHaveCount(0);
+  await expect(page.getByText("Moving checklist", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Latest conversation", { exact: true })).toBeVisible();
+});
+
+test("arrival suggestion stays visible when dismissal cannot be saved", async ({ page }) => {
+  const account = await mockAccount(page, { failPreference: true });
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  const close = page.getByRole("button", { name: PROFILE_PROMPT_COPY.en.dismissSuggestion });
+  await close.click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("alert")).not.toContainText("Private auth failure");
+  await expect(close).toBeEnabled();
+  expect(account.metadata()).not.toHaveProperty("arrival_suggestion_dismissed");
+});
+
 test("saved cartoon defaults display the new initials avatar", async ({ page }, testInfo) => {
   const legacy = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="144" r="24"/><path d="M45 178 Q100 126 155 178"/></svg>';
   await mockAccount(page, { avatarUrl: `data:image/svg+xml,${encodeURIComponent(legacy)}` });

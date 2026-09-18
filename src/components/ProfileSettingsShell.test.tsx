@@ -65,5 +65,7 @@ describe("ProfileSettingsShell", () => {
 
     expect(markup).toContain('data-danger-section="true"');
     expect(markup).toContain("text-error");
+    expect(markup).toContain("Account deletion");
+    expect(markup).not.toContain("Danger zone");
   });
 });

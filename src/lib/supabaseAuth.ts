@@ -73,6 +73,7 @@ export function mapSupabaseUser(input: {
     sexProvided: input.user.user_metadata?.sex_provided === true || Boolean(
       input.user.user_metadata?.sex || (input.profile?.sex && input.profile.sex !== "prefer_not_to_say")),
     profileReminderDismissed: input.user.user_metadata?.profile_reminder_dismissed === true,
+    arrivalSuggestionDismissed: input.user.user_metadata?.arrival_suggestion_dismissed === true,
     profileReminderAfter: typeof input.user.user_metadata?.profile_reminder_after === "number"
       ? input.user.user_metadata.profile_reminder_after : 0,
     nationalities,
