@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import { readFile } from "node:fs/promises";
+import { mountProductionFrontend } from "./src/lib/productionFrontend";
 import { createHash } from "node:crypto";
 import { createServer as createViteServer } from "vite";
 import OpenAI from "openai";
@@ -54,10 +54,7 @@ import {
 import {
   buildRobotsText,
   buildSitemapXml,
-  getPageMetadata,
-  getPageMetadataFromPath,
   getPublicSitemapPaths,
-  injectPageMetadata,
 } from "./src/lib/pageMetadata";
 import { buildSecurityHeaders } from "./src/lib/securityHeaders";
 import { normalizeClientErrorReport } from "./src/lib/clientErrorReport";
@@ -1218,19 +1215,7 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    const appShell = await readFile(path.join(distPath, 'index.html'), 'utf8');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      const metadata = getPageMetadataFromPath(req.path) ?? {
-        ...getPageMetadata({ page: 'home' }),
-        canonicalPath: req.path,
-        noIndex: true,
-      };
-      res
-        .status(getPageMetadataFromPath(req.path) ? 200 : 404)
-        .type('html')
-        .send(injectPageMetadata(appShell, metadata, publicSiteOrigin));
-    });
+    await mountProductionFrontend(app, distPath, publicSiteOrigin);
   }
 
   app.listen(PORT, "0.0.0.0", () => {
