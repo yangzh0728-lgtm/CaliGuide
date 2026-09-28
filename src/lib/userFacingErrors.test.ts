@@ -10,5 +10,7 @@ for (const language of Object.keys(WORKFLOW_COPY) as LanguageCode[]) {
     expect(getUserFacingError(Error("Invalid login credentials"), language)).toBe(copy.credentials);
     expect(getUserFacingError(Error("Failed to fetch"), language)).toBe(copy.network);
     expect(getUserFacingError(Error("RATE_LIMITED"), language)).toBe(copy.rateLimited);
+    expect(getUserFacingError(Error("Password must be at least 8 characters and include uppercase and lowercase letters"), language)).toBe(copy.password);
+    expect(copy.password).toContain("8");
   });
 }

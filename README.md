@@ -153,6 +153,49 @@ Never commit `.env` or server credentials. Browser variables prefixed with `VITE
 
 See [.env.example](.env.example) for descriptions and example values.
 
+### Password Policy
+
+New passwords must contain at least 8 characters, including uppercase (A-Z) and
+lowercase (a-z) letters. Numbers and symbols are optional. Signup, password reset,
+and password changes share this rule; login does not reject an existing password
+just because it fails the new requirements. Passwords are never trimmed.
+
+**Also configure the same policy in Supabase Authentication settings.** Set the
+minimum length to 8 and require lowercase and uppercase letters. Browser
+validation alone cannot enforce security against direct Auth API requests.
+See [Supabase password security](https://supabase.com/docs/guides/auth/password-security).
+
+### Updating the AWS Deployment
+
+Pushing to GitHub does not update the running AWS service automatically. For the
+existing Ubuntu deployment, run each command below in order and stop on any error:
+
+```bash
+cd /home/ubuntu/CaliGuide
+git switch main
+git pull --ff-only origin main
+bun install --frozen-lockfile
+bun run build
+sudo systemctl restart caliguide.service
+sudo systemctl status caliguide.service --no-pager
+curl --fail --head --max-time 10 http://127.0.0.1:3000
+curl --fail --head --max-time 10 https://www.caliguide.org
+```
+
+If startup fails, inspect `sudo journalctl -u caliguide.service -n 50 --no-pager`.
+An error such as `Cannot find package` means the deployed dependencies need checking;
+`git pull` alone neither installs dependencies nor rebuilds `dist/`.
+
+For forum translation, run `bun run check:translation-config` in the service's
+working directory and environment. It prints variable names and SET/MISSING status,
+never credential values. It does not validate the keys or contact Azure.
+`VITE_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `AZURE_TRANSLATOR_KEY` must be
+set on AWS, not just on a development machine. Regional Azure resources also need
+the matching `AZURE_TRANSLATOR_REGION`. Ensure
+[`supabase/forum-translations.sql`](supabase/forum-translations.sql) has been applied.
+Restart the service after changing server settings, then test translation while
+signed in. Never commit `.env` or paste secret values into logs or support messages.
+
 ## Available Scripts
 
 | Command | Purpose |
@@ -160,6 +203,7 @@ See [.env.example](.env.example) for descriptions and example values.
 | `bun run dev` | Start the Express API and Vite development server |
 | `bun test` | Run the automated test suite |
 | `bun run test:e2e` | Run Playwright browser tests on desktop and mobile Chromium |
+| `bun run check:translation-config` | Check required translation environment variables without printing secrets |
 | `bun run typecheck` | Run TypeScript validation without emitting files |
 | `bun run lint` | Compatibility alias for the current typecheck command; a dedicated linter is not configured yet |
 | `bun run build` | Build the frontend and bundle the production server into `dist/` |

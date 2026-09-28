@@ -1,4 +1,5 @@
 import { formatNationalities, normalizeNationalities } from "./nationalities";
+import { validateNewPassword } from "./passwordPolicy";
 import { createDefaultAvatar, resolveProfileAvatar } from "./defaultAvatar";
 import { type ForumTranslationLanguage, normalizeForumTranslationLanguage } from "./forumTranslation";
 
@@ -63,7 +64,7 @@ export function registerUser(
 ): AuthState {
   const name = input.name.trim();
   const email = normalizeEmail(input.email);
-  const password = input.password.trim();
+  const password = input.password;
   const dateOfBirth = normalizeDateOfBirth(input.dateOfBirth);
   const sex = normalizeSex(input.sex);
   const nationalities = normalizeNationalities(input.nationalities, input.countryNationality);
@@ -78,9 +79,7 @@ export function registerUser(
   if (!email.includes("@")) {
     throw new Error("Enter a valid email");
   }
-  if (password.length < 6) {
-    throw new Error("Password must be at least 6 characters");
-  }
+  validateNewPassword(password);
   if (state.users.some((user) => user.email === email)) {
     throw new Error("An account with this email already exists");
   }
@@ -303,7 +302,7 @@ export function changePassword(
   input: { currentPassword: string; newPassword: string },
 ): AuthState {
   const currentUser = requireCurrentUser(state);
-  const newPassword = input.newPassword.trim();
+  const newPassword = input.newPassword;
   const storedUser = state.users.find((user) => user.id === currentUser.id);
 
   if (!storedUser) {
@@ -312,9 +311,7 @@ export function changePassword(
   if (storedUser.password !== input.currentPassword) {
     throw new Error("Current password is incorrect");
   }
-  if (newPassword.length < 6) {
-    throw new Error("New password must be at least 6 characters");
-  }
+  validateNewPassword(newPassword);
 
   return {
     ...state,

@@ -11,6 +11,7 @@
     "clean": "rm -rf dist server.js",
     "test": "bun test",
     "test:e2e": "playwright test",
+    "check:translation-config": "bun scripts/check-translation-config.ts",
     "bench:chat": "bun scripts/bench-chat.ts",
     "import:guide-content": "bun scripts/import-guide-content.ts",
     "migrate:r2-avatars": "bun scripts/migrate-r2-avatars.ts",

@@ -12,11 +12,39 @@ import {
 } from "./authStore";
 
 describe("authStore", () => {
+  test("accepts an eight-letter mixed-case password without numbers or symbols", () => {
+    expect(registerUser(createAuthState(), {
+      name: "Reader", email: "reader@example.com", password: "Abcdefgh",
+    }).currentUser).not.toBeNull();
+  });
+
+  test("allows existing users to sign in with a legacy password", () => {
+    const state = registerUser(createAuthState(), { name: "Reader", email: "reader@example.com", password: "Abcdefgh" });
+    state.users[0].password = "old123";
+    expect(signInUser({ ...state, currentUser: null }, { email: "reader@example.com", password: "old123" }).currentUser).not.toBeNull();
+    expect(() => changePassword(state, { currentPassword: "old123", newPassword: "abcdefgh" })).toThrow("uppercase and lowercase");
+  });
+
+  test.each(["Abcdefg", "abcdefgh", "ABCDEFGH", "12345678"])("rejects weak new password %s", (password) => {
+    expect(() => registerUser(createAuthState(), {
+      name: "Reader", email: "reader@example.com", password,
+    })).toThrow("Password must be at least 8 characters and include uppercase and lowercase letters");
+  });
+
+  test("preserves spaces in passwords during registration and changes", () => {
+    const password = " MixedCase ";
+    const state = registerUser(createAuthState(), { name: "Reader", email: "reader@example.com", password });
+    expect(signInUser({ ...state, currentUser: null }, { email: "reader@example.com", password }).currentUser).not.toBeNull();
+    const newPassword = " NewMixedCase ";
+    const updated = changePassword(state, { currentPassword: password, newPassword });
+    expect(signInUser({ ...updated, currentUser: null }, { email: "reader@example.com", password: newPassword }).currentUser).not.toBeNull();
+  });
+
   test("registers a user and signs in with the same credentials", () => {
     const registered = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
       dateOfBirth: "1993-04-12",
       sex: "female",
       nationalities: ["China", "Canada"],
@@ -35,7 +63,7 @@ describe("authStore", () => {
 
     const signedIn = signInUser(
       { ...registered, currentUser: null },
-      { email: "maya@example.com", password: "secure123" },
+      { email: "maya@example.com", password: "Secure123" },
     );
 
     expect(signedIn.currentUser?.email).toBe("maya@example.com");
@@ -45,7 +73,7 @@ describe("authStore", () => {
     const registered = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
     });
 
     expect(registered.currentUser?.avatarUrl).toStartWith("data:image/svg+xml");
@@ -56,7 +84,7 @@ describe("authStore", () => {
     const registered = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
     });
 
     expect(registered.currentUser?.dateOfBirth).toBeNull();
@@ -72,7 +100,7 @@ describe("authStore", () => {
       registerUser(createAuthState(), {
         name: "Maya Chen",
         email: "maya@example.com",
-        password: "secure123",
+        password: "Secure123",
         dateOfBirth: "2999-01-01",
         sex: "female",
       }),
@@ -83,7 +111,7 @@ describe("authStore", () => {
     const registered = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
     });
 
     expect(() =>
@@ -98,7 +126,7 @@ describe("authStore", () => {
     const state = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
     });
 
     const updated = updateProfile(state, {
@@ -114,7 +142,7 @@ describe("authStore", () => {
     const state = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
       countryNationality: "China",
     });
 
@@ -132,24 +160,24 @@ describe("authStore", () => {
     const state = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
     });
 
     expect(() =>
       changePassword(state, {
         currentPassword: "wrong",
-        newPassword: "newsecure123",
+        newPassword: "Newsecure123",
       }),
     ).toThrow("Current password is incorrect");
 
     const updated = changePassword(state, {
-      currentPassword: "secure123",
-      newPassword: "newsecure123",
+      currentPassword: "Secure123",
+      newPassword: "Newsecure123",
     });
 
     const signedIn = signInUser(
       { ...updated, currentUser: null },
-      { email: "maya@example.com", password: "newsecure123" },
+      { email: "maya@example.com", password: "Newsecure123" },
     );
 
     expect(signedIn.currentUser?.email).toBe("maya@example.com");
@@ -159,7 +187,7 @@ describe("authStore", () => {
     const state = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
     });
 
     expect(state.currentUser?.savedGuideIds).toEqual([]);
@@ -171,7 +199,7 @@ describe("authStore", () => {
 
     const signedIn = signInUser(
       { ...savedAgain, currentUser: null },
-      { email: "maya@example.com", password: "secure123" },
+      { email: "maya@example.com", password: "Secure123" },
     );
 
     expect(signedIn.currentUser?.savedGuideIds).toEqual(["guide-1"]);
@@ -185,7 +213,7 @@ describe("authStore", () => {
     const state = registerUser(createAuthState(), {
       name: "Maya Chen",
       email: "maya@example.com",
-      password: "secure123",
+      password: "Secure123",
     });
 
     expect(state.currentUser?.savedPostIds).toEqual([]);
@@ -197,7 +225,7 @@ describe("authStore", () => {
 
     const signedIn = signInUser(
       { ...savedAgain, currentUser: null },
-      { email: "maya@example.com", password: "secure123" },
+      { email: "maya@example.com", password: "Secure123" },
     );
 
     expect(signedIn.currentUser?.savedPostIds).toEqual(["post-1"]);

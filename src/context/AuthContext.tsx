@@ -10,6 +10,7 @@ import {
   requiresEmailConfirmationAfterSignUp,
 } from "../lib/supabaseAuth";
 import { supabase } from "../lib/supabaseClient";
+import { validateNewPassword } from "../lib/passwordPolicy";
 import { rememberAuthReturnPath } from "../lib/authReturnPath";
 import { ensureUserMediaStructure } from "../lib/userMediaStructure";
 import { formatNationalities, normalizeNationalities } from "../lib/nationalities";
@@ -158,9 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!email.includes("@")) {
           throw new Error("Enter a valid email");
         }
-        if (password.length < 6) {
-          throw new Error("Password must be at least 6 characters");
-        }
+        validateNewPassword(password);
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -243,11 +242,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
       resetRecoveredPassword: async (input) => {
-        const newPassword = input.newPassword.trim();
-
-        if (newPassword.length < 6) {
-          throw new Error("New password must be at least 6 characters");
-        }
+        const newPassword = input.newPassword;
+        validateNewPassword(newPassword);
 
         const { data, error } = await supabase.auth.updateUser({ password: newPassword });
         if (error) {
@@ -411,10 +407,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error("Sign in required");
         }
 
-        const newPassword = input.newPassword.trim();
-        if (newPassword.length < 6) {
-          throw new Error("New password must be at least 6 characters");
-        }
+        const newPassword = input.newPassword;
+        validateNewPassword(newPassword);
 
         const { error: credentialError } = await supabase.auth.signInWithPassword({
           email: currentUser.email,
