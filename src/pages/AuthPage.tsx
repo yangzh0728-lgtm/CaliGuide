@@ -4,6 +4,7 @@ import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { getUserFacingError } from "../lib/userFacingErrors";
+import { PASSWORD_MIN_LENGTH, PASSWORD_PATTERN } from "../lib/passwordPolicy";
 import { WORKFLOW_COPY } from "../i18n/workflowCopy";
 import OptionalProfileFields from "../components/OptionalProfileFields";
 import { blankOptionalProfile } from "../lib/optionalProfile";
@@ -259,14 +260,22 @@ export default function AuthPage({
                 type="password"
                 aria-label={isResettingPassword ? t("auth.newPassword") : t("auth.password")}
                 required
-                minLength={isRegistering || isResettingPassword ? 6 : undefined}
+                minLength={isRegistering || isResettingPassword ? PASSWORD_MIN_LENGTH : undefined}
+                pattern={isRegistering || isResettingPassword ? PASSWORD_PATTERN : undefined}
+                aria-describedby={isRegistering || isResettingPassword ? "password-requirements" : undefined}
+                title={isRegistering || isResettingPassword ? t("auth.passwordRequirements") : undefined}
                 autoComplete={isRegistering || isResettingPassword ? "new-password" : "current-password"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="w-full py-3 bg-transparent outline-none text-sm"
-                placeholder={t("auth.passwordPlaceholder")}
+                placeholder={t("auth.password")}
               />
             </div>
+            {(isRegistering || isResettingPassword) && (
+              <span id="password-requirements" className="mt-2 block text-sm leading-6 text-on-surface-variant">
+                {t("auth.passwordRequirements")}
+              </span>
+            )}
             </label>
           )}
 

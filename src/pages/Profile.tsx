@@ -29,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { PASSWORD_MIN_LENGTH, PASSWORD_PATTERN } from "../lib/passwordPolicy";
 import { useLanguage } from "../context/LanguageContext";
 import ProfileDetailPrompt from "../components/ProfileDetailPrompt";
 import { PROFILE_PROMPT_COPY } from "../i18n/profilePromptCopy";
@@ -607,6 +608,8 @@ export default function Profile({
             <input
               type="password"
               value={currentPassword}
+              required
+              autoComplete="current-password"
               onChange={(event) => setCurrentPassword(event.target.value)}
               className="mt-2 w-full border border-outline-variant rounded-xl px-3 py-3 text-sm outline-none focus:border-primary"
             />
@@ -617,10 +620,19 @@ export default function Profile({
             <input
               type="password"
               value={newPassword}
+              required
+              minLength={PASSWORD_MIN_LENGTH}
+              pattern={PASSWORD_PATTERN}
+              autoComplete="new-password"
+              aria-describedby="new-password-requirements"
+              title={t("auth.passwordRequirements")}
               onChange={(event) => setNewPassword(event.target.value)}
               className="mt-2 w-full border border-outline-variant rounded-xl px-3 py-3 text-sm outline-none focus:border-primary"
             />
           </label>
+          <p id="new-password-requirements" className="text-sm leading-6 text-on-surface-variant">
+            {t("auth.passwordRequirements")}
+          </p>
 
           {passwordMessage && (
             <p className="text-sm font-semibold text-primary">{passwordMessage}</p>
@@ -1156,6 +1168,7 @@ export default function Profile({
           {menuItems.map((item) => (
             <button
               key={item.id}
+              aria-label={item.title}
               onClick={() => openProfilePanel(item.id as ProfileView)}
               className="w-full bg-white border border-outline-variant rounded-2xl p-4 flex items-center justify-between hover:bg-surface-container-low transition-all cursor-pointer shadow-sm group text-left"
             >

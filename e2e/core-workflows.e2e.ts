@@ -4,6 +4,91 @@ import { OPTIONAL_PROFILE_COPY } from "../src/i18n/optionalProfileCopy";
 import type { LanguageCode } from "../src/i18n/translations";
 import { BLOG_ARTICLES } from "../src/lib/blogContent";
 
+test("new passwords require eight characters and both letter cases, but login does not", async ({ page }, testInfo) => {
+  let signupCount = 0;
+  await mockAccount(page, { signedOut: true, metadata: { profile_reminder_dismissed: true } });
+  await page.route("https://example.supabase.co/auth/v1/signup**", async (route) => {
+    signupCount++;
+    const signup = route.request().postDataJSON();
+    await route.fulfill({ json: { id: "11111111-1111-4111-8111-111111111111", email: signup.email, identities: [{ id: "email" }], user_metadata: signup.data } });
+  });
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  const password = page.getByLabel("Password", { exact: true });
+  await expect(password).not.toHaveAttribute("minlength");
+  await expect(password).not.toHaveAttribute("pattern");
+  await page.getByRole("button", { name: "Register", exact: true }).click();
+  await page.getByRole("button", { name: /email/i }).click();
+  await expect(password).toHaveAttribute("minlength", "8");
+  await expect(page.locator("#password-requirements")).toBeVisible();
+  await page.getByLabel("Email", { exact: true }).fill("reader@example.com");
+  for (const weak of ["Abcdefg", "abcdefgh", "ABCDEFGH", "12345678"]) {
+    await password.fill(weak);
+    await page.locator("form").evaluate((form: HTMLFormElement) => { form.noValidate = false; });
+    await page.locator('button[type="submit"]').click();
+    expect(signupCount).toBe(0);
+    // Bypass HTML validation to exercise the auth-layer guard too.
+    await page.locator("form").evaluate((form: HTMLFormElement) => {
+      form.noValidate = true;
+      form.requestSubmit();
+    });
+    await expect(page.getByText("Use at least 8 characters, including uppercase (A-Z) and lowercase (a-z) letters.")).toBeVisible();
+    expect(signupCount).toBe(0);
+  }
+  await password.fill("Abcdefgh");
+  await page.screenshot({ path: testInfo.outputPath("password-requirements.png"), fullPage: true });
+  await page.locator('button[type="submit"]').click();
+  await expect.poll(() => signupCount).toBe(1);
+});
+
+test("password changes validate before requests and preserve the exact new password", async ({ page }) => {
+  await mockAccount(page, { metadata: { profile_reminder_dismissed: true } });
+  const writes: Record<string, unknown>[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/auth/v1/user") && request.method() === "PUT") writes.push(request.postDataJSON());
+  });
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  await page.getByRole("button", { name: /^Settings/ }).click();
+  await page.locator('[data-settings-section="security"]:visible').click();
+  const current = page.getByLabel("Current password", { exact: true });
+  const next = page.getByLabel("New password", { exact: true });
+  await expect(current).not.toHaveAttribute("pattern");
+  await expect(next).toHaveAttribute("minlength", "8");
+  await current.fill("old123");
+  await next.fill("abcdefgh");
+  await page.locator("form").evaluate((form: HTMLFormElement) => { form.noValidate = true; form.requestSubmit(); });
+  await expect(page.getByText("Use at least 8 characters, including uppercase (A-Z) and lowercase (a-z) letters.")).toBeVisible();
+  expect(writes).toEqual([]);
+  await next.fill(" NewMixedCase ");
+  await page.getByRole("button", { name: "Change password", exact: true }).click();
+  await expect(page.getByText("Password changed", { exact: true })).toBeVisible();
+  expect(writes).toHaveLength(1);
+  expect(writes[0]).toMatchObject({ password: " NewMixedCase " });
+});
+
+test("password recovery applies the same requirements without trimming the password", async ({ page }) => {
+  await mockAccount(page, { signedOut: true, metadata: { profile_reminder_dismissed: true } });
+  const writes: Record<string, unknown>[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/auth/v1/user") && request.method() === "PUT") writes.push(request.postDataJSON());
+  });
+  const jwt = `${Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url")}.${Buffer.from(JSON.stringify({ sub: "11111111-1111-4111-8111-111111111111", exp: Math.floor(Date.now() / 1000) + 3600, role: "authenticated" })).toString("base64url")}.test`;
+  await page.goto(`/?password-recovery=1#access_token=${jwt}&refresh_token=test-refresh&token_type=bearer&expires_in=3600&type=recovery`);
+  await page.getByRole("button", { name: "Reject non-essential", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
+  const password = page.getByLabel("New password", { exact: true });
+  await expect(password).toHaveAttribute("minlength", "8");
+  await password.fill("abcdefgh");
+  await page.locator("form").evaluate((form: HTMLFormElement) => { form.noValidate = true; form.requestSubmit(); });
+  await expect(page.getByText("Use at least 8 characters, including uppercase (A-Z) and lowercase (a-z) letters.")).toBeVisible();
+  expect(writes).toEqual([]);
+  await password.fill(" ResetMixedCase ");
+  await page.getByRole("button", { name: "Update password", exact: true }).click();
+  await expect.poll(() => writes.length).toBe(1);
+  expect(writes[0]).toMatchObject({ password: " ResetMixedCase " });
+});
+
 test("sign-in unlocks the requested guide and the complete directories", async ({ page }) => {
   await mockAccount(page, { signedOut: true, metadata: { profile_reminder_dismissed: true } });
   await page.goto("/guides/california-real-id-documents");
