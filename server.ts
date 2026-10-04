@@ -39,9 +39,9 @@ import {
   type ForumTranslationInput,
 } from "./src/lib/forumTranslation";
 import {
-  getAzureTranslatorConfig,
-  translateForumContentWithAzure,
-} from "./src/lib/azureTranslator";
+  getGoogleTranslatorConfig,
+  translateForumContentWithGoogle,
+} from "./src/lib/googleTranslator";
 import { validateForumReportInput } from "./src/lib/forumModeration";
 import { createApiRateLimiter } from "./src/lib/serverRateLimit";
 import {
@@ -110,7 +110,7 @@ async function startServer() {
   const apiKey = process.env.API_KEY;
   const appId = process.env.APP_ID;
   const mem0ApiKey = process.env.MEM0_API_KEY;
-  const azureTranslatorConfig = getAzureTranslatorConfig(process.env);
+  const googleTranslatorConfig = getGoogleTranslatorConfig(process.env);
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const supabaseAdmin =
@@ -988,8 +988,8 @@ async function startServer() {
   );
 
   app.post("/api/forum/translate", async (req, res) => {
-    if (!supabaseAdmin || !azureTranslatorConfig) {
-      return res.status(500).json({ error: "Supabase and Azure Translator must be configured" });
+    if (!supabaseAdmin || !googleTranslatorConfig) {
+      return res.status(503).json({ error: "Supabase and Google Cloud Translation must be configured" });
     }
 
     const authResult = await getRequestUser(req.headers.authorization, supabaseAdmin);
@@ -1066,7 +1066,7 @@ async function startServer() {
     }
 
     try {
-      const translation = await translateForumContentWithAzure(input, azureTranslatorConfig);
+      const translation = await translateForumContentWithGoogle(input, googleTranslatorConfig);
       const { error: cacheWriteError } = await supabaseAdmin.from("forum_translations").upsert(
         {
           source_type: sourceType,

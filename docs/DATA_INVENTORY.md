@@ -136,11 +136,11 @@ transfer that a privacy policy must state plainly.
 This is a product decision, not just a legal one. It is worth deciding
 deliberately whether this is the right provider for this audience.
 
-### 2.2 Microsoft Azure Translator — requested forum translations
+### 2.2 Google Cloud Translation — requested forum translations
 
 When a signed-in user requests a forum translation, the server sends the
-forum title, excerpt, and body paragraphs to Microsoft Azure Translator. The
-Azure subscription key remains server-only, and translated results are cached
+forum title, excerpt, and body paragraphs to Google Cloud Translation. The
+Google API key remains server-only, and translated results are cached
 in Supabase using a hash of the source content.
 
 ### 2.3 Mem0 — long-term memory extraction

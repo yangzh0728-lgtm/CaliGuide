@@ -50,7 +50,7 @@ Readers can consult the original guidance instead of relying on a summary alone.
 **Five interface languages.** English, Simplified Chinese, Traditional Chinese,
 Cantonese, and Spanish. Guide content is maintained in the repository rather than
 translated on demand; Cantonese mode currently shares Traditional Chinese guide
-content. Community posts can be translated on demand through Azure Translator.
+content. Community posts can be translated on demand through Google Cloud Translation.
 
 **No behavioral analytics.** The app does not include Google Analytics, Segment,
 PostHog, or advertising tracking pixels. Operational error reporting and external
@@ -92,7 +92,7 @@ broken links, or translation problems. Reports enter a private review queue.
 | Authentication and database | Supabase Auth and PostgreSQL | Accounts, profiles, checklist progress, forum data, chat history, saved content, report queues, and imported content records |
 | Object storage | Cloudflare R2 | Avatars, forum images, chatbot images, and platform media |
 | Chat AI | OpenAI SDK with Baidu Qianfan's OpenAI-compatible endpoint | CaliBot text and vision |
-| Translation | Microsoft Azure AI Translator | On-demand forum translation |
+| Translation | Google Cloud Translation Basic (v2) | On-demand forum translation |
 | Long-term memory | Mem0 | Optional cross-conversation user memory for CaliBot |
 | Runtime and tooling | Bun, Node.js, esbuild | Dependency management, tests, local development, and production builds |
 
@@ -108,7 +108,7 @@ in the [data inventory](docs/DATA_INVENTORY.md).
 - [Bun](https://bun.sh/)
 - Node.js 20 or newer for the production server
 - A Supabase project for authentication and persistent data
-- Service credentials for Azure AI Translator and optional credentials for CaliBot, Mem0, and Cloudflare R2
+- Service credentials for Google Cloud Translation and optional credentials for CaliBot, Mem0, and Cloudflare R2
 
 ### Local Development
 
@@ -137,9 +137,7 @@ Never commit `.env` or server credentials. Browser variables prefixed with `VITE
 | `APP_ID` | Qianfan OpenAI-compatible API endpoint | Server only |
 | `CHAT_MODEL` | Optional text-model override | Server only |
 | `CHAT_VISION_MODEL` | Optional vision-model override | Server only |
-| `AZURE_TRANSLATOR_KEY` | Azure AI Translator authentication | Server only |
-| `AZURE_TRANSLATOR_ENDPOINT` | Azure AI Translator API endpoint | Server only |
-| `AZURE_TRANSLATOR_REGION` | Required for regional Azure Translator resources; blank for Global | Server only |
+| `GOOGLE_TRANSLATE_API_KEY` | Google Cloud Translation Basic (v2) API key | Server only |
 | `MEM0_API_KEY` | Optional cross-session CaliBot memory | Server only |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare R2 uploads | Server only |
 | `R2_ACCESS_KEY_ID` | Cloudflare R2 uploads | Server only |
@@ -188,13 +186,20 @@ An error such as `Cannot find package` means the deployed dependencies need chec
 
 For forum translation, run `bun run check:translation-config` in the service's
 working directory and environment. It prints variable names and SET/MISSING status,
-never credential values. It does not validate the keys or contact Azure.
-`VITE_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `AZURE_TRANSLATOR_KEY` must be
-set on AWS, not just on a development machine. Regional Azure resources also need
-the matching `AZURE_TRANSLATOR_REGION`. Ensure
+never credential values. By default it does not validate keys or contact Google.
+`VITE_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `GOOGLE_TRANSLATE_API_KEY` must be
+set on AWS, not just on a development machine. Azure settings are no longer used.
+Enable Cloud Translation API and billing in the Google project, and restrict the
+key to that API and the server's public outbound IP. Never use a `VITE_` prefix
+for the Google key. Ensure
 [`supabase/forum-translations.sql`](supabase/forum-translations.sql) has been applied.
 Restart the service after changing server settings, then test translation while
 signed in. Never commit `.env` or paste secret values into logs or support messages.
+
+Run `bun run check:translation-config --live` on AWS to translate the sample word
+"Hello" to Spanish. This makes a billable five-character request and reports
+success or a sanitized error, without displaying credentials. It checks Google
+connectivity and authentication, not Supabase credentials or the translation cache.
 
 ## Available Scripts
 

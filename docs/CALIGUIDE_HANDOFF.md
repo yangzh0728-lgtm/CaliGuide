@@ -76,7 +76,7 @@ into the server and introduce route-level or vendor code splitting.
 - TypeScript executed with `tsx` in development
 - Bundled with esbuild for production
 - OpenAI SDK pointed at a Qianfan-compatible API
-- Microsoft Azure AI Translator for forum translation
+- Google Cloud Translation Basic (v2) for forum translation
 
 ### Data and infrastructure
 
@@ -119,7 +119,7 @@ tested fallback.
 
 ### Translation provider
 
-Forum translation uses Microsoft Azure AI Translator through the authenticated
+Forum translation uses Google Cloud Translation Basic (v2) through the authenticated
 `/api/forum/translate` route. The server sends only the requested forum title,
 excerpt, and body paragraphs. Qianfan remains the provider for CaliBot text and
 vision, but is no longer a forum-translation fallback.
@@ -212,9 +212,7 @@ access through each provider and place secrets in the deployment secret store.
 | `APP_ID` | Server only | Qianfan application identifier |
 | `CHAT_MODEL` | Server only | Optional text chat model override |
 | `CHAT_VISION_MODEL` | Server only | Vision model used for chatbot images |
-| `AZURE_TRANSLATOR_KEY` | Server only | Azure AI Translator subscription key |
-| `AZURE_TRANSLATOR_ENDPOINT` | Server only | Azure AI Translator API endpoint |
-| `AZURE_TRANSLATOR_REGION` | Server only | Azure resource region; optional for Global resources |
+| `GOOGLE_TRANSLATE_API_KEY` | Server only | Google Cloud Translation Basic (v2) API key |
 | `MEM0_API_KEY` | Server only | Optional cross-session CaliBot memory |
 
 ### Application and API routing
@@ -308,10 +306,13 @@ those operational details before the handoff is complete.
 - Invite the developer to the workspace if possible, or rotate the API key.
 - Explain that the app works without Mem0 but loses cross-session user memory.
 
-### Azure Translator
+### Google Cloud Translation
 
-- Transfer access only if the Azure resource has been created.
-- The integration is planned, not currently active in the server.
+- Transfer access to the Google Cloud project and its billing configuration.
+- The server uses Basic (v2) with a server-only API key. Restrict it to the
+  Cloud Translation API and the server's public outbound IP.
+- Run `bun run check:translation-config --live` on the deployed server to verify
+  Google credentials without printing them. This sends a five-character sample.
 
 ### Domain ownership
 
@@ -514,9 +515,9 @@ server-only service-role client for privileged database operations.
    appropriate paid plan before relying on the app for active users.
 4. **Two guide data sources.** Decide whether bundled content or Supabase is the
    production source of truth, then implement and test one consistent path.
-5. **Azure Translator is not integrated.** The current forum route still uses
-   the general AI model. Do not remove the working route until Azure behavior,
-   caching, language codes, and failures are tested.
+5. **Verify production translation configuration.** The forum route uses Google
+   Cloud Translation Basic (v2). Set `GOOGLE_TRANSLATE_API_KEY` on AWS, rebuild,
+   restart the service, and test a signed-in translation. Azure keys are unused.
 6. **Static deployment failure mode.** Every deployment must include the
    Express API or configure `VITE_API_BASE_URL` correctly.
 7. **Secrets rotation.** Rotate any keys previously copied through terminals,
@@ -563,7 +564,7 @@ company documentation, not added to this file:
 - Google Cloud project and OAuth configuration ownership.
 - Qianfan application/billing ownership.
 - Mem0 workspace ownership.
-- Azure Translator resource ownership, if created.
+- Google Cloud Translation resource ownership, if created.
 - Production incident contact and expected backup/restore process.
 
 ## 17. Handoff Acceptance Criteria

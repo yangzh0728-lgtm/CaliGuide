@@ -56,7 +56,8 @@ describe("legal content", () => {
       expect(privacyText).toContain("Supabase");
       expect(privacyText).toContain("Cloudflare R2");
       expect(privacyText).toContain("Baidu Qianfan");
-      expect(privacyText).toContain("Microsoft Azure Translator");
+      expect(privacyText).toContain("Google Cloud Translation");
+      expect(privacyText).not.toContain("Microsoft Azure Translator");
       expect(privacyText).toContain("Mem0");
       expect(privacyText).toContain("Google OAuth");
     }
