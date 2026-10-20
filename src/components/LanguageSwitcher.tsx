@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Languages } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 
@@ -12,15 +12,25 @@ export default function LanguageSwitcher({ className = "", menuClassName = "" }:
   const { language, languages, setLanguage, t } = useLanguage();
   const selectedLanguage = languages.find((item) => item.code === language);
 
+  useEffect(() => {
+    if (!isLanguageOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsLanguageOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isLanguageOpen]);
+
   return (
     <div className={`relative ${className}`}>
       <button
         type="button"
-        aria-label={t("language.label")}
+        aria-expanded={isLanguageOpen}
         onClick={() => setIsLanguageOpen((value) => !value)}
         className="flex items-center gap-1.5 rounded-full px-2.5 py-2 text-on-surface-variant transition-colors hover:bg-surface-container-high"
       >
-        <Languages size={21} />
+        <Languages size={21} aria-hidden="true" />
+        <span className="sr-only">{t("language.label")}: </span>
         <span className="text-xs font-bold">{selectedLanguage?.shortLabel}</span>
       </button>
       {isLanguageOpen && (
@@ -31,6 +41,8 @@ export default function LanguageSwitcher({ className = "", menuClassName = "" }:
             <button
               key={item.code}
               type="button"
+              lang={item.code}
+              aria-current={item.code === language ? "true" : undefined}
               onClick={() => {
                 setLanguage(item.code);
                 setIsLanguageOpen(false);
@@ -42,7 +54,7 @@ export default function LanguageSwitcher({ className = "", menuClassName = "" }:
               }`}
             >
               {item.label}
-              {item.code === language && <Check size={16} />}
+              {item.code === language && <Check size={16} aria-hidden="true" />}
             </button>
           ))}
         </div>

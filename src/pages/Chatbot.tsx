@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Bot, User, Send, PlusCircle, MessageSquare, X, ImagePlus, CheckCircle2, LoaderCircle } from 'lucide-react';
 import { ChatMessage } from '../types';
-import { motion } from 'motion/react';
+import { MotionConfig, motion } from 'motion/react';
 import ChatMessageContent from '../components/ChatMessageContent';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -331,6 +331,7 @@ export default function Chatbot({ initialSessionId }: { initialSessionId?: strin
     uploadProgress.total > 0 ? Math.round((uploadProgress.completed / uploadProgress.total) * 100) : 0;
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="pt-20 pb-40 max-w-lg mx-auto flex flex-col h-[100dvh]">
       {/* Bot Intro */}
       <div className="flex flex-col items-center justify-center mb-8 shrink-0">
@@ -615,6 +616,7 @@ export default function Chatbot({ initialSessionId }: { initialSessionId?: strin
         </div>
       </div>
     </div>
+    </MotionConfig>
   );
 }
 

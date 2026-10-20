@@ -97,6 +97,7 @@ export default function Home({ isAuthenticated = false, onOpenBlog, onOpenRecomm
       <section className="mx-auto mb-7 max-w-3xl px-4">
         <div className="relative">
           <input 
+            id="home-search"
             type="text" 
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
@@ -192,7 +193,6 @@ export default function Home({ isAuthenticated = false, onOpenBlog, onOpenRecomm
               key={topic.id}
               type="button"
               data-home-topic={topic.id}
-              aria-label={t(topic.labelKey)}
               onClick={() => onOpenRecommended(topic.id)}
               className="group flex min-h-[104px] items-center gap-3 rounded-lg border border-outline-variant bg-white p-3 text-left shadow-sm transition hover:border-primary hover:shadow-md"
             >

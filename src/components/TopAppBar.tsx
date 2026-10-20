@@ -8,6 +8,7 @@ interface TopAppBarProps {
   showSignIn?: boolean;
   onBack?: () => void;
   onSignIn?: () => void;
+  onSearch?: () => void;
 }
 
 export default function TopAppBar({
@@ -16,6 +17,7 @@ export default function TopAppBar({
   showSignIn,
   onBack,
   onSignIn,
+  onSearch,
 }: TopAppBarProps) {
   const { t } = useLanguage();
 
@@ -24,10 +26,12 @@ export default function TopAppBar({
       <div className="flex items-center gap-3">
         {showBack && (
           <button 
+            type="button"
             onClick={onBack}
+            aria-label={t('a11y.back')}
             className="text-primary hover:bg-surface-container-high p-2 rounded-full transition-colors"
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft size={24} aria-hidden="true" />
           </button>
         )}
         <div className="flex items-center gap-2">
@@ -35,6 +39,8 @@ export default function TopAppBar({
             <img
               src="/brand/full-logo.png"
               alt="CaliGuide"
+              width={325}
+              height={120}
               className="h-9 w-auto max-w-[180px] object-contain"
             />
           ) : (
@@ -43,8 +49,13 @@ export default function TopAppBar({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <button className="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors">
-          <Search size={22} />
+        <button
+          type="button"
+          onClick={onSearch}
+          aria-label={t('a11y.search')}
+          className="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors"
+        >
+          <Search size={22} aria-hidden="true" />
         </button>
         <LanguageSwitcher />
         {showSignIn ? (
@@ -53,7 +64,7 @@ export default function TopAppBar({
             onClick={onSignIn}
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-primary/90"
           >
-            <LogIn size={16} />
+            <LogIn size={16} aria-hidden="true" />
             <span>{t('auth.signIn')}</span>
           </button>
         ) : null}

@@ -27,6 +27,11 @@ export default defineConfig(({mode}) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            // Keep React in its own chunk so pages that share the JSX runtime
+            // do not pull the animation library into the first load.
+            if (/\/node_modules\/(react|react-dom|scheduler)\//.test(id)) {
+              return 'react';
+            }
             if (id.includes('/node_modules/motion/')) {
               return 'motion';
             }

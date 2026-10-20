@@ -40,7 +40,6 @@ import {
   setForumVoteViaApi,
 } from './lib/forumApi';
 import { supabase } from './lib/supabaseClient';
-import { AnimatePresence, motion } from 'motion/react';
 import { LegalPageId } from './lib/legalContent';
 import LegalFooter from './components/LegalFooter';
 import PrivacyConsentBanner from './components/PrivacyConsentBanner';
@@ -644,6 +643,13 @@ export default function App() {
     </>
   );
 
+  const openSearch = () => {
+    if (currentPage !== 'home') {
+      navigate({ page: 'home' });
+    }
+    focusWhenAvailable('home-search');
+  };
+
   if (legalPage) {
     return renderWithPrivacyControls(
       <Suspense fallback={<PageSkeleton fullScreen />}>
@@ -681,28 +687,22 @@ export default function App() {
 
   return renderWithPrivacyControls(
     <div className="min-h-screen bg-background pb-20">
+      <a href="#main-content" className="skip-link">{t('a11y.skipToContent')}</a>
       <TopAppBar 
         title={pageTitles[currentPage]} 
         showBack={currentPage === 'guide' || currentPage === 'blog' || currentPage === 'recommended' || currentPage === 'agencies' || currentPage === 'forumDetail'}
         showSignIn={!currentUser}
         onBack={handleBack}
         onSignIn={() => setAuthRequested(true)}
+        onSearch={openSearch}
       />
       
-      <main className={`mx-auto w-full ${currentPage === 'agencies' || currentPage === 'home' ? 'max-w-7xl' : 'max-w-4xl'}`}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={getAppRoutePath(appRoute)}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-          >
-            <Suspense fallback={<PageSkeleton />}>
-              {renderPage()}
-            </Suspense>
-          </motion.div>
-        </AnimatePresence>
+      <main id="main-content" tabIndex={-1} className={`mx-auto w-full ${currentPage === 'agencies' || currentPage === 'home' ? 'max-w-7xl' : 'max-w-4xl'}`}>
+        <div key={getAppRoutePath(appRoute)} className="page-enter">
+          <Suspense fallback={<PageSkeleton />}>
+            {renderPage()}
+          </Suspense>
+        </div>
       </main>
 
       <LegalFooter
@@ -806,4 +806,15 @@ function getForumAvatar(name: string) {
       .map((part) => part[0]?.toUpperCase())
       .join("") || "U"
   );
+}
+
+function focusWhenAvailable(elementId: string, attemptsLeft = 60) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.focus();
+    return;
+  }
+  if (attemptsLeft > 0) {
+    window.requestAnimationFrame(() => focusWhenAvailable(elementId, attemptsLeft - 1));
+  }
 }

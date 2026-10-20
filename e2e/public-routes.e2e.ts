@@ -26,7 +26,7 @@ test("home links to both public samples", async ({ page }, testInfo) => {
 
 test("topic navigation prompts for login and Back returns home", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "DMV", exact: true }).click();
+  await page.getByRole("button", { name: /^DMV \d+ guides?$/ }).click();
   await expect(page).toHaveURL(/\/guides\/topics\/dmv$/);
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
   await page.goBack();
