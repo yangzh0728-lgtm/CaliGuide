@@ -40,7 +40,6 @@ import {
   setForumVoteViaApi,
 } from './lib/forumApi';
 import { supabase } from './lib/supabaseClient';
-import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import { LegalPageId } from './lib/legalContent';
 import LegalFooter from './components/LegalFooter';
 import PrivacyConsentBanner from './components/PrivacyConsentBanner';
@@ -637,11 +636,11 @@ export default function App() {
   };
 
   const renderWithPrivacyControls = (content: ReactNode) => (
-    <MotionConfig reducedMotion="user">
+    <>
       {content}
       <PrivacyConsentBanner onOpenCookieNotice={() => openLegalPage('cookies')} />
       <PrivacyPreferencesDialog />
-    </MotionConfig>
+    </>
   );
 
   const openSearch = () => {
@@ -699,19 +698,11 @@ export default function App() {
       />
       
       <main id="main-content" tabIndex={-1} className={`mx-auto w-full ${currentPage === 'agencies' || currentPage === 'home' ? 'max-w-7xl' : 'max-w-4xl'}`}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={getAppRoutePath(appRoute)}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-          >
-            <Suspense fallback={<PageSkeleton />}>
-              {renderPage()}
-            </Suspense>
-          </motion.div>
-        </AnimatePresence>
+        <div key={getAppRoutePath(appRoute)} className="page-enter">
+          <Suspense fallback={<PageSkeleton />}>
+            {renderPage()}
+          </Suspense>
+        </div>
       </main>
 
       <LegalFooter

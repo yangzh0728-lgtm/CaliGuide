@@ -33,6 +33,16 @@
   }
 }
 
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.page-enter {
+  animation: page-enter 0.3s ease-out;
+}
+
 .skip-link {
   position: fixed;
   top: 0.5rem;

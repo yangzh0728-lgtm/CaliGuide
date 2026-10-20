@@ -39,6 +39,8 @@ export default function TopAppBar({
             <img
               src="/brand/full-logo.png"
               alt="CaliGuide"
+              width={325}
+              height={120}
               className="h-9 w-auto max-w-[180px] object-contain"
             />
           ) : (

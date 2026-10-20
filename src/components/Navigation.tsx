@@ -6,7 +6,6 @@ import {
   UserCircle 
 } from 'lucide-react';
 import { Page } from '../types';
-import { motion } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface NavigationProps {
@@ -26,9 +25,18 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
   const activeTabId = currentPage === 'blog' || currentPage === 'guide' || currentPage === 'agencies'
     ? 'recommended'
     : currentPage;
+  const activeIndex = tabs.findIndex((tab) => tab.id === activeTabId);
 
   return (
-    <nav aria-label={t('a11y.mainNavigation')} className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-outline-variant shadow-lg flex justify-around items-center px-2 py-3 pb-safe">
+    <nav aria-label={t('a11y.mainNavigation')} className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-outline-variant shadow-lg px-2 py-3 pb-safe">
+      <div className="relative flex w-full items-center">
+      {activeIndex >= 0 && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 z-0 w-1/5 rounded-full bg-secondary-container transition-transform duration-500 ease-[cubic-bezier(0.34,1.3,0.64,1)]"
+          style={{ transform: `translateX(${activeIndex * 100}%)` }}
+        />
+      )}
       {tabs.map((tab) => {
         const isActive = activeTabId === tab.id;
         const Icon = tab.icon;
@@ -43,13 +51,6 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
               isActive ? 'scale-100' : 'scale-90'
             }`}
           >
-            {isActive && (
-              <motion.div
-                layoutId="nav-bg"
-                className="absolute inset-0 bg-secondary-container rounded-full z-0"
-                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-              />
-            )}
             <div className={`relative z-10 flex flex-col items-center justify-center ${isActive ? 'text-on-secondary-container' : 'text-on-surface-variant'}`}>
               <Icon size={24} aria-hidden="true" />
               <span className="text-xs font-medium mt-1">{tab.label}</span>
@@ -57,6 +58,7 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
           </button>
         );
       })}
+      </div>
     </nav>
   );
 }
