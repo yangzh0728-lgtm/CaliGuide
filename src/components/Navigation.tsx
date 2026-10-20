@@ -28,7 +28,7 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
     : currentPage;
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-outline-variant shadow-lg flex justify-around items-center px-2 py-3 pb-safe">
+    <nav aria-label={t('a11y.mainNavigation')} className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-outline-variant shadow-lg flex justify-around items-center px-2 py-3 pb-safe">
       {tabs.map((tab) => {
         const isActive = activeTabId === tab.id;
         const Icon = tab.icon;
@@ -40,7 +40,7 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
             aria-current={isActive ? 'page' : undefined}
             onClick={() => onPageChange(tab.id)}
             className={`relative flex min-w-0 flex-1 flex-col items-center justify-center px-1 py-1 sm:px-5 transition-all duration-200 ${
-              isActive ? 'scale-100' : 'scale-90 opacity-70 hover:opacity-100'
+              isActive ? 'scale-100' : 'scale-90'
             }`}
           >
             {isActive && (
@@ -51,7 +51,7 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
               />
             )}
             <div className={`relative z-10 flex flex-col items-center justify-center ${isActive ? 'text-on-secondary-container' : 'text-on-surface-variant'}`}>
-              <Icon size={24} />
+              <Icon size={24} aria-hidden="true" />
               <span className="text-xs font-medium mt-1">{tab.label}</span>
             </div>
           </button>
