@@ -251,7 +251,7 @@ function GuideReferences({ citationSet }: { citationSet: GuideCitationSet }) {
                   <p className="mt-0.5 text-sm font-semibold text-on-surface">
                     <a
                       href={`/agencies/${referenceItem.institutionId}`}
-                      className="text-primary hover:underline"
+                      className="text-primary underline underline-offset-2 hover:no-underline"
                     >
                       {referenceItem.publisher}
                     </a>

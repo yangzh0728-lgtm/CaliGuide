@@ -2246,6 +2246,41 @@ Object.assign(translations.es, {
   "profile.checklistIntro": "Usa esta lista de mudanza en varios dispositivos. El progreso se guarda en tu cuenta de CaliGuide.",
 });
 
+Object.assign(translations.en, {
+  "a11y.skipToContent": "Skip to main content",
+  "a11y.back": "Go back",
+  "a11y.search": "Search guides and agencies",
+  "a11y.mainNavigation": "Main navigation",
+});
+
+Object.assign(translations["zh-CN"], {
+  "a11y.skipToContent": "跳到主要内容",
+  "a11y.back": "返回",
+  "a11y.search": "搜索指南和机构",
+  "a11y.mainNavigation": "主导航",
+});
+
+Object.assign(translations.yue, {
+  "a11y.skipToContent": "跳去主要內容",
+  "a11y.back": "返回",
+  "a11y.search": "搜尋指南同機構",
+  "a11y.mainNavigation": "主導覽",
+});
+
+Object.assign(translations["zh-TW"], {
+  "a11y.skipToContent": "跳到主要內容",
+  "a11y.back": "返回",
+  "a11y.search": "搜尋指南和機構",
+  "a11y.mainNavigation": "主導覽",
+});
+
+Object.assign(translations.es, {
+  "a11y.skipToContent": "Saltar al contenido principal",
+  "a11y.back": "Volver",
+  "a11y.search": "Buscar guías y agencias",
+  "a11y.mainNavigation": "Navegación principal",
+});
+
 export function isLanguageCode(value: string | null): value is LanguageCode {
   return LANGUAGES.some((language) => language.code === value);
 }
